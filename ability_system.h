@@ -2,6 +2,8 @@
 
 #include "system.h"
 #include "ability.h"
+#include "ability_set_component.h"
+#include "selected_objects_component.h"
 
 class SysAbility : public System
 {
@@ -33,6 +35,24 @@ public:
                     break;
             }
         }
+        auto& selected_object_component = get_array<CompSelectedObjects>();
+        if (selected_object_component.size())
+        {
+            if (selected_object_component[0].selected_objects.size())
+            {
+                EntityId cur_obj = selected_object_component[0].selected_objects[0];
+                auto* ability_set = (CompAbilitySet*)_interface->get_component(type_id<CompAbilitySet>, cur_obj);
+                if (ability_set)
+                {
+                    draw_ability_widget(ability_set);
+                }
+            }
+        }
+    }
+
+    void draw_ability_widget(CompAbilitySet* ability_set)
+    {
+
     }
 
 };
