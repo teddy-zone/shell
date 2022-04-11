@@ -10,11 +10,11 @@ struct CompHealth : public Component
     float health_percentage;
     float get_current_health() const
     {
-        auto stat_comp = sibling<CompStat>():
+        auto stat_comp = sibling<CompStat>();
         if (stat_comp)
         {
             auto max_health = stat_comp->get_stat(Stat::MaxHealth);
-            return health_percentage*max_health;
+            return health_percentage*max_health.addition;
         }
         else
         {

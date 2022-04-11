@@ -6,18 +6,15 @@
 struct CompAbilitySet : public Component, public StatInterface
 {
 
-    std::array<EntityId, 6> abilities;
+    std::array<EntityRef, 6> abilities;
 
     virtual StatPart get_stat(Stat stat) override
     {
         StatPart out_part;
-        for (auto& ability_eid : abilities)
+        for (auto& ability_ref : abilities)
         {
-            if (ability_eid >= 0)
-            {
-                auto single_ability_stat_comp = (CompStat*)get_component(type_id<CompStat>, ability_eid);
-                out_part = out_part.join(single_ability_stat_comp->get_stat(stat));
-            }
+            auto single_ability_stat_comp = ability_ref.cmp<CompStat>();
+            out_part = out_part.join(single_ability_stat_comp->get_stat(stat));
         }
         return out_part;
     }
