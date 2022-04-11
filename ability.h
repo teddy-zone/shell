@@ -3,6 +3,7 @@
 #include "component.h"
 #include "animation_system.h"
 #include "lifetime_system.h"
+#include "health_component.h"
 
 enum class AbilityState
 {
@@ -10,6 +11,7 @@ enum class AbilityState
     GroundTargeting,
     UnitTargeting,
     CastPoint,
+    Channeling,
     Backswing
 };
 
@@ -40,15 +42,22 @@ struct CompAbility : public Component
     int max_level;
 };
 
+struct CompAbilityLevel : public Component 
+{
+    int level;
+} 
+
 struct CompAbilityInstance : public Component
 {
     std::shared_ptr<EntityProto> proto;
+    std::vector<EntityRef> instances;
 };
 
 struct CompRadiusApplication : public Component
 {
     float radius;
     float tick_time;
+    std::optional<DamageInstance> damage;
 }; 
 
 struct CrystalNovaInstanceProto : public ActorProto
@@ -99,5 +108,9 @@ struct CrystalNovaInstanceProto : public ActorProto
 
         entity.cmp<CompRadiusApplication>()->radius = 5;
         entity.cmp<CompRadiusApplication>()->tick_time = 100;
+        entity.cmp<CompRadiusApplication>()->damage = {{DamageType::Magical, 100},
+                                                       {DamageType::Magical, 200},
+                                                       {DamageType::Magical, 300},
+                                                       {DamageType::Magical, 400}};
     }
 };

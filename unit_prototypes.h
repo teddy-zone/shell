@@ -5,6 +5,7 @@
 #include "animation_component.h"
 #include "lifetime_system.h"
 #include "health_component.h"
+#include "has_owner_component.h"
 
 struct UnitProto : public ActorProto
 {
@@ -73,6 +74,7 @@ struct AbilityProto : public EntityProto
     {
         std::vector<CompType> unit_components = {{
                     uint32_t(type_id<CompAbility>),
+                    uint32_t(type_id<CompHasOwner>),
             }};
         append_components(unit_components);
     }

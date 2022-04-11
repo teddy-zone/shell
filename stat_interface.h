@@ -8,7 +8,9 @@ enum class Stat
     AttackRange,
     AttackDamage,
     MaxHealth,
-    MaxMana
+    MaxMana,
+    MagicResist,
+    Armor
 };
 
 struct StatPart

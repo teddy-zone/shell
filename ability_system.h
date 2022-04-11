@@ -168,10 +168,6 @@ public:
         }
     }
 
-    void draw_ability_widget(CompAbilitySet* ability_set)
-    {
-    }
-
     void cast_ability(CompCaster* caster)
     {
         auto* ability_set = caster->sibling<CompAbilitySet>();
@@ -180,7 +176,7 @@ public:
             ab->cooldown;
         if (auto* instance_comp = ab->sibling<CompAbilityInstance>())
         {
-
+            _interface->add_entity_from_proto(instance_comp->proto);
         }
     }
 
