@@ -5,11 +5,13 @@
 #include "ability_set_component.h"
 #include "selected_objects_component.h"
 #include "health_component.h"
+#include "camera_component.h"
 
 struct CompAbilityWidget : public CompWidget
 {
 
     EntityRef entity;
+    bgfx::Camera* camera;
 
     CompAbilityWidget()
     {
@@ -19,14 +21,34 @@ struct CompAbilityWidget : public CompWidget
     {
         if (entity.is_valid())
         {
+            auto entity_pos = entity.cmp<CompPosition>()->pos;
+
             if (auto* ab_set = entity.cmp<CompAbilitySet>())
             {
-                int widget_height = 100;
+                bool active = true;
+                // ABOVE UNIT HEALTH BAR
+                glm::vec4 screen_space = camera->world_to_screen_space(entity_pos);
+                ImVec2 p = ImVec2(screen_space.x - 40, CompWidget::window_height - screen_space.y - 50);
+                ImGui::SetNextWindowPos(p);
+                ImGui::Begin("HealthBar", &active, 
+                    ImGuiWindowFlags_NoBackground |
+                    ImGuiWindowFlags_NoTitleBar |
+                    ImGuiWindowFlags_NoResize); 
+                if (auto* health_comp = ab_set->sibling<CompHealth>())
+                {
+                    std::string health_text("Health");
+                    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+                    draw_list->AddRectFilled(p, ImVec2(p.x + 80, p.y + 10), ImColor(0,0,0));
+                    draw_list->AddRectFilled(ImVec2(p.x+1, p.y+1), ImVec2(p.x + 80 - 2, p.y + 10 - 2), ImColor(255,0,0));
+                }
+                ImGui::End();
+                // END ABOVE UNIT HEALTH BAR
+
+                int widget_height = 150;
                 int widget_width = 800;
                 ImGui::SetNextWindowPos(ImVec2(10, CompWidget::window_height - (10 + widget_height)));
                 ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
-                bool active = true;
-                ImGui::Begin("Abilities", &active, ImGuiWindowFlags_NoTitleBar);
+                ImGui::Begin("Abilities", &active, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
                 // HEALTH BAR DRAWING
                 if (auto* health_comp = ab_set->sibling<CompHealth>())
@@ -55,14 +77,14 @@ struct CompAbilityWidget : public CompWidget
                     if (ability.is_valid())
                     {
                         CompAbility* ab = ability.cmp<CompAbility>();
-                        ImGui::ImageButton(0, ImVec2(widget_height - 55, widget_height - 55));
+                        ImGui::ImageButton(0, ImVec2(widget_height - 100, widget_height - 100));
                         ImGui::Text((std::string("Level: ") + std::to_string(ab->level)).c_str());
                         if (ab->current_cooldown)
                         {
                             ImGui::Text((std::string("CD: ") + std::to_string(ab->current_cooldown.value())).c_str());
                         }
+                        ImGui::NextColumn();
                     }
-                    ImGui::NextColumn();
                 }
                 ImGui::Columns();
                 ImGui::End();
@@ -78,6 +100,7 @@ public:
     virtual void update(double dt)
     {
         auto& caster_components = get_array<CompCaster>();
+        bgfx::Camera* cam = &get_array<CompCamera>()[0].graphics_camera;
         for (auto& caster_component : caster_components)
         {
             auto ability_set_comp = caster_component.sibling<CompAbilitySet>();
@@ -163,6 +186,7 @@ public:
                 if (ability_widgets.size())
                 {
                     ability_widgets[0].entity = cur_obj;
+                    ability_widgets[0].camera = cam;
                 }
             }
         }
@@ -176,8 +200,15 @@ public:
             ab->cooldown;
         if (auto* instance_comp = ab->sibling<CompAbilityInstance>())
         {
-            _interface->add_entity_from_proto(instance_comp->proto);
+            auto ability_instance = _interface->add_entity_from_proto(instance_comp->proto.get());
+            if (caster->unit_target)
+            {
+                ability_instance.cmp<CompPosition>()->pos = caster->unit_target.value().cmp<CompPosition>()->pos;
+            }
+            else if (caster->ground_target)
+            {
+                ability_instance.cmp<CompPosition>()->pos = caster->ground_target.value();
+            }
         }
     }
-
 };

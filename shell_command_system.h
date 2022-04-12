@@ -53,6 +53,14 @@ public:
         {
             // if within cast range or not unit targeted and not ground targeted
             caster_comp->activate_ability(cmd->ability_index);
+            if (cmd->entity_target)
+            {
+                caster_comp->unit_target = cmd->entity_target;
+            }
+            else if (cmd->ground_target)
+            {
+                caster_comp->ground_target = cmd->ground_target;
+            }
             // else move to target
         }
         return true;

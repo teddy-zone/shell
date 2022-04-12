@@ -17,7 +17,6 @@ struct UnitProto : public ActorProto
                     uint32_t(type_id<CompPhysics>), 
                     uint32_t(type_id<CompPosition>),
                     uint32_t(type_id<CompBounds>),
-                    uint32_t(type_id<CompPlayer>),
                     uint32_t(type_id<CompPickupper>),
                     uint32_t(type_id<CompStaticMesh>),
                     uint32_t(type_id<CompNav>),
