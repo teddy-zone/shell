@@ -42,6 +42,7 @@ struct CompAbility : public Component
     float channel_time;
     int level;
     int max_level;
+    std::string ability_name;
 };
 
 struct CompAbilityLevel : public Component 
