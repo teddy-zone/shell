@@ -5,6 +5,7 @@
 #include "system.h"
 #include "command_component.h"
 #include "nav_component.h"
+#include "interactable_component.h"
 //#include "ability.h"
 
 class SysCommandShell : public System
@@ -18,6 +19,13 @@ public:
         {
             if (!command_component.command_queue.empty())
             {
+                if (auto* caster_comp = command_component.sibling<CompCaster>())
+                {
+                    if (command_component.new_command)
+                    {
+                        caster_comp->state = AbilityState::None;
+                    }
+                }
                 auto next_command = command_component.command_queue.back(); 
                 if (auto cmd = std::dynamic_pointer_cast<AttackCommand>(next_command)) 
                 {
@@ -28,6 +36,15 @@ public:
                 {
                     auto* nav_comp = command_component.sibling<CompNav>();
                     if (process_ability_command(cmd, nav_comp, command_component.new_command))
+                    {
+                        command_component.command_queue.pop_back();
+                        command_component.new_command = true;
+                    }
+                } 
+                else if (auto cmd = std::dynamic_pointer_cast<InteractCommand>(next_command)) 
+                {
+                    auto* interact_comp = command_component.sibling<CompInteractable>();
+                    if (process_interact_command(cmd, interact_comp, command_component.new_command))
                     {
                         command_component.command_queue.pop_back();
                         command_component.new_command = true;
@@ -63,6 +80,11 @@ public:
             }
             // else move to target
         }
+        return true;
+    }
+
+    bool process_interact_command(std::shared_ptr<InteractCommand> cmd, ComopInteractable* interact_component, bool is_new)
+    {
         return true;
     }
 
