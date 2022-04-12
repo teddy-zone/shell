@@ -18,6 +18,8 @@ struct CompCaster : public Component
     int ability_index;
     AbilityState state;
     float state_time;
+    std::optional<EntityRef> unit_target;
+    std::optional<glm::vec3> ground_target;
     void activate_ability(int index)
     {
         ability_index = index;
