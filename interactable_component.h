@@ -10,7 +10,7 @@ struct InteractCommand : public Command
 {
     EntityRef interact_target;
     float interact_range;
-}
+};
 
 struct CompInteractable : public Component
 {

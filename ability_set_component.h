@@ -19,4 +19,16 @@ struct CompAbilitySet : public Component, public StatInterface
         return out_part;
     }
 
+    EntityRef get_ability_by_name(const std::string& ability_name)
+    {
+        for (int i = 0; i < abilities.size(); ++i)
+        {
+            if (abilities[i].get_name() == ability_name)
+            {
+                return abilities[i];
+            }
+        }
+        return EntityRef();
+    }
+
 };
