@@ -7,6 +7,7 @@
 #include "health_component.h"
 #include "has_owner_component.h"
 #include "interactable_component.h"
+#include "shell_level_component.h"
 
 struct UnitProto : public ActorProto
 {
@@ -116,7 +117,7 @@ struct CommandIndicatorProto : public ActorProto
 
 struct TeleportProto : public ActorProto
 {
-    std::string level_to_load;
+    std::string _level_to_load;
 
     TeleportProto(const glm::vec3& in_pos, const std::vector<CompType>& extension_types={}):
         ActorProto(in_pos, extension_types)
@@ -158,12 +159,12 @@ struct TeleportProto : public ActorProto
         entity.cmp<CompAnimation>()->end_time = 0.5;
         entity.cmp<CompAnimation>()->start_scale = glm::vec3(0.7);
         entity.cmp<CompAnimation>()->end_scale = glm::vec3(0.0);
-
+        std::string level_to_load = _level_to_load;
         entity.cmp<CompInteractable>()->interaction_callback = 
-            [] (SystemInterface* _interface, EntityRef interactor, EntityRef interactee) 
+            [level_to_load] (SystemInterface* _interface, EntityRef interactor, EntityRef interactee) 
             {
                 _interface->load_level(level_to_load);
-                auto shell_levels = (ComponentArray<CompShellLevel>*)_interface->get_array_base(CompShellLevel);
+                auto shell_levels = (ComponentArray<CompShellLevel>*)_interface->get_array_base(type_id<CompShellLevel>);
                 std::vector<CompIndex> to_remove;
                 CompIndex current_index = 0;
                 for (auto& shell_level : shell_levels)

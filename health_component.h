@@ -39,22 +39,22 @@ struct CompHealth : public Component
 
     void apply_damage(const DamageInstance& instance)
     {
-        const float max_health = stat_comp->get_stat(Stat::MaxHealth);
-        const float current_health_value = get_current_health();
         auto* stat_comp = sibling<CompStat>();
+        const float max_health = stat_comp->get_stat(Stat::MaxHealth).addition;
+        const float current_health_value = get_current_health();
         float net_damage = instance.damage;
         switch (instance.type)
         {
             case DamageType::Magical:
                 {
                     StatPart magic_resist = stat_comp->get_stat(Stat::MagicResist);
-                    net_damage = instance.damage*(1.0 - magic_resist);
+                    net_damage = instance.damage*(1.0 - magic_resist.addition);
                 }
                 break;
             case DamageType::Physical:
                 {
                     StatPart armor = stat_comp->get_stat(Stat::Armor);
-                    net_damage = instance.damage*(1.0 - armor);
+                    net_damage = instance.damage*(1.0 - armor.addition);
                 }
                 break;
         }

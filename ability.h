@@ -4,6 +4,10 @@
 #include "animation_system.h"
 #include "lifetime_system.h"
 #include "health_component.h"
+#include "has_owner_component.h"
+#include "on_cast_component.h"
+#include "on_hit_component.h"
+#include "projectile_component.h"
 
 enum class AbilityState
 {
@@ -48,7 +52,7 @@ struct CompAbility : public Component
 struct CompAbilityLevel : public Component 
 {
     int level;
-} 
+};
 
 struct CompAbilityInstance : public Component
 {
