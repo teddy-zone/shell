@@ -26,27 +26,51 @@ public:
 
     virtual void update(double dt) override
     {
-        auto& player_comp = get_array<CompPlayer>()[0];
-        auto player_pos = player_comp.sibling<CompPosition>()->pos;
-        auto* command_comp = player_comp.sibling<CompCommand>();
-        auto* caster_comp = player_comp.sibling<CompCaster>();
+        auto& selected_unit_comps = get_array<CompSelectedObjects>();
+        EntityRef selected_unit;
+        if (selected_unit_comps.size())
+        {
+            if (selected_unit_comps[0].selected_objects.size())
+            {
+                selected_unit = selected_unit_comps[0].selected_objects[0];
+            }
+        }
+        CompPosition* player_comp; 
+        if (selected_unit.is_valid())
+        {
+            player_comp = selected_unit.cmp<CompPosition>();
+        }
+        else
+        {
+            player_comp = &get_array<CompPosition>()[0];
+        } 
+        auto player_pos = player_comp->sibling<CompPosition>()->pos;
+        auto* command_comp = player_comp->sibling<CompCommand>();
+        auto* caster_comp = player_comp->sibling<CompCaster>();
         auto& graphics_comp = get_array<CompGraphics>()[0];
         auto& keystate = get_array<CompKeyState>()[0];
 
-        switch (caster_comp->state)
+        if (caster_comp)
         {
-            case AbilityState::UnitTargeting:
-            case AbilityState::GroundTargeting:
-                graphics_comp.set_cursor(CursorType::Hand);
-                break;
-            default:
-                graphics_comp.set_cursor(CursorType::DefaultArrow);
-                break;
+            switch (caster_comp->state)
+            {
+                case AbilityState::UnitTargeting:
+                case AbilityState::GroundTargeting:
+                    graphics_comp.set_cursor(CursorType::Hand);
+                    break;
+                default:
+                    graphics_comp.set_cursor(CursorType::DefaultArrow);
+                    break;
+            }
+        }
+        else
+        {
+            graphics_comp.set_cursor(CursorType::DefaultArrow);
         }
 
         {
-            // Right click!
-            if (keystate.push[0])
+            // Left click!
+            if (keystate.push[0] && caster_comp)
             {
                 auto& camera = get_array<CompCamera>()[0];
                 switch (caster_comp->state)
@@ -63,7 +87,7 @@ public:
                                 AbilityCommand ability_command;
                                 ability_command.ability_index = caster_comp->ability_index;
                                 ability_command.ground_target = result.value().hit_point;
-                                auto* command_sys = player_comp.sibling<CompCommand>();
+                                auto* command_sys = player_comp->sibling<CompCommand>();
                                 command_sys->set_command(StopCommand());
                                 command_sys->queue_command(ability_command);
                             }
@@ -82,7 +106,7 @@ public:
                         break;
                 }
             }
-            if (keystate.push[1])
+            if (keystate.push[1] && command_comp)
             {
                 auto& oct = get_array<CompBoundsOctree>()[0];
                 auto& camera = get_array<CompCamera>()[0];
@@ -110,6 +134,7 @@ public:
                     move_command.target = result.value().hit_point;
                     command_comp->set_command(move_command);
                 }
+                keystate.cursor_mode = CursorMode::Select;
             }
             if (keystate.push[GLFW_KEY_SPACE])
             {
@@ -149,7 +174,7 @@ public:
             }
             if (keystate.push[GLFW_KEY_Q])
             {
-                auto* ability_set = player_comp.sibling<CompAbilitySet>();
+                auto* ability_set = player_comp->sibling<CompAbilitySet>();
                 if (ability_set)
                 {
                     if (ability_set->abilities[0].is_valid())
@@ -159,7 +184,7 @@ public:
                         {
                             if (!ability->ground_targeted && !ability->unit_targeted)
                             {
-                                auto* command_sys = player_comp.sibling<CompCommand>();
+                                auto* command_sys = player_comp->sibling<CompCommand>();
                                 StopCommand stop_command;
                                 command_sys->set_command(stop_command);
                                 AbilityCommand new_command;
@@ -177,7 +202,7 @@ public:
             }
             if (keystate.push[GLFW_KEY_W])
             {
-                auto* ability_set = player_comp.sibling<CompAbilitySet>();
+                auto* ability_set = player_comp->sibling<CompAbilitySet>();
                 if (ability_set)
                 {
                     if (ability_set->abilities[1].is_valid())
@@ -187,7 +212,7 @@ public:
                         {
                             if (!ability->ground_targeted && !ability->unit_targeted)
                             {
-                                auto* command_sys = player_comp.sibling<CompCommand>();
+                                auto* command_sys = player_comp->sibling<CompCommand>();
                                 StopCommand stop_command;
                                 command_sys->set_command(stop_command);
                                 AbilityCommand new_command;
@@ -198,6 +223,7 @@ public:
                             {
                                 caster_comp->state = AbilityState::GroundTargeting;
                                 caster_comp->ability_index = 1;
+                                keystate.cursor_mode = CursorMode::Gameplay;
                             }
                         }
                     }

@@ -83,7 +83,7 @@ public:
         return true;
     }
 
-    bool process_interact_command(std::shared_ptr<InteractCommand> cmd, ComopInteractable* interact_component, bool is_new)
+    bool process_interact_command(std::shared_ptr<InteractCommand> cmd, CompInteractable* interact_component, bool is_new)
     {
         return true;
     }

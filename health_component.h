@@ -21,8 +21,8 @@ struct DamageInstance
 struct CompHealth : public Component
 {
 
-    float health_percentage;
-    float filtered_health_percentage;
+    float health_percentage = 100.0;
+    float filtered_health_percentage = 100.0;
     float get_current_health() const
     {
         auto stat_comp = sibling<CompStat>();

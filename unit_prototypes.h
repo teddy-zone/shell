@@ -163,13 +163,15 @@ struct TeleportProto : public ActorProto
         entity.cmp<CompInteractable>()->interaction_callback = 
             [level_to_load] (SystemInterface* _interface, EntityRef interactor, EntityRef interactee) 
             {
+                /*
                 _interface->load_level(level_to_load);
                 auto shell_levels = (ComponentArray<CompShellLevel>*)_interface->get_array_base(type_id<CompShellLevel>);
                 std::vector<CompIndex> to_remove;
                 CompIndex current_index = 0;
-                for (auto& shell_level : shell_levels)
+                //for (auto& shell_level : shell_levels)
+                for (int i = 0; i < shell_levels.size(); ++i)
                 {
-                    _interface->unload_level(shell_level.level_name);
+                    _interface->unload_level(shell_levels->.level_name);
                     to_remove.push_back(current_index);
                     current_index += 1;
                 }
@@ -180,6 +182,7 @@ struct TeleportProto : public ActorProto
                 CompShellLevel new_level;
                 new_level.level_name = level_to_load;
                 _interface->add_component(new_level);
+                */
             };
     }
 };

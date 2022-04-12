@@ -7,6 +7,7 @@
 #include "health_component.h"
 #include "camera_component.h"
 #include "on_cast_component.h"
+#include "team_component.h"
 
 struct CompAbilityWidget : public CompWidget
 {
@@ -39,8 +40,8 @@ struct CompAbilityWidget : public CompWidget
                 {
                     constexpr int unit_health_bar_width = 80;
                     constexpr int unit_health_bar_height = 10;
-                    int filter_health_width = unit_health_bar_width*health_comp->filtered_health_percentage;
-                    int current_health_width = unit_health_bar_width*health_comp->health_percentage;
+                    int filter_health_width = unit_health_bar_width*health_comp->filtered_health_percentage/100.0;
+                    int current_health_width = unit_health_bar_width*health_comp->health_percentage/100.0;
                     std::string health_text("Health");
                     ImDrawList* draw_list = ImGui::GetWindowDrawList();
                     draw_list->AddRectFilled(p, ImVec2(p.x + unit_health_bar_width, p.y + unit_health_bar_height), ImColor(0,0,0));
@@ -61,7 +62,7 @@ struct CompAbilityWidget : public CompWidget
                 {
                     constexpr int health_bar_width = 200;
                     constexpr int health_bar_height = 20;
-                    int current_health_width = health_bar_width*health_comp->health_percentage;
+                    int current_health_width = health_bar_width*health_comp->health_percentage/100.0;
                     std::string health_text("Health");
                     ImDrawList* draw_list = ImGui::GetWindowDrawList();
                     const ImVec2 p = ImGui::GetCursorScreenPos();
@@ -228,7 +229,7 @@ public:
         }
     }
 
-    void update_applicators(ComponentArray<CompRadiusApplication>& applicator_array)
+    void update_applicators(std::vector<CompRadiusApplication>& applicator_array)
     {
         for (auto& applicator : applicator_array)
         {
@@ -242,7 +243,7 @@ public:
                 if (auto* pos_comp = applicator.sibling<CompPosition>())
                 {
                     auto pos = pos_comp->pos;
-                    auto inside_entities = _interface->data_within_sphere_selective(pos, applicator.radius, {type_id<CompHealth>});
+                    auto inside_entities = _interface->data_within_sphere_selective(pos, applicator.radius, {{uint32_t(type_id<CompHealth>)}});
                     for (auto& inside_entity : inside_entities)
                     {
                         Team other_team = 0;
@@ -257,15 +258,15 @@ public:
                                 if (applicator.apply_to_same_team)
                                 {
                                     auto* other_health = inside_entity.cmp<CompHealth>();
-                                    other_health->apply_damage(applicator.damange.value());
+                                    other_health->apply_damage(applicator.damage.value());
                                 }
                             }
                             if (my_team != other_team)
                             {
-                                if (applicator.apply_to_other_team)
+                                if (applicator.apply_to_other_teams)
                                 {
                                     auto* other_health = inside_entity.cmp<CompHealth>();
-                                    other_health->apply_damage(applicator.damange.value());
+                                    other_health->apply_damage(applicator.damage.value());
                                 }
                             }
                         }
