@@ -6,6 +6,7 @@
 #include "selected_objects_component.h"
 #include "health_component.h"
 #include "camera_component.h"
+#include "on_cast_component.h"
 
 struct CompAbilityWidget : public CompWidget
 {
@@ -209,6 +210,13 @@ public:
         if (auto* instance_comp = ab->sibling<CompAbilityInstance>())
         {
             auto ability_instance = _interface->add_entity_from_proto(instance_comp->proto.get());
+            if (auto* on_cast_comp = ab->sibling<CompOnCast>())
+            {
+                for (auto& on_cast_func : on_cast_comp->on_cast_callbacks)
+                {
+                    on_cast_func(ability_instance);
+                }
+            }
             if (caster->unit_target)
             {
                 ability_instance.cmp<CompPosition>()->pos = caster->unit_target.value().cmp<CompPosition>()->pos;

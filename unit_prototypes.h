@@ -66,23 +66,6 @@ struct UnitProto : public ActorProto
     }
 };
 
-struct AbilityProto : public EntityProto
-{
-
-    AbilityProto(const std::vector<CompType>& extension_types={}):
-        EntityProto(extension_types)
-    {
-        std::vector<CompType> unit_components = {{
-                    uint32_t(type_id<CompAbility>),
-                    uint32_t(type_id<CompHasOwner>),
-            }};
-        append_components(unit_components);
-    }
-
-    virtual void init(EntityRef entity) 
-    {
-    }
-};
 
 struct CommandIndicatorProto : public ActorProto
 {
