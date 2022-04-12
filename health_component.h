@@ -22,6 +22,7 @@ struct CompHealth : public Component
 {
 
     float health_percentage;
+    float filtered_health_percentage;
     float get_current_health() const
     {
         auto stat_comp = sibling<CompStat>();

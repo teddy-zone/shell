@@ -36,10 +36,15 @@ struct CompAbilityWidget : public CompWidget
                     ImGuiWindowFlags_NoResize); 
                 if (auto* health_comp = ab_set->sibling<CompHealth>())
                 {
+                    constexpr int unit_health_bar_width = 80;
+                    constexpr int unit_health_bar_height = 10;
+                    int filter_health_width = unit_health_bar_width*health_comp->filtered_health_percentage;
+                    int current_health_width = unit_health_bar_width*health_comp->health_percentage;
                     std::string health_text("Health");
                     ImDrawList* draw_list = ImGui::GetWindowDrawList();
-                    draw_list->AddRectFilled(p, ImVec2(p.x + 80, p.y + 10), ImColor(0,0,0));
-                    draw_list->AddRectFilled(ImVec2(p.x+1, p.y+1), ImVec2(p.x + 80 - 2, p.y + 10 - 2), ImColor(255,0,0));
+                    draw_list->AddRectFilled(p, ImVec2(p.x + unit_health_bar_width, p.y + unit_health_bar_height), ImColor(0,0,0));
+                    draw_list->AddRectFilled(ImVec2(p.x+1, p.y+1), ImVec2(p.x + filter_health_width - 2, p.y + unit_health_bar_height - 2), ImColor(255,255,255));
+                    draw_list->AddRectFilled(ImVec2(p.x+1, p.y+1), ImVec2(p.x + current_health_width - 2, p.y + unit_health_bar_height - 2), ImColor(255,0,0));
                 }
                 ImGui::End();
                 // END ABOVE UNIT HEALTH BAR
@@ -53,13 +58,16 @@ struct CompAbilityWidget : public CompWidget
                 // HEALTH BAR DRAWING
                 if (auto* health_comp = ab_set->sibling<CompHealth>())
                 {
+                    constexpr int health_bar_width = 200;
+                    constexpr int health_bar_height = 20;
+                    int current_health_width = health_bar_width*health_comp->health_percentage;
                     std::string health_text("Health");
                     ImDrawList* draw_list = ImGui::GetWindowDrawList();
                     const ImVec2 p = ImGui::GetCursorScreenPos();
-                    draw_list->AddRectFilled(p, ImVec2(p.x + 200, p.y + 20), ImColor(0,0,0));
-                    draw_list->AddRectFilled(ImVec2(p.x+1, p.y+1), ImVec2(p.x + 200 - 2, p.y + 20 - 2), ImColor(255,0,0));
+                    draw_list->AddRectFilled(p, ImVec2(p.x + health_bar_width, p.y + health_bar_height), ImColor(0,0,0));
+                    draw_list->AddRectFilled(ImVec2(p.x+1, p.y+1), ImVec2(p.x + current_health_width - 2, p.y + health_bar_height - 2), ImColor(255,0,0));
                     draw_list->AddText(ImGui::GetIO().FontDefault, 14, ImVec2(p.x + 5, p.y), ImColor(255,255,255), health_text.c_str(), health_text.c_str() + health_text.size(), 200, nullptr);
-                    ImGui::Dummy(ImVec2(200 + 10, 20 + 10));
+                    ImGui::Dummy(ImVec2(health_bar_width + 10, health_bar_height + 10));
                 }
                 // END HEALTH BAR
 
@@ -208,6 +216,54 @@ public:
             else if (caster->ground_target)
             {
                 ability_instance.cmp<CompPosition>()->pos = caster->ground_target.value();
+            }
+        }
+    }
+
+    void update_applicators(ComponentArray<CompRadiusApplication>& applicator_array)
+    {
+        for (auto& applicator : applicator_array)
+        {
+            Team my_team = 0;
+            if (auto* my_team_comp = applicator.sibling<CompTeam>())
+            {
+                my_team = my_team_comp->team;
+            }
+            if (_interface->get_current_game_time() - applicator.last_tick_time > applicator.tick_time)
+            {
+                if (auto* pos_comp = applicator.sibling<CompPosition>())
+                {
+                    auto pos = pos_comp->pos;
+                    auto inside_entities = _interface->data_within_sphere_selective(pos, applicator.radius, {type_id<CompHealth>});
+                    for (auto& inside_entity : inside_entities)
+                    {
+                        Team other_team = 0;
+                        if (auto* team_comp = inside_entity.cmp<CompTeam>())
+                        {
+                            other_team = team_comp->team;
+                        }
+                        if (applicator.damage)
+                        {
+                            if (my_team == other_team)
+                            {
+                                if (applicator.apply_to_same_team)
+                                {
+                                    auto* other_health = inside_entity.cmp<CompHealth>();
+                                    other_health->apply_damage(applicator.damange.value());
+                                }
+                            }
+                            if (my_team != other_team)
+                            {
+                                if (applicator.apply_to_other_team)
+                                {
+                                    auto* other_health = inside_entity.cmp<CompHealth>();
+                                    other_health->apply_damage(applicator.damange.value());
+                                }
+                            }
+                        }
+                    }
+                }
+                applicator.last_tick_time = _interface->get_current_game_time();
             }
         }
     }

@@ -57,8 +57,11 @@ struct CompAbilityInstance : public Component
 
 struct CompRadiusApplication : public Component
 {
+    bool apply_to_same_team = false;
+    bool apply_to_other_teams = true;
     float radius;
     float tick_time;
+    float last_tick_time = -1000;
     std::optional<DamageInstance> damage;
 }; 
 
@@ -110,9 +113,6 @@ struct CrystalNovaInstanceProto : public ActorProto
 
         entity.cmp<CompRadiusApplication>()->radius = 5;
         entity.cmp<CompRadiusApplication>()->tick_time = 100;
-        entity.cmp<CompRadiusApplication>()->damage = {{DamageType::Magical, 100},
-                                                       {DamageType::Magical, 200},
-                                                       {DamageType::Magical, 300},
-                                                       {DamageType::Magical, 400}};
+        entity.cmp<CompRadiusApplication>()->damage = {DamageType::Magical, 100, false};
     }
 };
