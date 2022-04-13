@@ -19,15 +19,20 @@ public:
         {
             if (!command_component.command_queue.empty())
             {
-                if (auto* caster_comp = command_component.sibling<CompCaster>())
-                {
-                    if (command_component.new_command)
-                    {
-                        caster_comp->state = AbilityState::None;
-                    }
-                }
                 auto next_command = command_component.command_queue.back(); 
-                if (auto cmd = std::dynamic_pointer_cast<AttackCommand>(next_command)) 
+                if (auto cmd = std::dynamic_pointer_cast<StopCommand>(next_command)) 
+                {
+                    auto* nav_comp = command_component.sibling<CompNav>();
+                    auto* caster_comp = nav_comp->sibling<CompCaster>();
+                    if (nav_comp)
+                    {
+                        nav_comp->stop();
+                    }
+                    command_component.command_queue.pop_back();
+                    command_component.new_command = true;
+                    caster_comp->state = AbilityState::None;
+                } 
+                else if (auto cmd = std::dynamic_pointer_cast<AttackCommand>(next_command)) 
                 {
                     auto* nav_comp = command_component.sibling<CompNav>();
                     process_attack_command(cmd, nav_comp, command_component.new_command);

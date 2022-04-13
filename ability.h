@@ -126,7 +126,7 @@ struct CrystalNovaInstanceProto : public ActorProto
     virtual void init(EntityRef entity) 
     {
         auto monkey_mesh = std::make_shared<bgfx::Mesh>();
-        monkey_mesh->load_obj("command_indicator.obj" );
+        monkey_mesh->load_obj("crystal_nova.obj" );
         monkey_mesh->set_solid_color(glm::vec3(0.0,1,0.0));
         entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 1);
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
@@ -151,7 +151,7 @@ struct CrystalNovaInstanceProto : public ActorProto
         entity.cmp<CompAnimation>()->start_time = 0;
         entity.cmp<CompAnimation>()->end_time = 0.5;
         entity.cmp<CompAnimation>()->start_scale = glm::vec3(0.2);
-        entity.cmp<CompAnimation>()->end_scale = glm::vec3(2.0);
+        entity.cmp<CompAnimation>()->end_scale = glm::vec3(10.0);
 
         entity.cmp<CompRadiusApplication>()->radius = 5;
         entity.cmp<CompRadiusApplication>()->tick_time = 100;
