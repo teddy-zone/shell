@@ -6,7 +6,7 @@
 class SysHealth : public System
 {
 public:
-    constexpr float filter_velocity = 0.2;
+    const float filter_velocity = 40;
     virtual void update(double dt) override
     {
         auto& health_comps = get_array<CompHealth>();
