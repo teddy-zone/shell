@@ -32,6 +32,7 @@ struct CompCaster : public Component
     {
         ability_index = index;
         state = AbilityState::CastPoint;
+        state_time = 0.0;
     }
 };
 
