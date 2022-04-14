@@ -13,6 +13,7 @@ struct CompAbilityWidget : public CompWidget
 {
 
     EntityRef entity;
+    std::vector<CompHealth>* health_components = nullptr;
     bgfx::Camera* camera;
 
     CompAbilityWidget()
@@ -21,6 +22,36 @@ struct CompAbilityWidget : public CompWidget
 
     virtual void tick() 
     {
+        if (!health_components) return;
+        int index = 0;
+        for (auto& health_component : *health_components)
+        {
+            constexpr int unit_health_bar_width = 80;
+            constexpr int unit_health_bar_height = 10;
+            auto entity_pos = health_component.sibling<CompPosition>()->pos;
+            bool active = true;
+            // ABOVE UNIT HEALTH BAR
+            glm::vec4 screen_space = camera->world_to_screen_space(entity_pos);
+            ImVec2 p = ImVec2(screen_space.x - 40, CompWidget::window_height - screen_space.y - 50);
+            ImGui::SetNextWindowPos(p);
+            ImGui::SetNextWindowSize(ImVec2(unit_health_bar_width + 20, unit_health_bar_height + 20));
+            ImGui::Begin(("HealthBar" + std::to_string(index)).c_str(), &active, 
+                ImGuiWindowFlags_NoBackground |
+                ImGuiWindowFlags_NoTitleBar |
+                ImGuiWindowFlags_NoResize); 
+            {
+                int filter_health_width = unit_health_bar_width*health_component.filtered_health_percentage/100.0;
+                int current_health_width = unit_health_bar_width*health_component.health_percentage/100.0;
+                std::string health_text("Health");
+                ImDrawList* draw_list = ImGui::GetWindowDrawList();
+                draw_list->AddRectFilled(p, ImVec2(p.x + unit_health_bar_width, p.y + unit_health_bar_height), ImColor(0,0,0));
+                draw_list->AddRectFilled(ImVec2(p.x+1, p.y+1), ImVec2(p.x + filter_health_width - 2, p.y + unit_health_bar_height - 2), ImColor(255,255,255));
+                draw_list->AddRectFilled(ImVec2(p.x+1, p.y+1), ImVec2(p.x + current_health_width - 2, p.y + unit_health_bar_height - 2), ImColor(255,0,0));
+            }
+            ImGui::End();
+            // END ABOVE UNIT HEALTH BAR
+            index++;
+        }
         if (entity.is_valid())
         {
             auto entity_pos = entity.cmp<CompPosition>()->pos;
@@ -28,28 +59,6 @@ struct CompAbilityWidget : public CompWidget
             if (auto* ab_set = entity.cmp<CompAbilitySet>())
             {
                 bool active = true;
-                // ABOVE UNIT HEALTH BAR
-                glm::vec4 screen_space = camera->world_to_screen_space(entity_pos);
-                ImVec2 p = ImVec2(screen_space.x - 40, CompWidget::window_height - screen_space.y - 50);
-                ImGui::SetNextWindowPos(p);
-                ImGui::Begin("HealthBar", &active, 
-                    ImGuiWindowFlags_NoBackground |
-                    ImGuiWindowFlags_NoTitleBar |
-                    ImGuiWindowFlags_NoResize); 
-                if (auto* health_comp = ab_set->sibling<CompHealth>())
-                {
-                    constexpr int unit_health_bar_width = 80;
-                    constexpr int unit_health_bar_height = 10;
-                    int filter_health_width = unit_health_bar_width*health_comp->filtered_health_percentage/100.0;
-                    int current_health_width = unit_health_bar_width*health_comp->health_percentage/100.0;
-                    std::string health_text("Health");
-                    ImDrawList* draw_list = ImGui::GetWindowDrawList();
-                    draw_list->AddRectFilled(p, ImVec2(p.x + unit_health_bar_width, p.y + unit_health_bar_height), ImColor(0,0,0));
-                    draw_list->AddRectFilled(ImVec2(p.x+1, p.y+1), ImVec2(p.x + filter_health_width - 2, p.y + unit_health_bar_height - 2), ImColor(255,255,255));
-                    draw_list->AddRectFilled(ImVec2(p.x+1, p.y+1), ImVec2(p.x + current_health_width - 2, p.y + unit_health_bar_height - 2), ImColor(255,0,0));
-                }
-                ImGui::End();
-                // END ABOVE UNIT HEALTH BAR
 
                 int widget_height = 150;
                 int widget_width = 800;
@@ -187,19 +196,26 @@ public:
             }
         }
         auto& selected_object_component = get_array<CompSelectedObjects>();
+        auto& ability_widgets = get_array<CompAbilityWidget>();
         if (selected_object_component.size())
         {
             if (selected_object_component[0].selected_objects.size())
             {
                 EntityRef cur_obj = selected_object_component[0].selected_objects[0];
-                auto& ability_widgets = get_array<CompAbilityWidget>();
                 if (ability_widgets.size())
                 {
                     ability_widgets[0].entity = cur_obj;
-                    ability_widgets[0].camera = cam;
                 }
             }
         }
+        if (ability_widgets.size())
+        {
+            ability_widgets[0].camera = cam;
+            ability_widgets[0].health_components = &get_array<CompHealth>();
+        }
+
+        auto& radius_applicators = get_array<CompRadiusApplication>();
+        update_applicators(radius_applicators);
     }
 
     void cast_ability(CompCaster* caster)

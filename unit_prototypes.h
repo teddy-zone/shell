@@ -8,6 +8,7 @@
 #include "has_owner_component.h"
 #include "interactable_component.h"
 #include "shell_level_component.h"
+#include "team_component.h"
 
 struct UnitProto : public ActorProto
 {
@@ -29,6 +30,8 @@ struct UnitProto : public ActorProto
                     uint32_t(type_id<CompCaster>),
                     uint32_t(type_id<CompLifetime>),
                     uint32_t(type_id<CompHealth>),
+                    uint32_t(type_id<CompTeam>),
+                    uint32_t(type_id<CompStat>),
             }};
         append_components(unit_components);
     }
@@ -58,6 +61,8 @@ struct UnitProto : public ActorProto
         entity.cmp<CompStaticMesh>()->mesh.set_id(entity.get_id());
         entity.cmp<CompPosition>()->pos = glm::vec3(20,20,45);
         entity.cmp<CompHealth>()->health_percentage = 100;
+        entity.cmp<CompStat>()->set_stat(Stat::MaxHealth, 200);
+        entity.cmp<CompStat>()->set_stat(Stat::MagicResist, 0.25);
         /*
         entity.cmp<CompAnimation>()->start_time = 0;
         entity.cmp<CompAnimation>()->end_time = 50;

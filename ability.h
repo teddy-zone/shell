@@ -8,6 +8,8 @@
 #include "on_cast_component.h"
 #include "on_hit_component.h"
 #include "projectile_component.h"
+#include "decal_component.h"
+#include "team_component.h"
 
 enum class AbilityState
 {
@@ -81,6 +83,7 @@ struct AbilityProto : public EntityProto
         std::vector<CompType> unit_components = {{
                     uint32_t(type_id<CompAbility>),
                     uint32_t(type_id<CompHasOwner>),
+                    uint32_t(type_id<CompTeam>),
             }};
         append_components(unit_components);
     }
@@ -115,10 +118,10 @@ struct CrystalNovaInstanceProto : public ActorProto
     {
         std::vector<CompType> unit_components = {{
                     uint32_t(type_id<CompPosition>),
-                    uint32_t(type_id<CompStaticMesh>),
                     uint32_t(type_id<CompLifetime>),
                     uint32_t(type_id<CompAnimation>),
                     uint32_t(type_id<CompRadiusApplication>),
+                    uint32_t(type_id<CompDecal>),
             }};
         append_components(unit_components);
     }
@@ -129,7 +132,6 @@ struct CrystalNovaInstanceProto : public ActorProto
         monkey_mesh->load_obj("crystal_nova.obj" );
         monkey_mesh->set_solid_color(glm::vec3(0.0,1,0.0));
         entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 1);
-        entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
         auto box_mat = std::make_shared<bgfx::Material>();
 
         std::ifstream t("C:\\Users\\tjwal\\projects\\ECS\\materials\\box_mat\\VertexShader.glsl");
@@ -143,8 +145,6 @@ struct CrystalNovaInstanceProto : public ActorProto
         box_mat->set_vertex_shader(vshader);
         box_mat->set_fragment_shader(fshader);
         box_mat->link();
-        entity.cmp<CompStaticMesh>()->mesh.set_material(box_mat);
-        entity.cmp<CompStaticMesh>()->mesh.set_id(entity.get_id());
         entity.cmp<CompPosition>()->pos = pos;
         entity.cmp<CompLifetime>()->lifetime = 0.5;
 
@@ -156,6 +156,12 @@ struct CrystalNovaInstanceProto : public ActorProto
         entity.cmp<CompRadiusApplication>()->radius = 5;
         entity.cmp<CompRadiusApplication>()->tick_time = 100;
         entity.cmp<CompRadiusApplication>()->damage = {DamageType::Magical, 100, false};
+
+        entity.cmp<CompDecal>()->decal.location = glm::vec4(pos, 1);
+        entity.cmp<CompDecal>()->decal.color = glm::vec4(0.0,0.0,1.0,1.0);
+        entity.cmp<CompDecal>()->decal.t = 0;
+        entity.cmp<CompDecal>()->decal.radius = 5;
+        entity.cmp<CompDecal>()->decal.type = 1;
     }
 };
 

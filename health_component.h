@@ -29,7 +29,7 @@ struct CompHealth : public Component
         if (stat_comp)
         {
             auto max_health = stat_comp->get_stat(Stat::MaxHealth);
-            return health_percentage*max_health.addition;
+            return health_percentage*max_health.addition/100.0;
         }
         else
         {
@@ -59,7 +59,7 @@ struct CompHealth : public Component
                 break;
         }
         const float new_health_value = current_health_value - net_damage;
-        health_percentage = new_health_value*1.0/max_health;
+        health_percentage = 100.0*new_health_value*1.0/max_health;
     }
 
 };

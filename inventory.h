@@ -6,7 +6,7 @@
 struct CompInventory : public Component, public StatInterface
 {
 
-    std::array<EntityId, 6> items;
+    std::array<EntityRef, 6> items;
 
     virtual StatPart get_stat(Stat stat) override;
 
