@@ -33,4 +33,9 @@ struct CompAbilitySet : public Component, public StatInterface
         return EntityRef();
     }
 
+    CompAbility* get_ability_component_by_index(int index)
+    {
+        return abilities[index].cmp<CompAbility>();
+    }
+
 };
