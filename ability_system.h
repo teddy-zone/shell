@@ -158,10 +158,15 @@ public:
                 {
                     case AbilityState::CastPoint:
                         {
+                            if (ability->current_cooldown)
+                            {
+                                caster_component.state = AbilityState::None;
+                                caster_component.state_time = 0.0;
+                            }
                             // if state_time >= cast point of ability
                             // Activate ability!
                             // set state to backswing, state time to zero
-                            if (caster_component.state_time >= ability->cast_point)
+                            else if (caster_component.state_time >= ability->cast_point)
                             {
                                 caster_component.state = AbilityState::Backswing;
                                 caster_component.state_time = 0.0;
