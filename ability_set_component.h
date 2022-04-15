@@ -2,6 +2,7 @@
 #include "component.h"
 #include "stat_interface.h"
 #include "stat_component.h"
+#include "ability.h"
 
 struct CompAbilitySet : public Component, public StatInterface
 {
