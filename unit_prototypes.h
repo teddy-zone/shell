@@ -18,7 +18,6 @@ struct UnitProto : public ActorProto
     {
         std::vector<CompType> unit_components = {{
                     uint32_t(type_id<CompPhysics>), 
-                    uint32_t(type_id<CompPosition>),
                     uint32_t(type_id<CompBounds>),
                     uint32_t(type_id<CompPickupper>),
                     uint32_t(type_id<CompStaticMesh>),
@@ -80,7 +79,6 @@ struct CommandIndicatorProto : public ActorProto
         ActorProto(in_pos, extension_types)
     {
         std::vector<CompType> unit_components = {{
-                    uint32_t(type_id<CompPosition>),
                     uint32_t(type_id<CompStaticMesh>),
                     uint32_t(type_id<CompLifetime>),
                     uint32_t(type_id<CompAnimation>),

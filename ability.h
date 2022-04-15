@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sstream>
+
 #include "component.h"
 #include "animation_system.h"
 #include "lifetime_system.h"
@@ -10,6 +12,9 @@
 #include "projectile_component.h"
 #include "decal_component.h"
 #include "team_component.h"
+#include "mesh.h"
+#include "material.h"
+#include "static_mesh_component.h"
 
 enum class AbilityState
 {
@@ -32,6 +37,7 @@ struct CompCaster : public Component
     {
         ability_index = index;
         state = AbilityState::CastPoint;
+        state_time = 0.0;
     }
 };
 

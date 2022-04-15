@@ -73,17 +73,36 @@ public:
         auto* caster_comp = nav_component->sibling<CompCaster>();
         if (caster_comp)
         {
+            auto my_loc = caster_comp->sibling<CompPosition>()->pos;
+            auto* ability_comp = caster_comp->sibling<CompAbilitySet>()->get_ability_component_by_index(cmd->ability_index);
             // if within cast range or not unit targeted and not ground targeted
-            caster_comp->activate_ability(cmd->ability_index);
             if (cmd->entity_target)
             {
-                caster_comp->unit_target = cmd->entity_target;
+                auto target_loc = cmd->entity_target.value().cmp<CompPosition>()->pos;
+                auto range = glm::length(target_loc - my_loc);
+                if (range < ability_comp->cast_range)
+                {
+                    caster_comp->activate_ability(cmd->ability_index);
+                    caster_comp->unit_target = cmd->entity_target;
+                }
+                else
+                {
+                    // else move to target
+                }
             }
             else if (cmd->ground_target)
             {
-                caster_comp->ground_target = cmd->ground_target;
+                auto range = glm::length(my_loc - cmd->ground_target.value());
+                if (range < ability_comp->cast_range)
+                {
+                    caster_comp->activate_ability(cmd->ability_index);
+                    caster_comp->ground_target = cmd->ground_target;
+                }
+                else
+                {
+                    // else move to target
+                }
             }
-            // else move to target
         }
         return true;
     }
