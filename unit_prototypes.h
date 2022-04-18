@@ -9,6 +9,7 @@
 #include "interactable_component.h"
 #include "shell_level_component.h"
 #include "team_component.h"
+#include "caster_component.h"
 
 struct UnitProto : public ActorProto
 {
@@ -126,7 +127,6 @@ struct TeleportProto : public ActorProto
         ActorProto(in_pos, extension_types)
     {
         std::vector<CompType> unit_components = {{
-                    uint32_t(type_id<CompPosition>),
                     uint32_t(type_id<CompStaticMesh>),
                     uint32_t(type_id<CompInteractable>),
             }};
