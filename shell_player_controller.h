@@ -11,7 +11,7 @@
 
 class ShellPlayerController : public System
 {
-
+    EntityRef targeting_entity;
 public:
 
     ShellPlayerController()
@@ -49,6 +49,29 @@ public:
         auto* caster_comp = player_comp->sibling<CompCaster>();
         auto& graphics_comp = get_array<CompGraphics>()[0];
         auto& keystate = get_array<CompKeyState>()[0];
+
+        if (targeting_entity.is_valid())
+        {
+            if (keystate.cursor_mode == CursorMode::Select)
+            {
+                _interface->delete_entity(targeting_entity.get_id());
+                targeting_entity = EntityRef();
+            }
+            else
+            {
+                auto& camera = get_array<CompCamera>()[0];
+                auto click_ray = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
+                    keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
+                auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
+                auto result = _interface->fire_ray(full_ray, ray::HitType::StaticOnly);
+                if (result)
+                targeting_entity.cmp<CompPosition>()->pos = result.value().hit_point;
+                auto* ab = caster_comp->get_ability();
+                auto* decal = targeting_entity.cmp<CompDecal>();
+                decal->decal.radius = ab->radius;
+                decal->decal.location2 = glm::vec4(player_pos, 1.0);
+            }
+        }
 
         if (caster_comp)
         {
@@ -91,6 +114,7 @@ public:
                                 command_sys->set_command(StopCommand());
                                 command_sys->queue_command(ability_command);
                             }
+                            keystate.cursor_mode = CursorMode::Select;
                         }
                         break;
                     case AbilityState::UnitTargeting:
@@ -100,6 +124,7 @@ public:
                                 keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
                             auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
                             auto result = _interface->fire_ray(full_ray, ray::HitType::DynamicOnly);
+                            keystate.cursor_mode = CursorMode::Select;
                         }
                         break;
                     default:
@@ -224,6 +249,8 @@ public:
                                 caster_comp->state = AbilityState::GroundTargeting;
                                 caster_comp->ability_index = 1;
                                 keystate.cursor_mode = CursorMode::Gameplay;
+                                TargetingProto targeting_proto(glm::vec3(0), ability->target_decal_type);
+                                targeting_entity = _interface->add_entity_from_proto(&targeting_proto);
                             }
                         }
                     }

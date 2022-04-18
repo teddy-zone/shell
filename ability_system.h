@@ -33,7 +33,7 @@ struct CompAbilityWidget : public CompWidget
             // ABOVE UNIT HEALTH BAR
             glm::vec4 screen_space = camera->world_to_screen_space(entity_pos);
             ImVec2 p = ImVec2(screen_space.x - 40, CompWidget::window_height - screen_space.y - 50);
-            ImGui::SetNextWindowPos(p);
+            ImGui::SetNextWindowPos(ImVec2(p.x - 4, p.y-2));
             ImGui::SetNextWindowSize(ImVec2(unit_health_bar_width + 20, unit_health_bar_height + 20));
             ImGui::Begin(("HealthBar" + std::to_string(index)).c_str(), &active, 
                 ImGuiWindowFlags_NoBackground |
@@ -44,9 +44,11 @@ struct CompAbilityWidget : public CompWidget
                 int current_health_width = unit_health_bar_width*health_component.health_percentage/100.0;
                 std::string health_text("Health");
                 ImDrawList* draw_list = ImGui::GetWindowDrawList();
-                draw_list->AddRectFilled(p, ImVec2(p.x + unit_health_bar_width, p.y + unit_health_bar_height), ImColor(0,0,0));
-                draw_list->AddRectFilled(ImVec2(p.x+1, p.y+1), ImVec2(p.x + filter_health_width - 2, p.y + unit_health_bar_height - 2), ImColor(255,255,255));
-                draw_list->AddRectFilled(ImVec2(p.x+1, p.y+1), ImVec2(p.x + current_health_width - 2, p.y + unit_health_bar_height - 2), ImColor(255,0,0));
+                draw_list->AddRectFilled(p, ImVec2(p.x + unit_health_bar_width, p.y + unit_health_bar_height), ImColor(0,0,0), 2.0);
+                int border_size = 1;
+                int w_border_size = 1;
+                draw_list->AddRectFilled(ImVec2(p.x+border_size, p.y+border_size), ImVec2(p.x + filter_health_width - 2*border_size, p.y + unit_health_bar_height - 2*border_size), ImColor(255,255,255), 2.0);
+                draw_list->AddRectFilled(ImVec2(p.x+w_border_size, p.y+w_border_size), ImVec2(p.x + current_health_width - 2*w_border_size, p.y + unit_health_bar_height - 2*w_border_size), ImColor(255,0,0), 2.0);
             }
             ImGui::End();
             // END ABOVE UNIT HEALTH BAR
@@ -239,13 +241,30 @@ public:
                     on_cast_func(ability_instance);
                 }
             }
+            if (auto* rad_app = ability_instance.cmp<CompRadiusApplication>())
+            {
+                rad_app->radius = ab->radius;
+            }
+            if (auto* decal = ability_instance.cmp<CompDecal>())
+            {
+                decal->decal.radius = ab->radius;
+            }
             if (caster->unit_target)
             {
                 ability_instance.cmp<CompPosition>()->pos = caster->unit_target.value().cmp<CompPosition>()->pos;
             }
             else if (caster->ground_target)
             {
-                ability_instance.cmp<CompPosition>()->pos = caster->ground_target.value();
+                if (auto* projectile_comp = ability_instance.cmp<CompProjectile>())
+                {
+                    ability_instance.cmp<CompPosition>()->pos = caster->sibling<CompPosition>()->pos;
+                    auto dir = glm::normalize(caster->ground_target.value() - caster->sibling<CompPosition>()->pos);
+                    projectile_comp->direction = dir;
+                }
+                else
+                {
+                    ability_instance.cmp<CompPosition>()->pos = caster->ground_target.value();
+                }
             }
         }
     }
@@ -268,6 +287,14 @@ public:
                     for (auto& inside_entity : inside_entities)
                     {
                         Team other_team = 0;
+                        if (applicator.apply_once)
+                        {
+                            if (applicator.applied_already.find(inside_entity.get_id()) != applicator.applied_already.end())
+                            {
+                                continue;
+                            }
+                        }
+                        applicator.applied_already.insert(inside_entity.get_id());
                         if (auto* team_comp = inside_entity.cmp<CompTeam>())
                         {
                             other_team = team_comp->team;
