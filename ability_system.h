@@ -228,6 +228,11 @@ public:
     void cast_ability(CompCaster* caster)
     {
         auto* ability_set = caster->sibling<CompAbilitySet>();
+        int caster_team = 0;
+        if (auto* caster_team_comp = caster->sibling<CompTeam>())
+        {
+            caster_team = caster_team_comp->team;
+        }
         auto* ab = ability_set->abilities[caster->ability_index].cmp<CompAbility>();
         ab->current_cooldown = 
             ab->cooldown;
@@ -240,6 +245,10 @@ public:
                 {
                     on_cast_func(ability_instance);
                 }
+            }
+            if (auto* team_comp = ability_instance.cmp<CompTeam>())
+            {
+                team_comp->team = caster_team;
             }
             if (auto* rad_app = ability_instance.cmp<CompRadiusApplication>())
             {
