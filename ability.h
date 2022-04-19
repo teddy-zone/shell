@@ -15,6 +15,7 @@
 #include "mesh.h"
 #include "material.h"
 #include "static_mesh_component.h"
+#include "voice_component.h"
 
 enum class AbilityState
 {
@@ -176,7 +177,6 @@ struct IceShardsInstanceProto : public ActorProto
         ActorProto(in_pos, extension_types)
     {
         std::vector<CompType> unit_components = {{
-                    uint32_t(type_id<CompPosition>),
                     uint32_t(type_id<CompDecal>),
                     uint32_t(type_id<CompProjectile>),
                     uint32_t(type_id<CompLifetime>),
@@ -185,6 +185,8 @@ struct IceShardsInstanceProto : public ActorProto
                     uint32_t(type_id<CompOnHit>),
                     uint32_t(type_id<CompPhysics>),
                     uint32_t(type_id<CompBounds>),
+                    uint32_t(type_id<CompVoice>),
+                    uint32_t(type_id<CompTeam>),
             }};
         append_components(unit_components);
     }
@@ -203,6 +205,12 @@ struct IceShardsInstanceProto : public ActorProto
         entity.cmp<CompDecal>()->decal.type = 3;
         entity.cmp<CompPhysics>()->has_collision = false;
         entity.cmp<CompPhysics>()->has_gravity = false;
+
+        Sound new_sound;
+        new_sound.path = "C:\\Users\\tjwal\\OneDrive\\Documents\\REAPER Media\\beam.wav";
+        new_sound.trigger = true;
+        entity.cmp<CompVoice>()->sounds["beam"] = new_sound;
+
 
         entity.cmp<CompRadiusApplication>()->radius = 3;
         entity.cmp<CompRadiusApplication>()->tick_time = 0;
