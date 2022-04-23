@@ -98,6 +98,24 @@ struct AbilityProto : public EntityProto
     }
 };
 
+struct ItemProto : public EntityProto
+{
+    TargetDecalType decal_type;
+    ItemProto(const std::vector<CompType>& extension_types={}):
+        EntityProto(extension_types),
+    {
+        std::vector<CompType> unit_components = {{
+                    uint32_t(type_id<CompHasOwner>),
+            }};
+        append_components(unit_components);
+    }
+
+    virtual void init(EntityRef entity) 
+    {
+        entity.cmp<CompAbility>()->target_decal_type = decal_type;
+    }
+};
+
 struct AbilityIceShardsProto : AbilityProto
 {
     AbilityIceShardsProto(const std::vector<CompType>& extension_types={}):
