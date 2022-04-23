@@ -141,14 +141,18 @@ public:
                     auto nav_pointer_pos = nav_pointer_array[0].sibling<CompPosition>();
                 }
                 
-                auto click_ray = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
+                auto click_dir = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
                     keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
+                /*
                 oct._enable_static = true;
                 oct._enable_dynamic = false;
                 //octree::ray_intersect_octree(new_ray, oct.root, oct.loc, real_size, possible_hits);
                 auto result = oct.ray_intersect(ray::Ray{ camera.graphics_camera.get_position(), click_ray, glm::vec3(1.0 / click_ray.x, 1.0 / click_ray.y, 1.0 / click_ray.z) });
                 oct._enable_static = true;
                 oct._enable_dynamic = true;
+                */
+                auto click_ray = ray::New(camera.graphics_camera.get_position(), click_dir);
+                auto result = _interface->fire_ray(click_ray, ray::HitType::StaticOnly);
                 // Clicked on something!
                 if (result)
                 {
