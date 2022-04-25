@@ -63,6 +63,7 @@ struct UnitProto : public ActorProto
         entity.cmp<CompHealth>()->health_percentage = 100;
         entity.cmp<CompStat>()->set_stat(Stat::MaxHealth, 200);
         entity.cmp<CompStat>()->set_stat(Stat::MagicResist, 0.25);
+        entity.cmp<CompInventory>()->visible = true;
         /*
         entity.cmp<CompAnimation>()->start_time = 0;
         entity.cmp<CompAnimation>()->end_time = 50;

@@ -16,6 +16,7 @@
 #include "material.h"
 #include "static_mesh_component.h"
 #include "voice_component.h"
+#include "item_component.h"
 
 enum class AbilityState
 {
@@ -102,10 +103,11 @@ struct ItemProto : public EntityProto
 {
     TargetDecalType decal_type;
     ItemProto(const std::vector<CompType>& extension_types={}):
-        EntityProto(extension_types),
+        EntityProto(extension_types)
     {
         std::vector<CompType> unit_components = {{
                     uint32_t(type_id<CompHasOwner>),
+                    uint32_t(type_id<CompItem>),
             }};
         append_components(unit_components);
     }

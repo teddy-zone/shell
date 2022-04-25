@@ -60,10 +60,20 @@ struct CompAbilityWidget : public CompWidget
 
             if (auto* ab_set = entity.cmp<CompAbilitySet>())
             {
+                int ability_count = 0;
+                for (auto& ability : ab_set->abilities)
+                {
+                    if (ability.is_valid())
+                    {
+                        ability_count++;
+                    }
+                }
+
                 bool active = true;
 
-                int widget_height = 150;
-                int widget_width = 800;
+                const int ability_width = 100;
+                const int widget_height = 150;
+                const int widget_width = ability_width * ability_count;;
                 ImGui::SetNextWindowPos(ImVec2(10, CompWidget::window_height - (10 + widget_height)));
                 ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
                 ImGui::Begin("Abilities", &active, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
@@ -83,15 +93,7 @@ struct CompAbilityWidget : public CompWidget
                     ImGui::Dummy(ImVec2(health_bar_width + 10, health_bar_height + 10));
                 }
                 // END HEALTH BAR
-
-                int ability_count = 0;
-                for (auto& ability : ab_set->abilities)
-                {
-                    if (ability.is_valid())
-                    {
-                        ability_count++;
-                    }
-                }
+                
                 ImGui::Columns(ability_count); 
                 for (auto& ability : ab_set->abilities)
                 {
