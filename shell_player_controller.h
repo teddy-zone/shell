@@ -201,14 +201,26 @@ public:
                 test_ent.cmp<CompPhysics>()->has_collision = false;
                 test_ent.cmp<CompLifetime>()->lifetime = 2;
             }
-            if (keystate.push[GLFW_KEY_Q])
+            std::vector<int> items_to_service;
+            std::vector<int> abilities_to_service;
+            if (keystate.push[GLFW_KEY_Q]) {abilities_to_service.push_back(0);}
+            if (keystate.push[GLFW_KEY_W]) {abilities_to_service.push_back(1);}
+            if (keystate.push[GLFW_KEY_E]) {abilities_to_service.push_back(2);}
+            if (keystate.push[GLFW_KEY_R]) {abilities_to_service.push_back(3);}
+            if (keystate.push[GLFW_KEY_1]) {items_to_service.push_back(0);}
+            if (keystate.push[GLFW_KEY_2]) {items_to_service.push_back(1);}
+            if (keystate.push[GLFW_KEY_3]) {items_to_service.push_back(2);}
+            if (keystate.push[GLFW_KEY_4]) {items_to_service.push_back(3);}
+            if (keystate.push[GLFW_KEY_5]) {items_to_service.push_back(4);}
+            if (keystate.push[GLFW_KEY_6]) {items_to_service.push_back(5);}
+            for (auto& ability_index : abilities_to_service)
             {
                 auto* ability_set = player_comp->sibling<CompAbilitySet>();
                 if (ability_set)
                 {
-                    if (ability_set->abilities[0].is_valid())
+                    if (ability_set->abilities[ability_index].is_valid())
                     {
-                        auto* ability = ability_set->abilities[0].cmp<CompAbility>();
+                        auto* ability = ability_set->abilities[ability_index].cmp<CompAbility>();
                         if (ability)
                         {
                             if (!ability->ground_targeted && !ability->unit_targeted)
@@ -217,26 +229,29 @@ public:
                                 StopCommand stop_command;
                                 command_sys->set_command(stop_command);
                                 AbilityCommand new_command;
-                                new_command.ability_index = 0;
+                                new_command.ability_index = ability_index;
                                 command_sys->queue_command(new_command);
                             }
                             else if (ability->ground_targeted)
                             {
-                                auto& graphics_comp = get_array<CompGraphics>()[0];
-                                graphics_comp.set_cursor(CursorType::Crosshair);
+                                caster_comp->state = AbilityState::GroundTargeting;
+                                caster_comp->ability_index = 1;
+                                keystate.cursor_mode = CursorMode::Gameplay;
+                                TargetingProto targeting_proto(glm::vec3(0), ability->target_decal_type);
+                                targeting_entity = _interface->add_entity_from_proto(&targeting_proto);
                             }
                         }
                     }
                 }
             }
-            if (keystate.push[GLFW_KEY_W])
+            for (auto& item_index : items_to_service)
             {
-                auto* ability_set = player_comp->sibling<CompAbilitySet>();
-                if (ability_set)
+                auto* inventory = player_comp->sibling<CompInventory>();
+                if (inventory)
                 {
-                    if (ability_set->abilities[1].is_valid())
+                    if (inventory->items[item_index].is_valid())
                     {
-                        auto* ability = ability_set->abilities[1].cmp<CompAbility>();
+                        auto* ability = inventory->items[item_index].cmp<CompAbility>();
                         if (ability)
                         {
                             if (!ability->ground_targeted && !ability->unit_targeted)
@@ -245,7 +260,7 @@ public:
                                 StopCommand stop_command;
                                 command_sys->set_command(stop_command);
                                 AbilityCommand new_command;
-                                new_command.ability_index = 1;
+                                new_command.ability_index = item_index;
                                 command_sys->queue_command(new_command);
                             }
                             else if (ability->ground_targeted)

@@ -144,6 +144,24 @@ public:
                     }
                 }
             }
+            auto inventory_comp = caster_component.sibling<CompInventory>();
+            for (auto& item_ref : inventory_comp->items)
+            {
+                if (item_ref.is_valid())
+                {
+                    if (auto* ab = item_ref.cmp<CompAbility>())
+                    {
+                        if (ab->current_cooldown)
+                        {
+                            ab->current_cooldown.value() -= dt;
+                            if (ab->current_cooldown <= 0)
+                            {
+                                ab->current_cooldown = std::nullopt;
+                            }
+                        }
+                    }
+                }
+            }
             if (caster_component.ability_index >= 0)
             {
                 CompAbility* ability = nullptr;
