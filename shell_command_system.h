@@ -48,8 +48,9 @@ public:
                 } 
                 else if (auto cmd = std::dynamic_pointer_cast<InteractCommand>(next_command)) 
                 {
-                    auto* interact_comp = command_component.sibling<CompInteractable>();
-                    if (process_interact_command(cmd, interact_comp, command_component.new_command))
+                    //auto* interact_comp = command_component.sibling<CompInteractable>();
+                    auto* nav_comp = command_component.sibling<CompNav>();
+                    if (process_interact_command(cmd, nav_comp, command_component.new_command))
                     {
                         command_component.command_queue.pop_back();
                         command_component.new_command = true;
@@ -107,8 +108,26 @@ public:
         return true;
     }
 
-    bool process_interact_command(std::shared_ptr<InteractCommand> cmd, CompInteractable* interact_component, bool is_new)
+    bool process_interact_command(std::shared_ptr<InteractCommand> cmd, CompNav* nav_component, bool is_new)
     {
+        {
+            auto* interact_comp = cmd->interact_target.cmp<CompInteractable>();
+            auto my_loc = nav_component->sibling<CompPosition>()->pos;
+            // if within cast range or not unit targeted and not ground targeted
+            if (cmd->interact_target.is_valid())
+            {
+                auto target_loc = cmd->interact_target.cmp<CompPosition>()->pos;
+                auto range = glm::length(target_loc - my_loc);
+                if (range < interact_comp->interact_range)
+                {
+                    interact_comp->interaction_callback(_interface, nav_component->get_entity(), cmd->interact_target); 
+                }
+                else
+                {
+                    // else move to target
+                }
+            }
+        }
         return true;
     }
 

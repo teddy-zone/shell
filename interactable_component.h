@@ -9,10 +9,10 @@
 struct InteractCommand : public Command
 {
     EntityRef interact_target;
-    float interact_range;
 };
 
 struct CompInteractable : public Component
 {
+    float interact_range;
     std::function<void(SystemInterface*, EntityRef, EntityRef)> interaction_callback;
 };

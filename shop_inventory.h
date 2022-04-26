@@ -6,15 +6,11 @@
 #include "physics_component.h"
 #include "camera.h"
 
-struct CompInventory : public StatInterface, public CompWidget
+struct CompShopInventory : public Component
 {
 
     std::array<EntityRef, 6> items;
-
-    virtual StatPart get_stat(Stat stat) override;
-
-    virtual void tick() 
-    {
-    };
+    bgfx::Camera* camera;
+    bool visible = false;
 
 };
