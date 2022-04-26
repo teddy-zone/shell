@@ -41,20 +41,32 @@ class SysShop : public GuiSystem
                 has_stock = false;
             }
         }
+        // If shopper has enough money
         if (has_stock && shopper_wallet->balance >= slot.cost)
         {
-            // Can execute buy
-            shopper_wallet->balance -= slot.cost;
-            if (slot.count)
+            // If shopper also has an inventory
+            if (auto* shopper_inventory = shopper_wallet->sibling<CompInventory>())
             {
-                slot.count = slot.count.value() - 1;
+                for (int i = 0; i < shopper_inventory->items.size(); ++i)
+                {
+                    // If slot is empty, put bought item in it
+                    if (!shopper_inventory->items[i].is_valid())
+                    {
+                        // Can execute buy
+                        shopper_inventory->items[i] = _interface->duplicate_entity(slot.item_entity);
+                        has_space = true;
+                        shopper_wallet->balance -= slot.cost;
+                        // If item has limited stock, decrement stock
+                        if (slot.count)
+                        {
+                            slot.count = slot.count.value() - 1;
+                        }
+                        return true;
+                    }
+                }
             }
-            return true;
         }
-        else
-        {
-            return false;
-        }
+        return false;
     }
 
     void update_widget(CompWallet* shopper_wallet, CompShopInventory* shop_inventory)
