@@ -10,6 +10,7 @@
 #include "shell_level_component.h"
 #include "team_component.h"
 #include "caster_component.h"
+#include "shop_inventory.h"
 
 struct ShopProto : public ActorProto
 {
@@ -21,7 +22,7 @@ struct ShopProto : public ActorProto
                     uint32_t(type_id<CompPhysics>), 
                     uint32_t(type_id<CompBounds>),
                     uint32_t(type_id<CompStaticMesh>),
-                    uint32_t(type_id<CompInventory>),
+                    uint32_t(type_id<CompShopInventory>),
                     uint32_t(type_id<CompLifetime>),
                     uint32_t(type_id<CompInteractable>),
             }};
@@ -50,7 +51,8 @@ struct ShopProto : public ActorProto
         entity.cmp<CompStaticMesh>()->mesh.set_material(box_mat);
         entity.cmp<CompStaticMesh>()->mesh.set_id(entity.get_id());
         entity.cmp<CompPosition>()->pos = glm::vec3(100,100,20);
-        entity.cmp<CompInventory>()->visible = true;
+        entity.cmp<CompShopInventory>()->visible = false;
+        entity.cmp<CompInteractable>()->interact_range = 10;
         /*
         entity.cmp<CompAnimation>()->start_time = 0;
         entity.cmp<CompAnimation>()->end_time = 50;

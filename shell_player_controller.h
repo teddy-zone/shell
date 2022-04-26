@@ -152,16 +152,25 @@ public:
                 oct._enable_dynamic = true;
                 */
                 auto click_ray = ray::New(camera.graphics_camera.get_position(), click_dir);
-                auto result = _interface->fire_ray(click_ray, ray::HitType::StaticOnly);
+                auto result = _interface->fire_ray(click_ray, ray::HitType::StaticAndDynamic);
                 // Clicked on something!
                 if (result)
                 {
-                    CommandIndicatorProto command_indicator_proto(result.value().hit_point);
-                    _interface->add_entity_from_proto(&command_indicator_proto);
-                    //on_right_click(result->entity);
-                    MoveCommand move_command;
-                    move_command.target = result.value().hit_point;
-                    command_comp->set_command(move_command);
+                    if (auto* interact_comp = result.value().entity.cmp<CompInteractable>())
+                    {
+                        InteractCommand interact_command;
+                        interact_command.interact_target = result.value().entity;
+                        command_comp->set_command(interact_command);
+                    }
+                    else
+                    {
+                        CommandIndicatorProto command_indicator_proto(result.value().hit_point);
+                        _interface->add_entity_from_proto(&command_indicator_proto);
+                        //on_right_click(result->entity);
+                        MoveCommand move_command;
+                        move_command.target = result.value().hit_point;
+                        command_comp->set_command(move_command);
+                    }
                 }
                 keystate.cursor_mode = CursorMode::Select;
             }

@@ -6,12 +6,12 @@
 #include "physics_component.h"
 #include "camera.h"
 
-struct CompInventory : public StatInterface, public CompWidget
+struct CompShopInventory : public CompWidget
 {
 
     std::array<EntityRef, 6> items;
+    bgfx::Camera* camera;
 
-    virtual StatPart get_stat(Stat stat) override;
 
     virtual void tick() 
     {
@@ -19,15 +19,18 @@ struct CompInventory : public StatInterface, public CompWidget
         bool active = true;
         {
             auto entity_pos = sibling<CompPosition>()->pos;
-
             {
                 bool active = true;
                 int widget_height = 150;
                 int widget_width = 250;
-                ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width - (10 + widget_width), CompWidget::window_height - (10 + widget_height)));
+
+                glm::vec4 screen_space = camera->world_to_screen_space(entity_pos);
+                ImVec2 p = ImVec2(screen_space.x - 40, CompWidget::window_height - screen_space.y - 50);
+                ImGui::SetNextWindowPos(ImVec2(p.x - 4, p.y-2));
+
                 //ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width - (10 + widget_width), 10));
                 ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
-                ImGui::Begin("Inventory", &active, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+                ImGui::Begin("ShopInventory", &active, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
                 int item_count = 6;
                 int column_count = 3;
