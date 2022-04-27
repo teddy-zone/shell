@@ -25,13 +25,16 @@ class SysShop : public GuiSystem
             {
                 if (shop_inventory.visible)
                 {
-                    update_widget(selected_entity, shop_inventory.get_entity());
+                    if (auto* wallet = selected_entity.cmp<CompWallet>())
+                    {
+                        update_widget(wallet, &shop_inventory);
+                    }
                 }
             }
         }
     }
 
-    void trigger_buy(CompWallet* shopper_wallet, CompShopInventory* shop_inventory, InventorySlot& slot)
+    bool trigger_buy(CompWallet* shopper_wallet, CompShopInventory* shop_inventory, InventorySlot& slot)
     {
         bool has_stock = true;
         if (slot.count)
@@ -54,7 +57,6 @@ class SysShop : public GuiSystem
                     {
                         // Can execute buy
                         shopper_inventory->items[i] = _interface->duplicate_entity(slot.item_entity);
-                        has_space = true;
                         shopper_wallet->balance -= slot.cost;
                         // If item has limited stock, decrement stock
                         if (slot.count)
@@ -71,7 +73,6 @@ class SysShop : public GuiSystem
 
     void update_widget(CompWallet* shopper_wallet, CompShopInventory* shop_inventory)
     {
-        int index = 0;
         auto& cameras = get_array<CompCamera>();
         if (!cameras.size())
         {
@@ -81,7 +82,7 @@ class SysShop : public GuiSystem
         bool active = true;
         bool shopper_in_range = true;
         auto entity_pos = shop_inventory->sibling<CompPosition>()->pos;
-        auto* shop_interatee = shop_inventory->sibling<CompInteractable>();
+        auto* shop_interactee = shop_inventory->sibling<CompInteractable>();
         if (auto* shopper_pos = shopper_wallet->sibling<CompPosition>())
         {
             if (glm::length(shopper_pos->pos - entity_pos) > shop_interactee->interact_range)
@@ -104,7 +105,7 @@ class SysShop : public GuiSystem
 
         int item_count = shop_inventory->slots.size();
         int column_count = 3;
-        int row_count = std::ceil(item_count/column_count);
+        int row_count = std::max(1.0,std::ceil(item_count/column_count));
         ImGui::Columns(column_count, "inventory_columns");
         int index = 0;
         for (auto& slot : shop_inventory->slots)

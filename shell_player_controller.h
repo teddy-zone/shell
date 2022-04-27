@@ -244,7 +244,7 @@ public:
                             else if (ability->ground_targeted)
                             {
                                 caster_comp->state = AbilityState::GroundTargeting;
-                                caster_comp->ability_index = 1;
+                                caster_comp->ability_index = ability_index;
                                 keystate.cursor_mode = CursorMode::Gameplay;
                                 TargetingProto targeting_proto(glm::vec3(0), ability->target_decal_type);
                                 targeting_entity = _interface->add_entity_from_proto(&targeting_proto);
@@ -269,13 +269,13 @@ public:
                                 StopCommand stop_command;
                                 command_sys->set_command(stop_command);
                                 AbilityCommand new_command;
-                                new_command.ability_index = item_index;
+                                new_command.ability_index = item_index + 4;
                                 command_sys->queue_command(new_command);
                             }
                             else if (ability->ground_targeted)
                             {
                                 caster_comp->state = AbilityState::GroundTargeting;
-                                caster_comp->ability_index = 1;
+                                caster_comp->ability_index = item_index + 4;
                                 keystate.cursor_mode = CursorMode::Gameplay;
                                 TargetingProto targeting_proto(glm::vec3(0), ability->target_decal_type);
                                 targeting_entity = _interface->add_entity_from_proto(&targeting_proto);

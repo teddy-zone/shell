@@ -36,12 +36,60 @@ struct AbilityModDatabase
     }
 };
 
-class SysAbilityMod : public System
+class SysAbilityMod : public GuiSystem
 {
     AbilityModDatabase _mods;
     const int num_mods_choice = 3;
 public:
-    virtual void update(double dt)
+    virtual void update_gui(double dt) override
+    {
+        auto& selected_entities = get_array<CompSelectedObjects>();
+        if (selected_entities.size())
+        {
+            if (selected_entities[0].selected_objects.size())
+            {
+                auto selected_entity = selected_entities[0].selected_objects[0];
+                if (auto* ability_mod_comp = selected_entity.cmp<CompAbilityMod>())
+                {
+                    if (ability_mod_comp->mods_available > 0)
+                    {
+                        update_mod_window(ability_mod_comp);
+                    }
+                }
+            }
+        }
+    }
+
+    virtual void update_mod_window(CompAbilityMod* ability_mod_comp)
+    {
+        int choice_height = 100;
+        int widget_width = 400;
+        int widget_height = 100 + num_mods_choice*choice_height;
+        bool active = true;
+        ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width/2 - widget_width/2, CompWidget::window_height - widget_height/2));
+        ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
+        ImGui::Begin("AbilityMods", &active, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+        for (auto& mod : ability_mod_comp->currently_available_mods)
+        {
+            if (ImGui::Button(mod.mod_name.c_str()))
+            {
+                if (auto* ability_set = ability_mod_comp->sibling<CompAbilitySet>())
+                {
+                    for (auto& ability_entity : ability_set->abilities)
+                    {
+                        if (mod.ability_name == ability_entity.cmp<CompAbility>()->ability_name)
+                        {
+                            mod.mod_function(ability_entity);
+                            mod.mods_available -= 1;
+                        }
+                    }
+                }
+            }
+        }
+        ImGui::End();
+    }
+
+    virtual void update(double dt) override
     {
         auto& ability_mod_comps = get_array<CompAbilityMod>();
         for (auto& ability_mod_comp : ability_mod_comps)
@@ -65,20 +113,6 @@ public:
 
                         }
                     }
-                }
-                else if (ability_mod_comp.mods_available > 0 && !ability_mod_comp.currently_available_mods.empty())
-                {
-                    // Start ImGui window
-                    for (auto& ability_mod : ability_mod_comp.currently_available_mods)
-                    {
-                        EntityRef ability_ref = ability_set->get_ability_by_name(ability_mod.ability_name);
-                        if (ability_ref.is_valid())
-                        {
-                            // if ImGui::Button(mod_name)
-                            //    ability_mod.mod_function(ability_ref);
-                        }
-                    }
-                    // End ImGui window
                 }
             }
         }
