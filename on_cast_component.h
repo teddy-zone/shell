@@ -6,5 +6,5 @@
 
 struct CompOnCast : public Component
 {
-    std::vector<std::function<void(EntityRef)>> on_cast_callbacks;
+    std::vector<std::function<void(EntityRef, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target)>> on_cast_callbacks;
 };

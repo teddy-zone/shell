@@ -4,5 +4,5 @@
 
 struct CompItem : public Component
 {
-
+    std::string name;
 };

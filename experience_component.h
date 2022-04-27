@@ -2,20 +2,20 @@
 
 #include "component.h"
 
-std::vector<float> exp_curve =
-{
-    0,
-    100,
-    250,
-    600,
-    1100,
-    1900,
-    3000,
-    4500,
-};
 
 struct CompExperience : public Component
 {
+    inline static std::vector<float> exp_curve =
+    {
+        0,
+        100,
+        250,
+        600,
+        1100,
+        1900,
+        3000,
+        4500,
+    };
 
     float experience;
     unsigned int get_level() const

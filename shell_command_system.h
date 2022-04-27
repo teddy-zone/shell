@@ -75,7 +75,8 @@ public:
         if (caster_comp)
         {
             auto my_loc = caster_comp->sibling<CompPosition>()->pos;
-            auto* ability_comp = caster_comp->sibling<CompAbilitySet>()->get_ability_component_by_index(cmd->ability_index);
+            //auto* ability_comp = caster_comp->sibling<CompAbilitySet>()->get_ability_component_by_index(cmd->ability_index);
+            auto* ability_comp = caster_comp->get_ability(cmd->ability_index);
             // if within cast range or not unit targeted and not ground targeted
             if (cmd->entity_target)
             {

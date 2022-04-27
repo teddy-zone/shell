@@ -92,7 +92,14 @@ public:
                     constexpr int health_bar_width = 200;
                     constexpr int health_bar_height = 20;
                     int current_health_width = health_bar_width*health_comp->health_percentage/100.0;
-                    std::string health_text("Health");
+                    int max_disp_health = 100;
+                    int cur_disp_health = health_comp->health_percentage;
+                    if (auto* stat_comp = health_comp->sibling<CompStat>())
+                    {
+                        max_disp_health = int(stat_comp->get_stat(Stat::MaxHealth).addition);
+                        cur_disp_health = max_disp_health*health_comp->health_percentage/100.0;
+                    }
+                    std::string health_text(std::to_string(cur_disp_health) + "/" + std::to_string(max_disp_health));
                     ImDrawList* draw_list = ImGui::GetWindowDrawList();
                     const ImVec2 p = ImGui::GetCursorScreenPos();
                     draw_list->AddRectFilled(p, ImVec2(p.x + health_bar_width, p.y + health_bar_height), ImColor(0,0,0));
@@ -147,12 +154,17 @@ public:
                 for (auto& item : inventory->items)
                 {
                     index++;
-                    //if (item.is_valid())
+                    ImGui::ImageButton(0, ImVec2(widget_height/2 - 30, widget_height/2 - 30));
                     {
-                        ImGui::ImageButton(0, ImVec2(widget_height/2 - 30, widget_height/2 - 30));
-                        {
-                            //ImGui::Text((std::string("CD: ") + std::to_string(ab->current_cooldown.value())).c_str());
-                        }
+                        //ImGui::Text((std::string("CD: ") + std::to_string(ab->current_cooldown.value())).c_str());
+                    }
+                    if (item.is_valid())
+                    {
+                        ImGui::Text(item.cmp<CompItem>()->name.c_str());
+                    }
+                    else
+                    {
+                        ImGui::Text(" ");
                     }
                     if (index % row_count == 0)
                     {

@@ -165,12 +165,9 @@ public:
             if (caster_component.ability_index >= 0)
             {
                 CompAbility* ability = nullptr;
-                if (caster_component.ability_index < 6)
+                if (caster_component.ability_index < 10)
                 {
-                    if (ability_set_comp->abilities[caster_component.ability_index].is_valid())
-                    {
-                        ability = ability_set_comp->abilities[caster_component.ability_index].cmp<CompAbility>();
-                    }
+                    ability = caster_component.get_ability(caster_component.ability_index);
                 }
                 if (!ability)
                 {
@@ -253,19 +250,20 @@ public:
         {
             caster_team = caster_team_comp->team;
         }
-        auto* ab = ability_set->abilities[caster->ability_index].cmp<CompAbility>();
+        //auto* ab = ability_set->abilities[caster->ability_index].cmp<CompAbility>();
+        auto* ab = caster->get_ability();
         ab->current_cooldown = 
             ab->cooldown;
+        if (auto* on_cast_comp = ab->sibling<CompOnCast>())
+        {
+            for (auto& on_cast_func : on_cast_comp->on_cast_callbacks)
+            {
+                on_cast_func(caster->get_entity(), caster->ground_target, caster->unit_target);
+            }
+        }
         if (auto* instance_comp = ab->sibling<CompAbilityInstance>())
         {
             auto ability_instance = _interface->add_entity_from_proto(instance_comp->proto.get());
-            if (auto* on_cast_comp = ab->sibling<CompOnCast>())
-            {
-                for (auto& on_cast_func : on_cast_comp->on_cast_callbacks)
-                {
-                    on_cast_func(ability_instance);
-                }
-            }
             if (auto* team_comp = ability_instance.cmp<CompTeam>())
             {
                 team_comp->team = caster_team;
