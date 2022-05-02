@@ -53,14 +53,22 @@ public:
                     }
                     auto* pos_comp = command_component.sibling<CompPosition>();
                     auto attackable_entities = _interface->data_within_sphere_selective(pos_comp->pos, 50, {uint32_t(type_id<CompAttackable>)});
+                    EntityRef closest_entity;
+                    float closest_distance = 1000000;
                     for (auto& ent : attackable_entities)
                     {
-                        if (ent.get_id() != pos_comp->get_id())
+                        float dist = glm::length(pos_comp->pos - ent.cmp<CompPosition>()->pos);
+                        if (ent.get_id() != pos_comp->get_id() && dist < closest_distance)
                         {
-                            AttackCommand attack_command;
-                            attack_command.target = ent;
-                            command_component.set_command(attack_command);
+                            closest_entity = ent;
+                            closest_distance = dist;
                         }
+                    }
+                    if (closest_entity.is_valid())
+                    { 
+                        AttackCommand attack_command;
+                        attack_command.target = closest_entity;
+                        command_component.set_command(attack_command);
                     }
                 } 
                 else if (auto cmd = std::dynamic_pointer_cast<AbilityCommand>(next_command)) 

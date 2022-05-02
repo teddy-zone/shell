@@ -14,6 +14,7 @@
 #include "experience_component.h"
 #include "attacker_component.h"
 #include "attackable_component.h"
+#include "bounty_component.h"
 
 struct UnitProto : public ActorProto
 {
@@ -40,6 +41,7 @@ struct UnitProto : public ActorProto
                     uint32_t(type_id<CompWallet>),
                     uint32_t(type_id<CompAttacker>),
                     uint32_t(type_id<CompAttackable>),
+                    uint32_t(type_id<CompBounty>),
             }};
         append_components(unit_components);
     }
@@ -75,6 +77,8 @@ struct UnitProto : public ActorProto
         entity.cmp<CompInventory>()->visible = true;
         entity.cmp<CompWallet>()->balance = 2200;
         entity.cmp<CompExperience>()->experience = 0;
+        entity.cmp<CompBounty>()->money_bounty = 200;
+        entity.cmp<CompBounty>()->exp_bounty = 100;
     }
 };
 

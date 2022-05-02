@@ -4,9 +4,10 @@
 
 struct AttackInstanceProto : public ActorProto
 {
-
-    AttackInstanceProto(const glm::vec3& in_pos=glm::vec3(0), const std::vector<CompType>& extension_types={}):
-        ActorProto(in_pos, extension_types)
+    EntityRef _owner;
+    AttackInstanceProto(EntityRef owner, const glm::vec3& in_pos=glm::vec3(0), const std::vector<CompType>& extension_types={}):
+        ActorProto(in_pos, extension_types),
+        _owner(owner)
     {
         std::vector<CompType> unit_components = {{
                     uint32_t(type_id<CompProjectile>),
@@ -36,6 +37,7 @@ struct AttackInstanceProto : public ActorProto
         attack_damage.is_attack = true;
         attack_damage.type = DamageType::Physical;
         attack_damage.damage = 50;
+        attack_damage.applier = _owner;
         entity.cmp<CompOnHit>()->damage = attack_damage;
 
         auto sphere_mesh = std::make_shared<bgfx::Mesh>();
@@ -46,8 +48,10 @@ struct AttackInstanceProto : public ActorProto
 
 struct AttackAbilityProto : public AbilityProto
 {
-    AttackAbilityProto(const std::vector<CompType>& extension_types={}):
-        AbilityProto(TargetDecalType::None, extension_types)
+    EntityRef _owner;
+    AttackAbilityProto(EntityRef owner, const std::vector<CompType>& extension_types={}):
+        AbilityProto(TargetDecalType::None, extension_types),
+        _owner(owner)
     {
         std::vector<CompType> unit_components = {{
                     uint32_t(type_id<CompAbilityInstance>),
@@ -58,7 +62,7 @@ struct AttackAbilityProto : public AbilityProto
 
     virtual void init(EntityRef entity) 
     {
-        entity.cmp<CompAbilityInstance>()->proto = std::make_shared<AttackInstanceProto>();
+        entity.cmp<CompAbilityInstance>()->proto = std::make_shared<AttackInstanceProto>(_owner);
         entity.cmp<CompAbility>()->cast_range = 50;
         entity.cmp<CompAbility>()->cast_point = 0.1;
         entity.cmp<CompAbility>()->backswing = 0.1;
