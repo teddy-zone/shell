@@ -3,6 +3,7 @@
 
 #include "component.h"
 #include "ability_set_component.h"
+#include "attacker_component.h"
 
 struct CompCaster : public Component
 {
@@ -46,9 +47,18 @@ struct CompCaster : public Component
                 throw std::runtime_error("Trying to activate non-active ability");
             }
         }
+        else if (to_get == 10)
+        {
+            auto* comp_attacker = sibling<CompAttacker>();
+            if (comp_attacker)
+            {
+                return comp_attacker->get_ability();
+            }
+        }
         else
         {
             throw std::runtime_error("Bad ability index");
         }
+        return nullptr;
     }
 };

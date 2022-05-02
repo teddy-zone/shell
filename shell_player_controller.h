@@ -8,6 +8,7 @@
 #include "command_component.h"
 #include "graphics_component.h"
 #include "unit_prototypes.h"
+#include "attackable_component.h"
 
 class ShellPlayerController : public System
 {
@@ -47,6 +48,7 @@ public:
         auto player_pos = player_comp->sibling<CompPosition>()->pos;
         auto* command_comp = player_comp->sibling<CompCommand>();
         auto* caster_comp = player_comp->sibling<CompCaster>();
+        auto* attacker_comp = player_comp->sibling<CompAttacker>();
         auto& graphics_comp = get_array<CompGraphics>()[0];
         auto& keystate = get_array<CompKeyState>()[0];
 
@@ -95,40 +97,60 @@ public:
             // Left click!
             if (keystate.push[0] && caster_comp)
             {
-                auto& camera = get_array<CompCamera>()[0];
-                switch (caster_comp->state)
+                if (attacker_comp->attack_targeting)
                 {
-                    case AbilityState::GroundTargeting:
-                        {
-                            caster_comp->state = AbilityState::None;
-                            auto click_ray = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
-                                keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
-                            auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
-                            auto result = _interface->fire_ray(full_ray, ray::HitType::StaticOnly);
-                            if (result)
+                    auto& camera = get_array<CompCamera>()[0];
+                    auto click_ray = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
+                        keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
+                    auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
+                    auto result = _interface->fire_ray(full_ray, ray::HitType::StaticOnly);
+                    if (result)
+                    {
+                        AttackMoveCommand a_move_command;
+                        a_move_command.target = result.value().hit_point;
+                        attacker_comp->attack_targeting = false;
+                        auto* command_sys = player_comp->sibling<CompCommand>();
+                        command_sys->set_command(StopCommand());
+                        command_sys->queue_command(a_move_command);
+                    }
+                }
+                else
+                {
+                    auto& camera = get_array<CompCamera>()[0];
+                    switch (caster_comp->state)
+                    {
+                        case AbilityState::GroundTargeting:
                             {
-                                AbilityCommand ability_command;
-                                ability_command.ability_index = caster_comp->ability_index;
-                                ability_command.ground_target = result.value().hit_point;
-                                auto* command_sys = player_comp->sibling<CompCommand>();
-                                command_sys->set_command(StopCommand());
-                                command_sys->queue_command(ability_command);
+                                caster_comp->state = AbilityState::None;
+                                auto click_ray = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
+                                    keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
+                                auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
+                                auto result = _interface->fire_ray(full_ray, ray::HitType::StaticOnly);
+                                if (result)
+                                {
+                                    AbilityCommand ability_command;
+                                    ability_command.ability_index = caster_comp->ability_index;
+                                    ability_command.ground_target = result.value().hit_point;
+                                    auto* command_sys = player_comp->sibling<CompCommand>();
+                                    command_sys->set_command(StopCommand());
+                                    command_sys->queue_command(ability_command);
+                                }
+                                keystate.cursor_mode = CursorMode::Select;
                             }
-                            keystate.cursor_mode = CursorMode::Select;
-                        }
-                        break;
-                    case AbilityState::UnitTargeting:
-                        {
-                            caster_comp->state = AbilityState::None;
-                            auto click_ray = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
-                                keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
-                            auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
-                            auto result = _interface->fire_ray(full_ray, ray::HitType::DynamicOnly);
-                            keystate.cursor_mode = CursorMode::Select;
-                        }
-                        break;
-                    default:
-                        break;
+                            break;
+                        case AbilityState::UnitTargeting:
+                            {
+                                caster_comp->state = AbilityState::None;
+                                auto click_ray = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
+                                    keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
+                                auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
+                                auto result = _interface->fire_ray(full_ray, ray::HitType::DynamicOnly);
+                                keystate.cursor_mode = CursorMode::Select;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
             if (keystate.push[1] && command_comp)
@@ -136,6 +158,11 @@ public:
                 auto& oct = get_array<CompBoundsOctree>()[0];
                 auto& camera = get_array<CompCamera>()[0];
                 auto& nav_pointer_array = get_array<CompNavPointer>();
+                auto my_team = 0;
+                if (auto* my_teamp_comp = command_comp->sibling<CompTeam>())
+                {
+                    my_team = my_teamp_comp->team;
+                }
                 if (nav_pointer_array.size())
                 {
                     auto nav_pointer_pos = nav_pointer_array[0].sibling<CompPosition>();
@@ -156,7 +183,21 @@ public:
                 // Clicked on something!
                 if (result)
                 {
-                    if (auto* interact_comp = result.value().entity.cmp<CompInteractable>())
+                    int clicked_team = 0;
+                    if (auto* team_comp = result.value().entity.cmp<CompTeam>())
+                    {
+                        clicked_team = team_comp->team;
+                    }
+                    auto* attackable_comp = result.value().entity.cmp<CompAttackable>();
+                    if (attackable_comp && clicked_team != my_team)
+                    {
+                        AttackCommand attack_command;
+                        attack_command.target = result.value().entity;
+                        command_comp->set_command(attack_command);
+                        command_comp->set_command(StopCommand());
+                        command_comp->queue_command(attack_command);
+                    }
+                    else if (auto* interact_comp = result.value().entity.cmp<CompInteractable>())
                     {
                         InteractCommand interact_command;
                         interact_command.interact_target = result.value().entity;
@@ -209,6 +250,10 @@ public:
                 test_ent.cmp<CompProjectile>()->direction = glm::vec3(1,0,0);
                 test_ent.cmp<CompPhysics>()->has_collision = false;
                 test_ent.cmp<CompLifetime>()->lifetime = 2;
+            }
+            if (keystate.push[GLFW_KEY_A])
+            {
+                attacker_comp->attack_targeting = true;
             }
             std::vector<int> items_to_service;
             std::vector<int> abilities_to_service;

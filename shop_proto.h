@@ -24,6 +24,7 @@ struct ShopProto : public ActorProto
                     uint32_t(type_id<CompStaticMesh>),
                     uint32_t(type_id<CompShopInventory>),
                     uint32_t(type_id<CompLifetime>),
+                    uint32_t(type_id<CompVoice>),
                     uint32_t(type_id<CompInteractable>),
             }};
         append_components(unit_components);
@@ -50,9 +51,14 @@ struct ShopProto : public ActorProto
         box_mat->link();
         entity.cmp<CompStaticMesh>()->mesh.set_material(box_mat);
         entity.cmp<CompStaticMesh>()->mesh.set_id(entity.get_id());
-        entity.cmp<CompPosition>()->pos = glm::vec3(100,100,20);
+        entity.cmp<CompPosition>()->pos = glm::vec3(50,50,20);
         entity.cmp<CompShopInventory>()->visible = false;
         entity.cmp<CompInteractable>()->interact_range = 10;
+
+        Sound new_sound;
+        new_sound.path = "C:\\Users\\tjwal\\OneDrive\\Documents\\REAPER Media\\purchase.wav";
+        new_sound.trigger = false;
+        entity.cmp<CompVoice>()->sounds["purchase"] = new_sound;
         /*
         entity.cmp<CompAnimation>()->start_time = 0;
         entity.cmp<CompAnimation>()->end_time = 50;

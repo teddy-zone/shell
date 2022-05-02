@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 #include "system.h"
 #include "ability.h"
 #include "ability_set_component.h"
@@ -10,126 +8,15 @@
 #include "camera_component.h"
 #include "on_cast_component.h"
 #include "team_component.h"
-#include "attackable_component.h"
-
-struct CompAbilityWidget : public CompWidget
-{
-
-    EntityRef entity;
-    std::vector<CompHealth>* health_components = nullptr;
-    bgfx::Camera* camera;
-
-    CompAbilityWidget()
-    {
-    }
-
-    virtual void tick() 
-    {
-        if (!health_components) return;
-        int index = 0;
-        for (auto& health_component : *health_components)
-        {
-            constexpr int unit_health_bar_width = 80;
-            constexpr int unit_health_bar_height = 10;
-            auto entity_pos = health_component.sibling<CompPosition>()->pos;
-            bool active = true;
-            // ABOVE UNIT HEALTH BAR
-            glm::vec4 screen_space = camera->world_to_screen_space(entity_pos);
-            ImVec2 p = ImVec2(screen_space.x - 40, CompWidget::window_height - screen_space.y - 50);
-            ImGui::SetNextWindowPos(ImVec2(p.x - 4, p.y-2));
-            ImGui::SetNextWindowSize(ImVec2(unit_health_bar_width + 20, unit_health_bar_height + 20));
-            ImGui::Begin(("HealthBar" + std::to_string(index)).c_str(), &active, 
-                ImGuiWindowFlags_NoBackground |
-                ImGuiWindowFlags_NoTitleBar |
-                ImGuiWindowFlags_NoResize); 
-            {
-                int filter_health_width = unit_health_bar_width*health_component.filtered_health_percentage/100.0;
-                int current_health_width = unit_health_bar_width*health_component.health_percentage/100.0;
-                std::string health_text("Health");
-                ImDrawList* draw_list = ImGui::GetWindowDrawList();
-                draw_list->AddRectFilled(p, ImVec2(p.x + unit_health_bar_width, p.y + unit_health_bar_height), ImColor(0,0,0), 2.0);
-                int border_size = 1;
-                int w_border_size = 1;
-                draw_list->AddRectFilled(ImVec2(p.x+border_size, p.y+border_size), ImVec2(p.x + filter_health_width - 2*border_size, p.y + unit_health_bar_height - 2*border_size), ImColor(255,255,255), 2.0);
-                draw_list->AddRectFilled(ImVec2(p.x+w_border_size, p.y+w_border_size), ImVec2(p.x + current_health_width - 2*w_border_size, p.y + unit_health_bar_height - 2*w_border_size), ImColor(255,0,0), 2.0);
-            }
-            ImGui::End();
-            // END ABOVE UNIT HEALTH BAR
-            index++;
-        }
-        if (entity.is_valid())
-        {
-            auto entity_pos = entity.cmp<CompPosition>()->pos;
-
-            if (auto* ab_set = entity.cmp<CompAbilitySet>())
-            {
-                int ability_count = 0;
-                for (auto& ability : ab_set->abilities)
-                {
-                    if (ability.is_valid())
-                    {
-                        ability_count++;
-                    }
-                }
-
-                bool active = true;
-
-                const int ability_width = 100;
-                const int widget_height = 150;
-                const int widget_width = ability_width * ability_count;;
-                ImGui::SetNextWindowPos(ImVec2(10, CompWidget::window_height - (10 + widget_height)));
-                ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
-                ImGui::Begin("Abilities", &active, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
-
-                // HEALTH BAR DRAWING
-                if (auto* health_comp = ab_set->sibling<CompHealth>())
-                {
-                    constexpr int health_bar_width = 200;
-                    constexpr int health_bar_height = 20;
-                    int current_health_width = health_bar_width*health_comp->health_percentage/100.0;
-                    std::string health_text("Health");
-                    ImDrawList* draw_list = ImGui::GetWindowDrawList();
-                    const ImVec2 p = ImGui::GetCursorScreenPos();
-                    draw_list->AddRectFilled(p, ImVec2(p.x + health_bar_width, p.y + health_bar_height), ImColor(0,0,0));
-                    draw_list->AddRectFilled(ImVec2(p.x+1, p.y+1), ImVec2(p.x + current_health_width - 2, p.y + health_bar_height - 2), ImColor(255,0,0));
-                    draw_list->AddText(ImGui::GetIO().FontDefault, 14, ImVec2(p.x + 5, p.y), ImColor(255,255,255), health_text.c_str(), health_text.c_str() + health_text.size(), 200, nullptr);
-                    ImGui::Dummy(ImVec2(health_bar_width + 10, health_bar_height + 10));
-                }
-                // END HEALTH BAR
-                
-                ImGui::Columns(ability_count); 
-                for (auto& ability : ab_set->abilities)
-                {
-                    if (ability.is_valid())
-                    {
-                        CompAbility* ab = ability.cmp<CompAbility>();
-                        ImGui::ImageButton(0, ImVec2(widget_height - 100, widget_height - 100));
-                        ImGui::Text((std::string("Level: ") + std::to_string(ab->level)).c_str());
-                        if (ab->current_cooldown)
-                        {
-                            ImGui::Text((std::string("CD: ") + std::to_string(ab->current_cooldown.value())).c_str());
-                        }
-                        ImGui::NextColumn();
-                    }
-                }
-                ImGui::Columns();
-                ImGui::End();
-            }
-        }
-    };
-};
-
-class SysAbility : public System
+class SysAttack : public System
 {
 
 public:
     virtual void update(double dt)
     {
         auto& caster_components = get_array<CompCaster>();
-        bgfx::Camera* cam = &get_array<CompCamera>()[0].graphics_camera;
         for (auto& caster_component : caster_components)
         {
-            auto* nav_comp = caster_component.sibling<CompNav>();
             auto ability_set_comp = caster_component.sibling<CompAbilitySet>();
             for (auto& ab_ref : ability_set_comp->abilities)
             {
@@ -166,28 +53,10 @@ public:
                     }
                 }
             }
-            if (auto* attacker_comp = caster_component.sibling<CompAttacker>())
-            {
-                if (attacker_comp->attack_ability.is_valid())
-                {
-                    if (auto* ab = attacker_comp->attack_ability.cmp<CompAbility>())
-                    {
-                        if (ab->current_cooldown)
-                        {
-                            ab->current_cooldown.value() -= dt;
-                            if (ab->current_cooldown <= 0)
-                            {
-                                ab->current_cooldown = std::nullopt;
-                            }
-                        }
-                        
-                    }
-                }
-            }
             if (caster_component.ability_index >= 0)
             {
                 CompAbility* ability = nullptr;
-                if (caster_component.ability_index < 11)
+                if (caster_component.ability_index < 10)
                 {
                     ability = caster_component.get_ability(caster_component.ability_index);
                 }
@@ -199,8 +68,6 @@ public:
                 {
                     case AbilityState::CastPoint:
                         {
-                            nav_comp->stop();
-                            std::cout << caster_component.state_time << "\n";
                             if (ability->current_cooldown)
                             {
                                 caster_component.state = AbilityState::None;
@@ -256,11 +123,6 @@ public:
                 }
             }
         }
-        if (ability_widgets.size())
-        {
-            ability_widgets[0].camera = cam;
-            ability_widgets[0].health_components = &get_array<CompHealth>();
-        }
 
         auto& radius_applicators = get_array<CompRadiusApplication>();
         update_applicators(radius_applicators);
@@ -302,15 +164,7 @@ public:
             }
             if (caster->unit_target)
             {
-                if (auto* projectile_comp = ability_instance.cmp<CompProjectile>())
-                {
-                    ability_instance.cmp<CompPosition>()->pos = caster->sibling<CompPosition>()->pos;
-                    projectile_comp->homing_target = caster->unit_target.value();
-                }
-                else
-                {
-                    ability_instance.cmp<CompPosition>()->pos = caster->unit_target.value().cmp<CompPosition>()->pos;
-                }
+                ability_instance.cmp<CompPosition>()->pos = caster->unit_target.value().cmp<CompPosition>()->pos;
             }
             else if (caster->ground_target)
             {

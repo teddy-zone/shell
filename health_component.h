@@ -54,7 +54,8 @@ struct CompHealth : public Component
             case DamageType::Physical:
                 {
                     StatPart armor = stat_comp->get_stat(Stat::Armor);
-                    net_damage = instance.damage*(1.0 - armor.addition);
+                    const float damage_multiplier = 1 - (0.06*armor.addition)/(1+0.06*std::abs(armor.addition));
+                    net_damage = instance.damage*damage_multiplier;
                 }
                 break;
         }

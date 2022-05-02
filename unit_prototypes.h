@@ -12,6 +12,8 @@
 #include "caster_component.h"
 #include "wallet_component.h"
 #include "experience_component.h"
+#include "attacker_component.h"
+#include "attackable_component.h"
 
 struct UnitProto : public ActorProto
 {
@@ -36,6 +38,8 @@ struct UnitProto : public ActorProto
                     uint32_t(type_id<CompStat>),
                     uint32_t(type_id<CompExperience>),
                     uint32_t(type_id<CompWallet>),
+                    uint32_t(type_id<CompAttacker>),
+                    uint32_t(type_id<CompAttackable>),
             }};
         append_components(unit_components);
     }
@@ -67,15 +71,10 @@ struct UnitProto : public ActorProto
         entity.cmp<CompHealth>()->health_percentage = 100;
         entity.cmp<CompStat>()->set_stat(Stat::MaxHealth, 200);
         entity.cmp<CompStat>()->set_stat(Stat::MagicResist, 0.25);
+        entity.cmp<CompStat>()->set_stat(Stat::Armor, 2);
         entity.cmp<CompInventory>()->visible = true;
         entity.cmp<CompWallet>()->balance = 2200;
         entity.cmp<CompExperience>()->experience = 0;
-        /*
-        entity.cmp<CompAnimation>()->start_time = 0;
-        entity.cmp<CompAnimation>()->end_time = 50;
-        entity.cmp<CompAnimation>()->start_scale = glm::vec3(1.0);
-        entity.cmp<CompAnimation>()->end_scale = glm::vec3(5.0);
-        */
     }
 };
 
