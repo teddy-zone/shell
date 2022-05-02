@@ -295,6 +295,10 @@ public:
             if (auto* rad_app = ability_instance.cmp<CompRadiusApplication>())
             {
                 rad_app->radius = ab->radius;
+                if (rad_app->damage)
+                {
+                    rad_app->damage.value().applier = caster->get_entity();
+                }
             }
             if (auto* decal = ability_instance.cmp<CompDecal>())
             {
@@ -326,6 +330,8 @@ public:
                 }
             }
         }
+        caster->unit_target = std::nullopt;
+        caster->ground_target = std::nullopt;
     }
 
     void update_applicators(std::vector<CompRadiusApplication>& applicator_array)

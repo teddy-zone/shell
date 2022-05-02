@@ -53,14 +53,22 @@ public:
                     }
                     auto* pos_comp = command_component.sibling<CompPosition>();
                     auto attackable_entities = _interface->data_within_sphere_selective(pos_comp->pos, 50, {uint32_t(type_id<CompAttackable>)});
+                    EntityRef closest_entity;
+                    float closest_distance = 1000000;
                     for (auto& ent : attackable_entities)
                     {
-                        if (ent.get_id() != pos_comp->get_id())
+                        float dist = glm::length(pos_comp->pos - ent.cmp<CompPosition>()->pos);
+                        if (ent.get_id() != pos_comp->get_id() && dist < closest_distance)
                         {
-                            AttackCommand attack_command;
-                            attack_command.target = ent;
-                            command_component.set_command(attack_command);
+                            closest_entity = ent;
+                            closest_distance = dist;
                         }
+                    }
+                    if (closest_entity.is_valid())
+                    { 
+                        AttackCommand attack_command;
+                        attack_command.target = closest_entity;
+                        command_component.set_command(attack_command);
                     }
                 } 
                 else if (auto cmd = std::dynamic_pointer_cast<AbilityCommand>(next_command)) 
@@ -106,24 +114,32 @@ public:
             // if within cast range or not unit targeted and not ground targeted
             if (cmd->entity_target)
             {
-                auto target_loc = cmd->entity_target.value().cmp<CompPosition>()->pos;
-                auto range = glm::length(target_loc - my_loc);
-                if (range < ability_comp->cast_range )
+                if (cmd->entity_target.value().is_valid())
                 {
-                    if (caster_comp->state == AbilityState::None)
+                    auto target_loc = cmd->entity_target.value().cmp<CompPosition>()->pos;
+                    auto range = glm::length(target_loc - my_loc);
+                    if (range < ability_comp->cast_range )
                     {
-                        caster_comp->activate_ability(cmd->ability_index);
-                        caster_comp->unit_target = cmd->entity_target;
+                        if (caster_comp->state == AbilityState::None)
+                        {
+                            caster_comp->activate_ability(cmd->ability_index);
+                            caster_comp->unit_target = cmd->entity_target;
+                            caster_comp->ground_target = std::nullopt;
+                        }
+                    }
+                    else
+                    {
+                        // else move to target
+                        if (is_new)
+                        {
+                            nav_component->set_destination(cmd->entity_target.value());
+                            return false;
+                        }
                     }
                 }
                 else
                 {
-                    // else move to target
-                    if (is_new)
-                    {
-                        nav_component->set_destination(cmd->entity_target.value());
-                        return false;
-                    }
+                    return true;
                 }
             }
             else if (cmd->ground_target)
@@ -133,6 +149,7 @@ public:
                 {
                     caster_comp->activate_ability(cmd->ability_index);
                     caster_comp->ground_target = cmd->ground_target;
+                    caster_comp->unit_target = std::nullopt;
                 }
                 else
                 {

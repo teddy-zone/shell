@@ -52,6 +52,10 @@ public:
             // ABOVE UNIT HEALTH BAR
             glm::vec4 screen_space = camera->world_to_screen_space(entity_pos);
             ImVec2 p = ImVec2(screen_space.x - 40, CompWidget::window_height - screen_space.y - 50);
+            if (!(p.x > 0 && p.x < CompWidget::window_width &&
+                p.y > 0 && p.y < CompWidget::window_height &&
+                screen_space.z < 1.0))
+            { continue; }
             ImGui::SetNextWindowPos(ImVec2(p.x - 4, p.y-2));
             ImGui::SetNextWindowSize(ImVec2(unit_health_bar_width + 20, unit_health_bar_height + 20));
             ImGui::Begin(("HealthBar" + std::to_string(index)).c_str(), &active, 
@@ -159,13 +163,20 @@ public:
             if (auto* inventory = entity.cmp<CompInventory>())
             {
                 bool active = true;
-                int widget_height = 150;
+                int widget_height = 180;
                 int widget_width = 250;
                 ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width - (10 + widget_width), CompWidget::window_height - (10 + widget_height)));
                 //ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width - (10 + widget_width), 10));
                 ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
                 ImGui::Begin("Inventory", &active, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
-
+                if (auto* wallet_comp = entity.cmp<CompWallet>())
+                {
+                    ImGui::Text(std::string("GOLD: " + std::to_string(wallet_comp->balance)).c_str());
+                }
+                else
+                {
+                    ImGui::Text(std::string(" ").c_str());
+                }
                 int item_count = 6;
                 int column_count = 3;
                 int row_count = 2;
