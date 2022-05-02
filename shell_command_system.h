@@ -124,6 +124,7 @@ public:
                         {
                             caster_comp->activate_ability(cmd->ability_index);
                             caster_comp->unit_target = cmd->entity_target;
+                            caster_comp->ground_target = std::nullopt;
                         }
                     }
                     else
@@ -148,6 +149,7 @@ public:
                 {
                     caster_comp->activate_ability(cmd->ability_index);
                     caster_comp->ground_target = cmd->ground_target;
+                    caster_comp->unit_target = std::nullopt;
                 }
                 else
                 {
