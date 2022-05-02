@@ -53,7 +53,8 @@ public:
             glm::vec4 screen_space = camera->world_to_screen_space(entity_pos);
             ImVec2 p = ImVec2(screen_space.x - 40, CompWidget::window_height - screen_space.y - 50);
             if (!(p.x > 0 && p.x < CompWidget::window_width &&
-                p.y > 0 && p.y < CompWidget::window_height))
+                p.y > 0 && p.y < CompWidget::window_height &&
+                screen_space.z < 1.0))
             { continue; }
             ImGui::SetNextWindowPos(ImVec2(p.x - 4, p.y-2));
             ImGui::SetNextWindowSize(ImVec2(unit_health_bar_width + 20, unit_health_bar_height + 20));
