@@ -106,24 +106,31 @@ public:
             // if within cast range or not unit targeted and not ground targeted
             if (cmd->entity_target)
             {
-                auto target_loc = cmd->entity_target.value().cmp<CompPosition>()->pos;
-                auto range = glm::length(target_loc - my_loc);
-                if (range < ability_comp->cast_range )
+                if (cmd->entity_target.value().is_valid())
                 {
-                    if (caster_comp->state == AbilityState::None)
+                    auto target_loc = cmd->entity_target.value().cmp<CompPosition>()->pos;
+                    auto range = glm::length(target_loc - my_loc);
+                    if (range < ability_comp->cast_range )
                     {
-                        caster_comp->activate_ability(cmd->ability_index);
-                        caster_comp->unit_target = cmd->entity_target;
+                        if (caster_comp->state == AbilityState::None)
+                        {
+                            caster_comp->activate_ability(cmd->ability_index);
+                            caster_comp->unit_target = cmd->entity_target;
+                        }
+                    }
+                    else
+                    {
+                        // else move to target
+                        if (is_new)
+                        {
+                            nav_component->set_destination(cmd->entity_target.value());
+                            return false;
+                        }
                     }
                 }
                 else
                 {
-                    // else move to target
-                    if (is_new)
-                    {
-                        nav_component->set_destination(cmd->entity_target.value());
-                        return false;
-                    }
+                    return true;
                 }
             }
             else if (cmd->ground_target)

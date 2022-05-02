@@ -13,6 +13,7 @@ enum class DamageType
 
 struct DamageInstance
 {
+    EntityRef applier;
     DamageType type;
     float damage;
     bool is_attack;
@@ -20,7 +21,8 @@ struct DamageInstance
 
 struct CompHealth : public Component
 {
-
+    bool is_dead;
+    std::optional<EntityRef> killer;
     float health_percentage = 100.0;
     float filtered_health_percentage = 100.0;
     float get_current_health() const
@@ -61,6 +63,11 @@ struct CompHealth : public Component
         }
         const float new_health_value = current_health_value - net_damage;
         health_percentage = 100.0*new_health_value*1.0/max_health;
+        if (health_percentage <= 0.0001)
+        {
+            is_dead = true;
+            killer = instance.applier;
+        }
     }
 
 };

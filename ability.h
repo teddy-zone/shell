@@ -162,7 +162,7 @@ struct CrystalNovaInstanceProto : public ActorProto
 
         entity.cmp<CompRadiusApplication>()->radius = 5;
         entity.cmp<CompRadiusApplication>()->tick_time = 100;
-        entity.cmp<CompRadiusApplication>()->damage = {DamageType::Magical, 100, false};
+        entity.cmp<CompRadiusApplication>()->damage = {entity, DamageType::Magical, 100, false};
 
         entity.cmp<CompDecal>()->decal.location = glm::vec4(pos, 1);
         entity.cmp<CompDecal>()->decal.color = glm::vec4(0.0,0.0,1.0,1.0);
@@ -217,7 +217,7 @@ struct IceShardsInstanceProto : public ActorProto
         entity.cmp<CompRadiusApplication>()->radius = 3;
         entity.cmp<CompRadiusApplication>()->tick_time = 0;
         entity.cmp<CompRadiusApplication>()->apply_once = true;
-        entity.cmp<CompRadiusApplication>()->damage = {DamageType::Magical, 100, false};
+        entity.cmp<CompRadiusApplication>()->damage = {entity, DamageType::Magical, 100, false};
     }
 };
 
