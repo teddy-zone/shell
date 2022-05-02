@@ -63,6 +63,10 @@ class SysShop : public GuiSystem
                         {
                             slot.count = slot.count.value() - 1;
                         }
+                        if (auto* voice = shop_inventory->sibling<CompVoice>())
+                        {
+                            voice->sounds["purchase"].trigger = true;
+                        }
                         return true;
                     }
                 }

@@ -35,7 +35,33 @@ public:
                 else if (auto cmd = std::dynamic_pointer_cast<AttackCommand>(next_command)) 
                 {
                     auto* nav_comp = command_component.sibling<CompNav>();
-                    process_attack_command(cmd, nav_comp, command_component.new_command);
+                    auto attack_ability_command = std::make_shared<AbilityCommand>();
+                    attack_ability_command->entity_target = cmd->target;
+                    attack_ability_command->ability_index = 10;
+                    if (process_ability_command(attack_ability_command, nav_comp, command_component.new_command))
+                    {
+                        //command_component.command_queue.pop_back();
+                        //command_component.new_command = true;
+                    }
+                } 
+                else if (auto cmd = std::dynamic_pointer_cast<AttackMoveCommand>(next_command)) 
+                {
+                    auto* nav_comp = command_component.sibling<CompNav>();
+                    if (nav_comp && command_component.new_command)
+                    {
+                        nav_comp->set_destination(cmd->target);
+                    }
+                    auto* pos_comp = command_component.sibling<CompPosition>();
+                    auto attackable_entities = _interface->data_within_sphere_selective(pos_comp->pos, 50, {uint32_t(type_id<CompAttackable>)});
+                    for (auto& ent : attackable_entities)
+                    {
+                        if (ent.get_id() != pos_comp->get_id())
+                        {
+                            AttackCommand attack_command;
+                            attack_command.target = ent;
+                            command_component.set_command(attack_command);
+                        }
+                    }
                 } 
                 else if (auto cmd = std::dynamic_pointer_cast<AbilityCommand>(next_command)) 
                 {
@@ -82,14 +108,22 @@ public:
             {
                 auto target_loc = cmd->entity_target.value().cmp<CompPosition>()->pos;
                 auto range = glm::length(target_loc - my_loc);
-                if (range < ability_comp->cast_range)
+                if (range < ability_comp->cast_range )
                 {
-                    caster_comp->activate_ability(cmd->ability_index);
-                    caster_comp->unit_target = cmd->entity_target;
+                    if (caster_comp->state == AbilityState::None)
+                    {
+                        caster_comp->activate_ability(cmd->ability_index);
+                        caster_comp->unit_target = cmd->entity_target;
+                    }
                 }
                 else
                 {
                     // else move to target
+                    if (is_new)
+                    {
+                        nav_component->set_destination(cmd->entity_target.value());
+                        return false;
+                    }
                 }
             }
             else if (cmd->ground_target)
