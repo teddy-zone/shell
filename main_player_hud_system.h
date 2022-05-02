@@ -13,16 +13,22 @@ public:
         auto& selected_entities = get_array<CompSelectedObjects>();
         if (selected_entities.size())
         {
+            int my_team = 0;
             if (selected_entities[0].selected_objects.size())
             {
                 auto selected_entity = selected_entities[0].selected_objects[0];
+                if (auto* team_comp = selected_entity.cmp<CompTeam>())
+                {
+                    my_team = team_comp->team;
+                }
                 update_abilities_and_health(selected_entity);
                 update_inventory(selected_entity);
             }
+            update_health_bars(my_team);
         }
     }
 
-    void update_abilities_and_health(EntityRef entity)
+    void update_health_bars(int my_team)
     {
         int index = 0;
         auto& cameras = get_array<CompCamera>();
@@ -34,6 +40,11 @@ public:
         auto& health_components = get_array<CompHealth>();
         for (auto& health_component : health_components)
         {
+            int other_team = 0;
+            if (auto* team_comp = health_component.sibling<CompTeam>())
+            {
+                other_team = team_comp->team;
+            }
             constexpr int unit_health_bar_width = 80;
             constexpr int unit_health_bar_height = 10;
             auto entity_pos = health_component.sibling<CompPosition>()->pos;
@@ -56,12 +67,21 @@ public:
                 int border_size = 1;
                 int w_border_size = 1;
                 draw_list->AddRectFilled(ImVec2(p.x+border_size, p.y+border_size), ImVec2(p.x + filter_health_width - 2*border_size, p.y + unit_health_bar_height - 2*border_size), ImColor(255,255,255), 2.0);
-                draw_list->AddRectFilled(ImVec2(p.x+w_border_size, p.y+w_border_size), ImVec2(p.x + current_health_width - 2*w_border_size, p.y + unit_health_bar_height - 2*w_border_size), ImColor(255,0,0), 2.0);
+                ImColor health_bar_color(255,0,0);
+                if (my_team == other_team)
+                {
+                    health_bar_color = ImColor(0,255,0);
+                }
+                draw_list->AddRectFilled(ImVec2(p.x+w_border_size, p.y+w_border_size), ImVec2(p.x + current_health_width - 2*w_border_size, p.y + unit_health_bar_height - 2*w_border_size), health_bar_color, 2.0);
             }
             ImGui::End();
             // END ABOVE UNIT HEALTH BAR
             index++;
         }
+    }
+
+    void update_abilities_and_health(EntityRef entity)
+    {
         if (entity.is_valid())
         {
             auto entity_pos = entity.cmp<CompPosition>()->pos;

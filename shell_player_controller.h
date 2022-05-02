@@ -108,6 +108,11 @@ public:
                     {
                         AttackMoveCommand a_move_command;
                         a_move_command.target = result.value().hit_point;
+
+                        CommandIndicatorProto command_indicator_proto(result.value().hit_point);
+                        auto a_move_indicator = _interface->add_entity_from_proto(&command_indicator_proto);
+                        a_move_indicator.cmp<CompStaticMesh>()->mesh.get_mesh()->set_solid_color(glm::vec3(1,0,0));
+
                         attacker_comp->attack_targeting = false;
                         auto* command_sys = player_comp->sibling<CompCommand>();
                         command_sys->set_command(StopCommand());

@@ -40,8 +40,8 @@ public:
                     attack_ability_command->ability_index = 10;
                     if (process_ability_command(attack_ability_command, nav_comp, command_component.new_command))
                     {
-                        command_component.command_queue.pop_back();
-                        command_component.new_command = true;
+                        //command_component.command_queue.pop_back();
+                        //command_component.new_command = true;
                     }
                 } 
                 else if (auto cmd = std::dynamic_pointer_cast<AttackMoveCommand>(next_command)) 
@@ -108,10 +108,13 @@ public:
             {
                 auto target_loc = cmd->entity_target.value().cmp<CompPosition>()->pos;
                 auto range = glm::length(target_loc - my_loc);
-                if (range < ability_comp->cast_range)
+                if (range < ability_comp->cast_range )
                 {
-                    caster_comp->activate_ability(cmd->ability_index);
-                    caster_comp->unit_target = cmd->entity_target;
+                    if (caster_comp->state == AbilityState::None)
+                    {
+                        caster_comp->activate_ability(cmd->ability_index);
+                        caster_comp->unit_target = cmd->entity_target;
+                    }
                 }
                 else
                 {
