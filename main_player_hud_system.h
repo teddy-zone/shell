@@ -26,6 +26,15 @@ public:
             }
             update_health_bars(my_team);
         }
+        update_fps_display();
+    }
+
+    void update_fps_display()
+    {
+            ImGui::SetNextWindowPos(ImVec2(2,2));
+            ImGui::Begin("FPS");
+            ImGui::Text(std::to_string(_interface->get_current_fps()).c_str());
+            ImGui::End();
     }
 
     void update_health_bars(int my_team)

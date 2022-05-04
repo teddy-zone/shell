@@ -43,6 +43,10 @@ public:
                         //command_component.command_queue.pop_back();
                         //command_component.new_command = true;
                     }
+                    else
+                    {
+                        command_component.new_command = false;
+                    }
                 } 
                 else if (auto cmd = std::dynamic_pointer_cast<AttackMoveCommand>(next_command)) 
                 {
@@ -78,6 +82,10 @@ public:
                     {
                         command_component.command_queue.pop_back();
                         command_component.new_command = true;
+                    }
+                    else
+                    {
+                        command_component.new_command = false;
                     }
                 } 
                 else if (auto cmd = std::dynamic_pointer_cast<InteractCommand>(next_command)) 
@@ -130,7 +138,7 @@ public:
                     else
                     {
                         // else move to target
-                        if (is_new)
+                        if (is_new || !nav_component->path_computed)
                         {
                             nav_component->set_destination(cmd->entity_target.value());
                             return false;
