@@ -200,7 +200,6 @@ public:
                     case AbilityState::CastPoint:
                         {
                             nav_comp->stop();
-                            std::cout << caster_component.state_time << "\n";
                             if (ability->current_cooldown)
                             {
                                 caster_component.state = AbilityState::None;

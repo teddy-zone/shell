@@ -36,7 +36,7 @@ struct AttackInstanceProto : public ActorProto
         attack_damage.is_attack = true;
         attack_damage.is_attack = true;
         attack_damage.type = DamageType::Physical;
-        attack_damage.damage = 50;
+        attack_damage.damage = 5;
         attack_damage.applier = _owner;
         entity.cmp<CompOnHit>()->damage = attack_damage;
 
