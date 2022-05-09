@@ -31,7 +31,8 @@ struct CompStatusManager : public Component, public StatInterface
         for (auto& [application_id, status_application] : statuses)
         {
             auto& [entity_id, stack_id] = application_id;
-            if (entity_id >= 0)
+            auto entity = EntityRef(entity_id);
+            if (entity.is_valid())
             {
                 auto single_status_stat_comp = (CompStat*)get_component(type_id<CompStat>, entity_id);
                 out_part = out_part.join(single_status_stat_comp->get_stat(stat));
