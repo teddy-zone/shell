@@ -40,6 +40,10 @@ public:
         music_sound.trigger = true;
         music_sound.range = 100;
 
+        auto& player1 = get_array<CompPlayer>()[0];
+        player1.sibling<CompPosition>()->pos = glm::vec3(50,50,10);
+
+
         UnitProto unit_proto(glm::vec3(1.0));
 
         auto cube_mesh = std::make_shared<bgfx::Mesh>();
