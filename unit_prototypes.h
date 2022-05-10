@@ -75,6 +75,7 @@ struct UnitProto : public ActorProto
         entity.cmp<CompStat>()->set_stat(Stat::MaxHealth, 200);
         entity.cmp<CompStat>()->set_stat(Stat::MagicResist, 0.25);
         entity.cmp<CompStat>()->set_stat(Stat::Armor, 2);
+        entity.cmp<CompStat>()->set_stat(Stat::Movespeed, 150);
         entity.cmp<CompInventory>()->visible = true;
         entity.cmp<CompWallet>()->balance = 2200;
         entity.cmp<CompExperience>()->experience = 0;

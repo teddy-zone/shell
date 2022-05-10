@@ -27,6 +27,16 @@ public:
 
     virtual void update(double dt) override
     {
+        constexpr float movespeed_translation_factor = 1.0/10.0;
+        auto& stat_comps = get_array<CompStat>();
+        for (auto& stat_comp : stat_comps)
+        {
+            if (auto* nav_comp = stat_comp.sibling<CompNav>())
+            {
+                nav_comp->max_speed = stat_comp.get_abs_stat(Stat::Movespeed)*movespeed_translation_factor;
+            }
+        }
+
         auto& selected_unit_comps = get_array<CompSelectedObjects>();
         EntityRef selected_unit;
         if (selected_unit_comps.size())

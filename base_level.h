@@ -21,6 +21,8 @@
 #include "camera_component.h"
 #include "blink_dagger.h"
 #include "basic_enemy_ai_component.h"
+#include "crystal_nova.h"
+#include "ice_shards.h"
 
 class BaseLevel : public Level
 {

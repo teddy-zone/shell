@@ -1,6 +1,7 @@
 #pragma once
 
 #include "component.h"
+#include "ability_proto.h"
 
 struct AttackInstanceProto : public ActorProto
 {
