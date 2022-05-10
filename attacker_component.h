@@ -21,7 +21,7 @@ struct AttackInstanceProto : public ActorProto
         append_components(unit_components);
     }
 
-    virtual void init(EntityRef entity) 
+    virtual void init(EntityRef entity, SystemInterface* iface) override 
     {
         entity.cmp<CompPosition>()->pos = pos;
         entity.cmp<CompPosition>()->scale = glm::vec3(0.2);
@@ -60,7 +60,7 @@ struct AttackAbilityProto : public AbilityProto
         append_components(unit_components);
     }
 
-    virtual void init(EntityRef entity) 
+    virtual void init(EntityRef entity, SystemInterface* iface) 
     {
         entity.cmp<CompAbilityInstance>()->proto = std::make_shared<AttackInstanceProto>(_owner);
         entity.cmp<CompAbility>()->cast_range = 50;

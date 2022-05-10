@@ -49,19 +49,20 @@ public:
             const int status_count = status_manager->statuses.size();
             bool active;
             const int status_width = 20;
-            const int widget_height = status_width + 20;
+            const int widget_height = status_width + 30;
             const int widget_width = status_width * status_count + 4*20;
             ImGui::SetNextWindowPos(ImVec2(widget_margin, CompWidget::window_height - (2*widget_margin + widget_height + ability_widget_height)));
             ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
             ImGui::Begin("Statuses", &active, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
-            //for (auto& [application_id, application] : status_manager->statuses)
+            for (auto& [application_id, application] : status_manager->statuses)
             {
-                //auto& [entity_id, stack_id] = application_id;
+                auto& [entity_id, stack_id] = application_id;
+                auto* status_comp = EntityRef(entity_id).cmp<CompStatus>();
                 ImGui::ImageButton(0, ImVec2(status_width, status_width));
                 if (ImGui::IsItemHovered())
                 {
-                    ImGui::SetTooltip("Status!");
+                    ImGui::SetTooltip(status_comp->get_name());
                 }
             }
 
@@ -161,7 +162,7 @@ public:
                     int cur_disp_health = health_comp->health_percentage;
                     if (auto* stat_comp = health_comp->sibling<CompStat>())
                     {
-                        max_disp_health = int(stat_comp->get_stat(Stat::MaxHealth).addition);
+                        max_disp_health = int(stat_comp->get_abs_stat(Stat::MaxHealth));
                         cur_disp_health = max_disp_health*health_comp->health_percentage/100.0;
                     }
                     std::string health_text(std::to_string(cur_disp_health) + "/" + std::to_string(max_disp_health));

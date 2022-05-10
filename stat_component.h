@@ -15,4 +15,8 @@ public:
     {
         _parts[stat].addition = value;
     }
+    void set_stat_mult(Stat stat, float value)
+    {
+        _parts[stat].multiplication = value;
+    }
 };

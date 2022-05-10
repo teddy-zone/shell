@@ -34,17 +34,18 @@ struct CompStatusManager : public Component, public StatInterface
             auto entity = EntityRef(entity_id);
             if (entity.is_valid())
             {
-                auto single_status_stat_comp = (CompStat*)get_component(type_id<CompStat>, entity_id);
+                auto* single_status_stat_comp = EntityRef(entity_id).cmp<CompStat>();
                 out_part = out_part.join(single_status_stat_comp->get_stat(stat));
             }
         }
         return out_part;
     }
 
-    void apply_status(EntityId status_eid)
+    void apply_status(CompStatus* status)
     {
-        auto status = (CompStatus*)get_component(type_id<CompStatus>, status_eid);
+        //auto status = (CompStatus*)get_component(type_id<CompStatus>, status_eid);
         float current_time = _interface->get_current_game_time();
+        EntityId status_eid = status->get_id();
         switch(status->type)
         {
             case StatusType::Aura:

@@ -93,7 +93,7 @@ struct AbilityProto : public EntityProto
         append_components(unit_components);
     }
 
-    virtual void init(EntityRef entity) 
+    virtual void init(EntityRef entity, SystemInterface* iface) override 
     {
         entity.cmp<CompAbility>()->target_decal_type = decal_type;
     }
@@ -133,7 +133,7 @@ struct CrystalNovaInstanceProto : public ActorProto
         append_components(unit_components);
     }
 
-    virtual void init(EntityRef entity) 
+    virtual void init(EntityRef entity, SystemInterface* iface) override
     {
         auto monkey_mesh = std::make_shared<bgfx::Mesh>();
         monkey_mesh->load_obj("crystal_nova.obj" );
@@ -193,7 +193,7 @@ struct IceShardsInstanceProto : public ActorProto
         append_components(unit_components);
     }
 
-    virtual void init(EntityRef entity) 
+    virtual void init(EntityRef entity, SystemInterface* iface) 
     {
         entity.cmp<CompPosition>()->pos = pos;
         entity.cmp<CompLifetime>()->lifetime = 10;
@@ -235,7 +235,7 @@ struct TargetingProto : public ActorProto
         append_components(unit_components);
     }
 
-    virtual void init(EntityRef entity) 
+    virtual void init(EntityRef entity, SystemInterface* iface) override
     {
         entity.cmp<CompDecal>()->decal.location = glm::vec4(pos, 1);
         entity.cmp<CompDecal>()->decal.color = glm::vec4(0.0,0.0,1.0,1.0);

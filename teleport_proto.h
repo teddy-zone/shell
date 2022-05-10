@@ -30,7 +30,7 @@ struct TeleportProto : public ActorProto
         append_components(unit_components);
     }
 
-    virtual void init(EntityRef entity) 
+    virtual void init(EntityRef entity, SystemInterface* iface) 
     {
         auto monkey_mesh = std::make_shared<bgfx::Mesh>();
         monkey_mesh->load_obj("cube.obj" );

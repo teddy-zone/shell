@@ -47,7 +47,7 @@ struct UnitProto : public ActorProto
         append_components(unit_components);
     }
 
-    virtual void init(EntityRef entity) 
+    virtual void init(EntityRef entity, SystemInterface* iface) 
     {
         auto cube_mesh = std::make_shared<bgfx::Mesh>();
         cube_mesh->load_obj("cube.obj");
@@ -98,7 +98,7 @@ struct CommandIndicatorProto : public ActorProto
         append_components(unit_components);
     }
 
-    virtual void init(EntityRef entity) 
+    virtual void init(EntityRef entity, SystemInterface* iface) override
     {
         auto monkey_mesh = std::make_shared<bgfx::Mesh>();
         monkey_mesh->load_obj("command_indicator.obj" );

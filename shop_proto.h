@@ -30,7 +30,7 @@ struct ShopProto : public ActorProto
         append_components(unit_components);
     }
 
-    virtual void init(EntityRef entity) 
+    virtual void init(EntityRef entity, SystemInterface* iface) 
     {
         auto cube_mesh = std::make_shared<bgfx::Mesh>();
         cube_mesh->load_obj("cube.obj");
