@@ -8,7 +8,9 @@ enum class Stat
     AttackRange,
     AttackDamage,
     MaxHealth,
+    HealthRegen,
     MaxMana,
+    ManaRegen,
     MagicResist,
     Armor
 };
@@ -26,5 +28,11 @@ struct StatPart
 
 class StatInterface
 {
+public:
     virtual StatPart get_stat(Stat stat) = 0;
+    virtual float get_abs_stat(Stat stat)
+    {
+        auto out_part = get_stat(stat);
+        return out_part.addition*out_part.multiplication;
+    }
 };

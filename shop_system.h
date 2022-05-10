@@ -57,6 +57,10 @@ class SysShop : public GuiSystem
                     {
                         // Can execute buy
                         shopper_inventory->items[i] = _interface->duplicate_entity(slot.item_entity);
+                        std::cout << "Item id: " << shopper_inventory->items[i].get_id() << "\n";
+                        std::cout << "Shopper id: " << shopper_inventory->get_id() << "\n";
+                        auto* owner = &shopper_inventory->items[i].cmp<CompHasOwner>()->owner;
+                        *owner = shopper_wallet->get_entity();
                         shopper_wallet->balance -= slot.cost;
                         // If item has limited stock, decrement stock
                         if (slot.count)
@@ -116,7 +120,7 @@ class SysShop : public GuiSystem
         {
             index++;
             auto item_name = slot.item_entity.cmp<CompItem>()->name;
-            if (ImGui::ImageButton(0, ImVec2(widget_height/2 - 30, widget_height/2 - 30)))
+            if (ImGui::ImageButton(ImTextureID(index), ImVec2(widget_height/2 - 30, widget_height/2 - 30)))
             {
                 if (slot.item_entity.is_valid())
                 {

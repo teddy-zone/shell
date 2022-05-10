@@ -1,12 +1,15 @@
 #pragma once 
 
 #include "system.h"
+#include "status_manager.h"
 
 class SysMainPlayerHud : public GuiSystem
 {
 
 public:
 
+    const int widget_margin = 10;
+    const int ability_widget_height = 150;
 
     virtual void update_gui(double dt) override
     {
@@ -21,6 +24,7 @@ public:
                 {
                     my_team = team_comp->team;
                 }
+                update_statuses(selected_entity);
                 update_abilities_and_health(selected_entity);
                 update_inventory(selected_entity);
             }
@@ -35,6 +39,35 @@ public:
             ImGui::Begin("FPS");
             ImGui::Text(std::to_string(_interface->get_current_fps()).c_str());
             ImGui::End();
+    }
+
+    void update_statuses(EntityRef entity)
+    {
+        const auto* status_manager = entity.cmp<CompStatusManager>();
+        if (status_manager)
+        {
+            const int status_count = status_manager->statuses.size();
+            bool active;
+            const int status_width = 20;
+            const int widget_height = status_width + 30;
+            const int widget_width = status_width * status_count + 4*20;
+            ImGui::SetNextWindowPos(ImVec2(widget_margin, CompWidget::window_height - (2*widget_margin + widget_height + ability_widget_height)));
+            ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
+            ImGui::Begin("Statuses", &active, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+
+            for (auto& [application_id, application] : status_manager->statuses)
+            {
+                auto& [entity_id, stack_id] = application_id;
+                auto* status_comp = EntityRef(entity_id).cmp<CompStatus>();
+                ImGui::ImageButton(0, ImVec2(status_width, status_width));
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip(status_comp->get_name());
+                }
+            }
+
+            ImGui::End();
+        }
     }
 
     void update_health_bars(int my_team)
@@ -113,9 +146,9 @@ public:
                 bool active = true;
 
                 const int ability_width = 100;
-                const int widget_height = 150;
+                const int widget_height = ability_widget_height;
                 const int widget_width = ability_width * ability_count;;
-                ImGui::SetNextWindowPos(ImVec2(10, CompWidget::window_height - (10 + widget_height)));
+                ImGui::SetNextWindowPos(ImVec2(widget_margin, CompWidget::window_height - (widget_margin + widget_height)));
                 ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
                 ImGui::Begin("Abilities", &active, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
@@ -129,7 +162,7 @@ public:
                     int cur_disp_health = health_comp->health_percentage;
                     if (auto* stat_comp = health_comp->sibling<CompStat>())
                     {
-                        max_disp_health = int(stat_comp->get_stat(Stat::MaxHealth).addition);
+                        max_disp_health = int(stat_comp->get_abs_stat(Stat::MaxHealth));
                         cur_disp_health = max_disp_health*health_comp->health_percentage/100.0;
                     }
                     std::string health_text(std::to_string(cur_disp_health) + "/" + std::to_string(max_disp_health));

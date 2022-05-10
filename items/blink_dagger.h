@@ -16,7 +16,7 @@ struct BlinkDaggerProto : public ItemProto
         append_components(unit_components);
     }
 
-    virtual void init(EntityRef entity) 
+    virtual void init(EntityRef entity, SystemInterface* iface) 
     {
         entity.cmp<CompAbility>()->cast_point = 0.5;
         entity.cmp<CompAbility>()->backswing = 0.5;

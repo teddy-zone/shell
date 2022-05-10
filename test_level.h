@@ -19,6 +19,7 @@
 #include "shop_proto.h"
 #include "camera_component.h"
 #include "blink_dagger.h"
+#include "vladmirs_offering.h"
 #include "basic_enemy_ai_component.h"
 #include "level.h"
 #include "unit_prototypes.h"
@@ -72,6 +73,15 @@ public:
             blink_dagger_entity.cmp<CompItem>()->name = "Blink Dagger";
             shopkeeper.cmp<CompShopInventory>()->slots.push_back(blink_dagger_slot);
         }
+        {
+            VladmirProto vladmir_proto;
+            auto vladmir_entity = c->add_entity_from_proto(&vladmir_proto);
+            InventorySlot vladmir_slot;
+            vladmir_slot.cost = 1500;
+            vladmir_slot.item_entity = vladmir_entity;
+            vladmir_entity.cmp<CompItem>()->name = "Vladmir's Offering";
+            shopkeeper.cmp<CompShopInventory>()->slots.push_back(vladmir_slot);
+        }
         shopkeeper.cmp<CompInteractable>()->interaction_callback = [](SystemInterface* sys_interface, EntityRef interactor, EntityRef interactee)
             {
                 if (auto* inventory = interactee.cmp<CompShopInventory>())
@@ -117,8 +127,9 @@ public:
             CompBasicEnemyAI ai_comp;
             ai_comp.vision_range = 20;
             c->add_component(ai_comp, enemy_playerr.get_id());
-            AttackAbilityProto attack_ability_proto(enemy_playerr);
-            enemy_playerr.cmp<CompAttacker>()->attack_ability = c->add_entity_from_proto(static_cast<EntityProto*>(&attack_ability_proto));
+            //AttackAbilityProto attack_ability_proto(enemy_playerr);
+            //enemy_playerr.cmp<CompAttacker>()->attack_ability = c->add_entity_from_proto(static_cast<EntityProto*>(&attack_ability_proto));
+            enemy_playerr.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 15;
         }
 
         TeleportProto teleproto(glm::vec3(1.0));

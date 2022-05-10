@@ -18,6 +18,52 @@ struct CompCaster : public Component
         state = AbilityState::CastPoint;
         state_time = 0.0;
     }
+
+    std::vector<CompOnCast*> get_on_cast_components()
+    {
+        std::vector<CompOnCast*> out_components;
+        if (auto* ability_set = sibling<CompAbilitySet>())
+        {
+            for (auto& ability : ability_set->abilities)
+            {
+                if (auto* on_cast_comp = ability.cmp<CompOnCast>())
+                {
+                    if (on_cast_comp->any_ability)
+                    {
+                        out_components.push_back(on_cast_comp);
+                    }
+                }
+            }
+        }
+
+        if (auto* inventory = sibling<CompInventory>())
+        {
+            for (auto& item : inventory->items)
+            {
+                if (auto* on_cast_comp = item.cmp<CompOnCast>())
+                {
+                    if (on_cast_comp->any_item)
+                    {
+                        out_components.push_back(on_cast_comp);
+                    }
+                }
+            }
+        }
+
+        if (auto* status_manager = sibling<CompStatusManager>())
+        {
+            for (auto& [application_id, application] : status_manager->statuses)
+            {
+                EntityRef status = EntityRef(std::get<0>(application_id));
+                if (auto* on_cast_comp = status.cmp<CompOnCast>())
+                {
+                    out_components.push_back(on_cast_comp);
+                }
+            }
+        }
+        return out_components;
+    }
+
     CompAbility* get_ability(std::optional<int> in_index=std::nullopt)
     {
         int to_get;

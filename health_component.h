@@ -30,8 +30,8 @@ struct CompHealth : public Component
         auto stat_comp = sibling<CompStat>();
         if (stat_comp)
         {
-            auto max_health = stat_comp->get_stat(Stat::MaxHealth);
-            return health_percentage*max_health.addition/100.0;
+            auto max_health = stat_comp->get_abs_stat(Stat::MaxHealth);
+            return health_percentage*max_health/100.0;
         }
         else
         {
@@ -42,7 +42,7 @@ struct CompHealth : public Component
     void apply_damage(const DamageInstance& instance)
     {
         auto* stat_comp = sibling<CompStat>();
-        const float max_health = stat_comp->get_stat(Stat::MaxHealth).addition;
+        const float max_health = stat_comp->get_abs_stat(Stat::MaxHealth);
         const float current_health_value = get_current_health();
         float net_damage = instance.damage;
         switch (instance.type)
@@ -55,8 +55,8 @@ struct CompHealth : public Component
                 break;
             case DamageType::Physical:
                 {
-                    StatPart armor = stat_comp->get_stat(Stat::Armor);
-                    const float damage_multiplier = 1 - (0.06*armor.addition)/(1+0.06*std::abs(armor.addition));
+                    float armor = stat_comp->get_abs_stat(Stat::Armor);
+                    const float damage_multiplier = 1 - (0.06*armor)/(1+0.06*std::abs(armor));
                     net_damage = instance.damage*damage_multiplier;
                 }
                 break;
