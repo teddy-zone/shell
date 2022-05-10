@@ -127,8 +127,8 @@ public:
             CompBasicEnemyAI ai_comp;
             ai_comp.vision_range = 20;
             c->add_component(ai_comp, enemy_playerr.get_id());
-            AttackAbilityProto attack_ability_proto(enemy_playerr);
-            enemy_playerr.cmp<CompAttacker>()->attack_ability = c->add_entity_from_proto(static_cast<EntityProto*>(&attack_ability_proto));
+            //AttackAbilityProto attack_ability_proto(enemy_playerr);
+            //enemy_playerr.cmp<CompAttacker>()->attack_ability = c->add_entity_from_proto(static_cast<EntityProto*>(&attack_ability_proto));
             enemy_playerr.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 15;
         }
 

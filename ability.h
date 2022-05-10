@@ -45,6 +45,7 @@ struct CompAbility : public Component
     float backswing;
     bool ground_targeted;
     bool unit_targeted;
+    bool self_targeted;
     bool channeled;
     float channel_time;
     int level;

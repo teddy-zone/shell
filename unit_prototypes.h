@@ -15,6 +15,9 @@
 #include "attacker_component.h"
 #include "attackable_component.h"
 #include "bounty_component.h"
+#include "speed_boost.h"
+#include "crystal_nova.h"
+#include "ice_shards.h"
 
 struct UnitProto : public ActorProto
 {
@@ -81,6 +84,51 @@ struct UnitProto : public ActorProto
         entity.cmp<CompExperience>()->experience = 0;
         entity.cmp<CompBounty>()->money_bounty = 200;
         entity.cmp<CompBounty>()->exp_bounty = 100;
+
+        SpeedBoostAbilityProto speed_boost_proto;
+        auto test_ability = iface->add_entity_from_proto(&speed_boost_proto);
+        test_ability.cmp<CompAbility>()->cast_point = 0.5;
+        test_ability.cmp<CompAbility>()->backswing = 1.5;
+
+        AbilityProto test_ability_proto2(TargetDecalType::Circle);
+        auto test_ability2 = iface->add_entity_from_proto(static_cast<EntityProto*>(&test_ability_proto2));
+        test_ability2.cmp<CompAbility>()->cast_point = 1.5;
+        test_ability2.cmp<CompAbility>()->backswing = 0.5;
+        test_ability2.cmp<CompAbility>()->ground_targeted = true;
+        test_ability2.cmp<CompAbility>()->unit_targeted = false;
+        test_ability2.cmp<CompAbility>()->cooldown = 3.5;
+        test_ability2.cmp<CompAbility>()->cast_range = 100;
+        test_ability2.cmp<CompAbility>()->radius = 10;
+        test_ability2.cmp<CompAbility>()->target_decal_type = TargetDecalType::Circle;
+        test_ability2.cmp<CompTeam>()->team = 1;
+        auto crystal_nova_proto = std::make_shared<CrystalNovaInstanceProto>(glm::vec3(0,0,0));
+        iface->add_component(CompAbilityInstance(), test_ability2.get_id());
+        auto ab_inst = test_ability2.cmp<CompAbilityInstance>();
+        auto cn_proto = std::dynamic_pointer_cast<EntityProto>(crystal_nova_proto);
+        ab_inst->proto = cn_proto;
+
+        AbilityProto test_ability_proto3(TargetDecalType::Cone);
+        auto test_ability3 = iface->add_entity_from_proto(static_cast<EntityProto*>(&test_ability_proto3));
+        test_ability3.cmp<CompAbility>()->cast_point = 0.5;
+        test_ability3.cmp<CompAbility>()->backswing = 0.5;
+        test_ability3.cmp<CompAbility>()->ground_targeted = true;
+        test_ability3.cmp<CompAbility>()->unit_targeted = false;
+        test_ability3.cmp<CompAbility>()->cooldown = 3.5;
+        test_ability3.cmp<CompAbility>()->cast_range = 100;
+        test_ability3.cmp<CompAbility>()->radius = 2;
+        test_ability3.cmp<CompAbility>()->target_decal_type = TargetDecalType::Cone;
+        test_ability3.cmp<CompTeam>()->team = 1;
+        auto crystal_nova_proto2 = std::make_shared<IceShardsInstanceProto>(glm::vec3(0,0,0));
+        iface->add_component(CompAbilityInstance(), test_ability3.get_id());
+        auto ab_inst2 = test_ability3.cmp<CompAbilityInstance>();
+        auto cn_proto2 = std::dynamic_pointer_cast<EntityProto>(crystal_nova_proto2);
+        ab_inst2->proto = cn_proto2;
+
+        entity.cmp<CompAbilitySet>()->abilities[0] = test_ability;
+        entity.cmp<CompAbilitySet>()->abilities[2] = test_ability2;
+        entity.cmp<CompAbilitySet>()->abilities[1] = test_ability3;
+        AttackAbilityProto attack_ability_proto(entity);
+        entity.cmp<CompAttacker>()->attack_ability = iface->add_entity_from_proto(static_cast<EntityProto*>(&attack_ability_proto));
     }
 };
 

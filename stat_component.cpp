@@ -6,7 +6,12 @@
 
 StatPart CompStat::get_stat(Stat stat) 
 {
-    StatPart out_part = _parts.at(stat);
+
+    StatPart out_part;
+    if (_parts.count(stat))
+    {
+        out_part = _parts.at(stat);
+    }
     auto ability_set_comp = sibling<CompAbilitySet>();
     if (ability_set_comp)
     {

@@ -34,8 +34,10 @@ struct CompStatusManager : public Component, public StatInterface
             auto entity = EntityRef(entity_id);
             if (entity.is_valid())
             {
-                auto* single_status_stat_comp = EntityRef(entity_id).cmp<CompStat>();
-                out_part = out_part.join(single_status_stat_comp->get_stat(stat));
+                if (auto* single_status_stat_comp = EntityRef(entity_id).cmp<CompStat>())
+                {
+                    out_part = out_part.join(single_status_stat_comp->get_stat(stat));
+                }
             }
         }
         return out_part;

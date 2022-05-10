@@ -14,7 +14,7 @@ struct AbilityIceShardsProto : AbilityProto
         append_components(unit_components);
     }
 
-    virtual void init(EntityRef entity) 
+    virtual void init(EntityRef entity, SystemInterface* iface) override
     {
     }
 };

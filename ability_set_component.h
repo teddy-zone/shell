@@ -14,9 +14,12 @@ struct CompAbilitySet : public Component, public StatInterface
         StatPart out_part;
         for (auto& ability_ref : abilities)
         {
-            if (auto* single_ability_stat_comp = ability_ref.cmp<CompStat>())
+            if (ability_ref.is_valid())
             {
-                out_part = out_part.join(single_ability_stat_comp->get_stat(stat));
+                if (auto* single_ability_stat_comp = ability_ref.cmp<CompStat>())
+                {
+                    out_part = out_part.join(single_ability_stat_comp->get_stat(stat));
+                }
             }
         }
         return out_part;

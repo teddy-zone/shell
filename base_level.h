@@ -43,14 +43,11 @@ public:
         auto box_mat = std::make_shared<bgfx::Material>();
         auto c = _interface;
 
-        AbilityProto test_ability_proto(TargetDecalType::None);
-        auto test_ability = c->add_entity_from_proto(static_cast<EntityProto*>(&test_ability_proto));
+/*
+        SpeedBoostAbilityProto speed_boost_proto;
+        auto test_ability = c->add_entity_from_proto(&speed_boost_proto);
         test_ability.cmp<CompAbility>()->cast_point = 0.5;
         test_ability.cmp<CompAbility>()->backswing = 1.5;
-        test_ability.cmp<CompAbility>()->ground_targeted = false;
-        test_ability.cmp<CompAbility>()->unit_targeted = false;
-        test_ability.cmp<CompAbility>()->cooldown = 5;
-        test_ability.cmp<CompAbility>()->max_level = 4;
 
         AbilityProto test_ability_proto2(TargetDecalType::Circle);
         auto test_ability2 = c->add_entity_from_proto(static_cast<EntityProto*>(&test_ability_proto2));
@@ -85,15 +82,18 @@ public:
         auto ab_inst2 = test_ability3.cmp<CompAbilityInstance>();
         auto cn_proto2 = std::dynamic_pointer_cast<EntityProto>(crystal_nova_proto2);
         ab_inst2->proto = cn_proto2;
+        */
 
         UnitProto unit_proto(glm::vec3(1.0));
         auto player = c->add_entity_from_proto(static_cast<EntityProto*>(&unit_proto));
+        /*
         player.cmp<CompAbilitySet>()->abilities[0] = test_ability;
         player.cmp<CompAbilitySet>()->abilities[2] = test_ability2;
         player.cmp<CompAbilitySet>()->abilities[1] = test_ability3;
-        player.cmp<CompTeam>()->team = 1;
         AttackAbilityProto attack_ability_proto(player);
         player.cmp<CompAttacker>()->attack_ability = c->add_entity_from_proto(static_cast<EntityProto*>(&attack_ability_proto));
+        */
+        player.cmp<CompTeam>()->team = 1;
         c->add_component(CompPlayer(), player.get_id());
 
         
