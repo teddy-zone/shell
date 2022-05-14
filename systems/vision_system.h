@@ -13,11 +13,24 @@ public:
 
     virtual void init_update() override
     {
-        _frame_skip = 4;
+        _frame_skip = 0;
     }
 
     virtual void update(double dt) override
     {
+        Team my_team = 0;
+        auto& selected_entities = get_array<CompSelectedObjects>();
+        if (selected_entities.size())
+        {
+            if (selected_entities[0].selected_objects.size())
+            {
+                auto selected_entity = selected_entities[0].selected_objects[0];
+                if (auto* team_comp = selected_entity.cmp<CompTeam>())
+                {
+                    my_team = team_comp->team;
+                }
+            }
+        }
         auto& eyes = get_array<CompEye>();
         auto& vision_statuses = get_array<CompVisionStatus>();
         for (auto& vision_status : vision_statuses)
@@ -47,6 +60,20 @@ public:
             }
             if (auto* eye_pos_comp = eye.sibling<CompPosition>())
             {
+                if (eye_team == my_team)
+                {
+                    constexpr float PI = 3.1415926;
+                    const int num_evenly_spaced_rays = 50;
+                    const float angle_increment = PI*2/num_evenly_spaced_rays;
+                    for (float current_angle = 0; current_angle < PI*2; current_angle += angle_increment)
+                    {
+                        glm::vec3 ray_dir(cos(current_angle), sin(current_angle), 0);
+                        ray::Ray vision_ray = ray::New(eye_pos_comp->pos, glm::normalize(ray_dir));
+                        auto ray_result = _interface->fire_ray(vision_ray, ray::HitType::StaticOnly, eye.vision_range);
+
+                    }
+                }
+
                 auto entities_in_range = _interface->data_within_sphere_selective(eye_pos_comp->pos, eye.vision_range, {uint32_t(type_id<CompVisionAffected>)}); 
                 for (auto& entity_in_range : entities_in_range)
                 {
@@ -64,7 +91,7 @@ public:
                             if (distance < eye.vision_range)
                             {
                                 ray::Ray vision_ray = ray::New(eye_pos_comp->pos, glm::normalize(ray_dir));
-                                auto ray_result = _interface->fire_ray(vision_ray, ray::HitType::StaticOnly);
+                                auto ray_result = _interface->fire_ray(vision_ray, ray::HitType::StaticOnly, eye.vision_range);
                                 if (!ray_result)
                                 {
                                     for (auto& vision_status : vision_statuses)
@@ -91,19 +118,6 @@ public:
 
         if (vision_statuses.size())
         {
-            Team my_team = 0;
-            auto& selected_entities = get_array<CompSelectedObjects>();
-            if (selected_entities.size())
-            {
-                if (selected_entities[0].selected_objects.size())
-                {
-                    auto selected_entity = selected_entities[0].selected_objects[0];
-                    if (auto* team_comp = selected_entity.cmp<CompTeam>())
-                    {
-                        my_team = team_comp->team;
-                    }
-                }
-            }
             auto& vision_affected = get_array<CompVisionAffected>();
             for (auto& vision_affected_comp : vision_affected)
             {
@@ -120,11 +134,11 @@ public:
                     }
                     if (vision_statuses[0].team_vision.at(my_team).find(vision_affected_comp.get_id()) != vision_statuses[0].team_vision.at(my_team).end())
                     {
-                        static_mesh_comp->visible = true;
+                        static_mesh_comp->set_visibility(true);
                     }
                     else
                     {
-                        static_mesh_comp->visible = false;
+                        static_mesh_comp->set_visibility(false);
                     }
                 }
             }

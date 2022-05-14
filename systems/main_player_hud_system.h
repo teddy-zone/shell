@@ -35,9 +35,24 @@ public:
 
     void update_fps_display()
     {
+            static int count = 0;
+            static float fps = 0;
+            static int fps_count = 0;
+            count += 1;
+            if (count % 15 == 0)
+            {
+                fps = fps_count*1.0/count;
+                count = 0;
+                fps_count = 0;
+            }
+            else
+            {
+                fps_count += _interface->get_current_fps();
+            }
+            fps = _interface->get_current_fps();
             ImGui::SetNextWindowPos(ImVec2(2,2));
             ImGui::Begin("FPS");
-            ImGui::Text(std::to_string(_interface->get_current_fps()).c_str());
+            ImGui::Text(std::to_string(fps).c_str());
             ImGui::End();
     }
 
@@ -82,6 +97,11 @@ public:
         auto& health_components = get_array<CompHealth>();
         for (auto& health_component : health_components)
         {
+            auto* comp_static_mesh = health_component.sibling<CompStaticMesh>();
+            if (comp_static_mesh->visible == false)
+            {
+                continue;
+            }
             int other_team = 0;
             if (auto* team_comp = health_component.sibling<CompTeam>())
             {
