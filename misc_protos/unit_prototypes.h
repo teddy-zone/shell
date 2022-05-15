@@ -18,6 +18,8 @@
 #include "speed_boost.h"
 #include "crystal_nova.h"
 #include "ice_shards.h"
+#include "eye_component.h"
+#include "vision_affected_component.h"
 
 struct UnitProto : public ActorProto
 {
@@ -46,6 +48,8 @@ struct UnitProto : public ActorProto
                     uint32_t(type_id<CompAttackable>),
                     uint32_t(type_id<CompBounty>),
                     uint32_t(type_id<CompVoice>),
+                    uint32_t(type_id<CompEye>),
+                    uint32_t(type_id<CompVisionAffected>),
             }};
         append_components(unit_components);
     }
@@ -59,6 +63,8 @@ struct UnitProto : public ActorProto
         entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 1);
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
         auto box_mat = std::make_shared<bgfx::Material>();
+
+        entity.cmp<CompEye>()->vision_range = 50;
 
         std::ifstream t("C:\\Users\\tjwal\\projects\\ECS\\materials\\box_mat\\VertexShader.glsl");
         std::stringstream buffer;

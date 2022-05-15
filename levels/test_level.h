@@ -119,7 +119,7 @@ public:
         bounds->insert_size = 5.0;
         pos->pos = glm::vec3(1,1,1);
         
-        for (int i = 0; i < 10; ++i)
+        for (int i = 0; i < 40; ++i)
         {
             auto enemy_playerr = c->add_entity_from_proto(static_cast<EntityProto*>(&unit_proto));
             enemy_playerr.cmp<CompPosition>()->pos = glm::vec3(zerotoone_level()* 100.0f, zerotoone_level()* 100.0f, (zerotoone_level()*0.5 + 0.5)*100.0f) + glm::vec3(2.0, 2.0,0);
