@@ -95,6 +95,7 @@ struct UnitProto : public ActorProto
         auto test_ability = iface->add_entity_from_proto(&speed_boost_proto);
         test_ability.cmp<CompAbility>()->cast_point = 0.5;
         test_ability.cmp<CompAbility>()->backswing = 1.5;
+        test_ability.cmp<CompAbility>()->max_level = 4;
 
         AbilityProto test_ability_proto2(TargetDecalType::Circle);
         auto test_ability2 = iface->add_entity_from_proto(static_cast<EntityProto*>(&test_ability_proto2));
@@ -106,6 +107,7 @@ struct UnitProto : public ActorProto
         test_ability2.cmp<CompAbility>()->cast_range = 100;
         test_ability2.cmp<CompAbility>()->radius = 10;
         test_ability2.cmp<CompAbility>()->target_decal_type = TargetDecalType::Circle;
+        test_ability2.cmp<CompAbility>()->max_level = 4;
         test_ability2.cmp<CompTeam>()->team = 1;
         auto crystal_nova_proto = std::make_shared<CrystalNovaInstanceProto>(glm::vec3(0,0,0));
         iface->add_component(CompAbilityInstance(), test_ability2.get_id());
@@ -122,6 +124,7 @@ struct UnitProto : public ActorProto
         test_ability3.cmp<CompAbility>()->cooldown = 3.5;
         test_ability3.cmp<CompAbility>()->cast_range = 100;
         test_ability3.cmp<CompAbility>()->radius = 2;
+        test_ability3.cmp<CompAbility>()->max_level = 4;
         test_ability3.cmp<CompAbility>()->target_decal_type = TargetDecalType::Cone;
         test_ability3.cmp<CompTeam>()->team = 1;
         auto crystal_nova_proto2 = std::make_shared<IceShardsInstanceProto>(glm::vec3(0,0,0));

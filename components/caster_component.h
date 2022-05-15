@@ -23,27 +23,39 @@ struct CompCaster : public Component
     {
         if (auto* ability_set = sibling<CompAbilitySet>())
         {
-            auto* comp_ability = ability_set->abilities[ability_num].cmp<CompAbility>();
-            const int current_ability_level = comp_ability->level;
-            if (ability_num < 3)
+            int total_levels = 0;
+            for (auto& ability : ability_set->abilities)
             {
-                if (current_level > 2*current_ability_level)
+                if (ability.is_valid())
                 {
-                    if (comp_ability->max_level > current_level)
-                    {
-                        return true;
-                    }
+                    auto* comp_ability_it = ability.cmp<CompAbility>();
+                    total_levels += comp_ability_it->level;
                 }
             }
-            else if (ability_num == 3)
+            if (current_level > total_levels)
             {
-                if (current_level >= 6 && current_ability_level < 1 ||
-                    current_level >= 12 && current_ability_level < 2 ||
-                    current_level >= 18 && current_ability_level < 3)
+                auto* comp_ability = ability_set->abilities[ability_num].cmp<CompAbility>();
+                const int current_ability_level = comp_ability->level;
+                if (ability_num < 3)
                 {
-                    if (comp_ability->max_level > current_level)
+                    if (current_level > 2*current_ability_level)
                     {
-                        return true;
+                        if (comp_ability->max_level > current_level)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                else if (ability_num == 3)
+                {
+                    if (current_level >= 6 && current_ability_level < 1 ||
+                        current_level >= 12 && current_ability_level < 2 ||
+                        current_level >= 18 && current_ability_level < 3)
+                    {
+                        if (comp_ability->max_level > current_level)
+                        {
+                            return true;
+                        }
                     }
                 }
             }

@@ -20,11 +20,11 @@ struct CompExperience : public Component
     float experience;
     unsigned int get_level() const
     {
-        int lower_level = 0;
-        int higher_level = exp_curve.size() - 1;
+        int lower_level = 1;
+        int higher_level = exp_curve.size();
         if (experience > exp_curve.back())
         {
-            return exp_curve.size() - 1;
+            return exp_curve.size();
         }
         if (experience < exp_curve[0])
         {

@@ -282,8 +282,9 @@ public:
             if (keystate.push[GLFW_KEY_4]) {items_to_service.push_back(3);}
             if (keystate.push[GLFW_KEY_5]) {items_to_service.push_back(4);}
             if (keystate.push[GLFW_KEY_6]) {items_to_service.push_back(5);}
-            if (keystate.push[GLFW_KEY_LEFT_CONTROL] && items_to_service.size())
+            if (keystate.push[GLFW_KEY_LEFT_CONTROL])
             {
+                printf("LEVEL ABILITY\n");
                 for (auto ability_to_service : abilities_to_service)
                 {
                     if (auto* comp_ability = caster_comp->get_ability(ability_to_service))

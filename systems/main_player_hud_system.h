@@ -194,8 +194,11 @@ public:
                     ImGui::Dummy(ImVec2(health_bar_width + 10, health_bar_height + 10));
                 }
                 // END HEALTH BAR
+                auto* caster_comp = ab_set->sibling<CompCaster>();
+                auto* experience_comp = ab_set->sibling<CompExperience>();
                 
                 ImGui::Columns(ability_count); 
+                int ability_num = 0;
                 for (auto& ability : ab_set->abilities)
                 {
                     if (ability.is_valid())
@@ -207,8 +210,21 @@ public:
                         {
                             ImGui::Text((std::string("CD: ") + std::to_string(ab->current_cooldown.value())).c_str());
                         }
+                        if (caster_comp && experience_comp)
+                        {
+                            if (caster_comp->get_is_levelable(ability_num, experience_comp->get_level()))
+                            {
+                                ImGui::PushID(ability_num);
+                                if (ImGui::Button("+"))
+                                {
+                                    ab->level++;
+                                }
+                                ImGui::PopID();
+                            }
+                        }
                         ImGui::NextColumn();
                     }
+                    ability_num++;
                 }
                 ImGui::Columns();
                 ImGui::End();
