@@ -70,7 +70,6 @@ public:
                         glm::vec3 ray_dir(cos(current_angle), sin(current_angle), 0);
                         ray::Ray vision_ray = ray::New(eye_pos_comp->pos, glm::normalize(ray_dir));
                         auto ray_result = _interface->fire_ray(vision_ray, ray::HitType::StaticOnly, eye.vision_range);
-
                     }
                 }
 
