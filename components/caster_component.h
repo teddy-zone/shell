@@ -19,6 +19,50 @@ struct CompCaster : public Component
         state_time = 0.0;
     }
 
+    bool get_is_levelable(int ability_num, int current_level)
+    {
+        if (auto* ability_set = sibling<CompAbilitySet>())
+        {
+            int total_levels = 0;
+            for (auto& ability : ability_set->abilities)
+            {
+                if (ability.is_valid())
+                {
+                    auto* comp_ability_it = ability.cmp<CompAbility>();
+                    total_levels += comp_ability_it->level;
+                }
+            }
+            if (current_level > total_levels)
+            {
+                auto* comp_ability = ability_set->abilities[ability_num].cmp<CompAbility>();
+                const int current_ability_level = comp_ability->level;
+                if (ability_num < 3)
+                {
+                    if (current_level > 2*current_ability_level)
+                    {
+                        if (comp_ability->max_level > current_level)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                else if (ability_num == 3)
+                {
+                    if (current_level >= 6 && current_ability_level < 1 ||
+                        current_level >= 12 && current_ability_level < 2 ||
+                        current_level >= 18 && current_ability_level < 3)
+                    {
+                        if (comp_ability->max_level > current_level)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     std::vector<CompOnCast*> get_on_cast_components()
     {
         std::vector<CompOnCast*> out_components;
