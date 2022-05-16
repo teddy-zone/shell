@@ -138,6 +138,7 @@ struct UnitProto : public ActorProto
         entity.cmp<CompAbilitySet>()->abilities[1] = test_ability3;
         AttackAbilityProto attack_ability_proto(entity);
         entity.cmp<CompAttacker>()->attack_ability = iface->add_entity_from_proto(static_cast<EntityProto*>(&attack_ability_proto));
+        entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
     }
 };
 
