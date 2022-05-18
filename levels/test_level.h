@@ -24,6 +24,8 @@
 #include "level.h"
 #include "unit_prototypes.h"
 #include "teleport_proto.h"
+#include "materials/line_mat/FragmentShader.glsl.h"
+#include "materials/line_mat/VertexShader.glsl.h"
 
 class TestLevel : public Level
 {
@@ -42,7 +44,8 @@ public:
         music_sound.range = 100;
 
         auto& player1 = get_array<CompPlayer>()[0];
-        player1.sibling<CompPosition>()->pos = glm::vec3(50,50,10);
+        player1.sibling<CompPosition>()->pos = glm::vec3(30,135,30);
+        get_array<CompCamera>()[0].set_look_target(player1.sibling<CompPosition>()->pos, true);
 
 
         UnitProto unit_proto(glm::vec3(1.0));
@@ -89,6 +92,7 @@ public:
                     inventory->visible = true;
                 }
             };
+        shopkeeper.cmp<CompPosition>()->pos = glm::vec3(40, 125, 40);
 
         EntityRef player2 = c->add_entity_with_components({ uint32_t(type_id<CompPhysics>),
                     uint32_t(type_id<CompPosition>),
@@ -136,42 +140,6 @@ public:
         auto teleport_entity = c->add_entity_from_proto(&teleproto);
         teleport_entity.cmp<CompPosition>()->pos = glm::vec3(75,75,20);
 
-        /*
-        if (1)
-        {
-            EntityRef test_ent = c->add_entity_with_components({
-                uint32_t(type_id<CompPosition>),
-                uint32_t(type_id<CompBounds>),
-                
-                uint32_t(type_id<CompStaticMesh>),
-                uint32_t(type_id<CompNavPointer>),
-                });
-    #ifdef ENABLE_GRAPHICS 
-            auto sphere_mat = std::make_shared<bgfx::Material>();
-            std::ifstream t_sphere("C:\\Users\\tjwal\\projects\\ECS\\materials\\sphere_mat\\VertexShader.glsl");
-            std::stringstream buffer_sphere;
-            buffer_sphere << t_sphere.rdbuf();
-            auto vshader_sphere = std::make_shared<Shader>(Shader::Type::Vertex, buffer_sphere.str(), true);
-            std::ifstream t_sphere_f("C:\\Users\\tjwal\\projects\\ECS\\materials\\sphere_mat\\FragmentShader.glsl");
-            std::stringstream buffer2_sphere;
-            buffer2_sphere << t_sphere_f.rdbuf();
-            auto fshader_sphere = std::make_shared<Shader>(Shader::Type::Fragment, buffer2_sphere.str(), true);
-            sphere_mat->set_vertex_shader(vshader_sphere);
-            sphere_mat->set_fragment_shader(fshader_sphere);
-            sphere_mat->link();
-    #endif
-
-            auto sphere_mesh = std::make_shared<bgfx::Mesh>();
-            sphere_mesh->load_obj("sphere.obj");
-            auto* mesh = test_ent.cmp<CompStaticMesh>();
-            mesh->mesh.set_mesh(sphere_mesh);
-    #ifdef ENABLE_GRAPHICS
-            mesh->mesh.set_material(sphere_mat);
-    #endif
-            mesh->mesh.set_id(test_ent.get_id());
-            test_ent.cmp<CompPosition>()->pos = glm::vec3(0,0,0);
-        }
-        */
         if (1)
         {
             EntityRef test_ent = c->add_entity_with_components({
@@ -182,8 +150,9 @@ public:
                 #endif
                 });
     #ifdef ENABLE_GRAPHICS 
-            auto line_mat = std::make_shared<bgfx::Material>("C:\\Users\\tjwal\\projects\\ECS\\materials\\line_mat\\VertexShader.glsl", 
-                                                             "C:\\Users\\tjwal\\projects\\ECS\\materials\\line_mat\\FragmentShader.glsl");
+            auto line_mat = std::make_shared<bgfx::Material>(line_vertex_shader,
+                line_fragment_shader,
+                true);
     #endif
 
             auto line_mesh = std::make_shared<bgfx::Mesh>();

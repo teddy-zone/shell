@@ -24,19 +24,7 @@ struct CrystalNovaInstanceProto : public ActorProto
         monkey_mesh->load_obj("crystal_nova.obj" );
         monkey_mesh->set_solid_color(glm::vec3(0.0,1,0.0));
         entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 1);
-        auto box_mat = std::make_shared<bgfx::Material>();
 
-        std::ifstream t("C:\\Users\\tjwal\\projects\\ECS\\materials\\box_mat\\VertexShader.glsl");
-        std::stringstream buffer;
-        buffer << t.rdbuf();
-        auto vshader = std::make_shared<Shader>(Shader::Type::Vertex, buffer.str(), true);
-        std::ifstream t2("C:\\Users\\tjwal\\projects\\ECS\\materials\\box_mat\\FragmentShader.glsl");
-        std::stringstream buffer2;
-        buffer2 << t2.rdbuf();
-        auto fshader = std::make_shared<Shader>(Shader::Type::Fragment, buffer2.str(), true);
-        box_mat->set_vertex_shader(vshader);
-        box_mat->set_fragment_shader(fshader);
-        box_mat->link();
         entity.cmp<CompPosition>()->pos = pos;
         entity.cmp<CompLifetime>()->lifetime = 0.5;
 

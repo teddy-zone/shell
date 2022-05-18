@@ -31,7 +31,16 @@ public:
                 }
                 if (auto* respawn_comp = health_comp.sibling<CompRespawn>())
                 {
-                    respawn_comp->current_respawn_time = respawn_comp->default_respawn_time;
+                    // If current respawn time not set, death hasn't been initialized
+                    if (!respawn_comp->current_respawn_time)
+                    {
+                        if (auto* pos_comp = health_comp.sibling<CompPosition>())
+                        {
+                            respawn_comp->death_location = pos_comp->pos;
+                            pos_comp->pos = glm::vec3(1000,1000,10);
+                        }
+                        respawn_comp->current_respawn_time = respawn_comp->default_respawn_time;
+                    }
                 }
                 else
                 {
@@ -51,6 +60,11 @@ public:
                     if (auto* health_comp = respawn_comp.sibling<CompHealth>())
                     {
                         health_comp->is_dead = false;
+                        health_comp->health_percentage = 100.0;
+                        if (auto* pos_comp = health_comp->sibling<CompPosition>())
+                        {
+                            pos_comp->pos = respawn_comp.death_location;
+                        }
                     }
                 }
             }

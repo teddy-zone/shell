@@ -11,6 +11,8 @@
 #include "team_component.h"
 #include "caster_component.h"
 #include "shop_inventory.h"
+#include "materials/box_mat/VertexShader.glsl.h"
+#include "materials/box_mat/FragmentShader.glsl.h"
 
 struct ShopProto : public ActorProto
 {
@@ -37,26 +39,19 @@ struct ShopProto : public ActorProto
         entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 5);
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(cube_mesh);
         auto box_mat = std::make_shared<bgfx::Material>();
-
-        std::ifstream t("C:\\Users\\tjwal\\projects\\ECS\\materials\\box_mat\\VertexShader.glsl");
-        std::stringstream buffer;
-        buffer << t.rdbuf();
-        auto vshader = std::make_shared<Shader>(Shader::Type::Vertex, buffer.str(), true);
-        std::ifstream t2("C:\\Users\\tjwal\\projects\\ECS\\materials\\box_mat\\FragmentShader.glsl");
-        std::stringstream buffer2;
-        buffer2 << t2.rdbuf();
-        auto fshader = std::make_shared<Shader>(Shader::Type::Fragment, buffer2.str(), true);
+        auto vshader = std::make_shared<Shader>(Shader::Type::Vertex, box_vertex_shader, true);
+        auto fshader = std::make_shared<Shader>(Shader::Type::Fragment, box_fragment_shader, true);
         box_mat->set_vertex_shader(vshader);
         box_mat->set_fragment_shader(fshader);
         box_mat->link();
         entity.cmp<CompStaticMesh>()->mesh.set_material(box_mat);
         entity.cmp<CompStaticMesh>()->mesh.set_id(entity.get_id());
-        entity.cmp<CompPosition>()->pos = glm::vec3(50,50,20);
+        entity.cmp<CompPosition>()->pos = glm::vec3(50,50,30);
         entity.cmp<CompShopInventory>()->visible = false;
         entity.cmp<CompInteractable>()->interact_range = 10;
 
         Sound new_sound;
-        new_sound.path = "C:\\Users\\tjwal\\OneDrive\\Documents\\REAPER Media\\purchase.wav";
+        new_sound.path = "sounds/purchase.wav";
         new_sound.trigger = false;
         entity.cmp<CompVoice>()->sounds["purchase"] = new_sound;
         /*

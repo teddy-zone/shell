@@ -9,6 +9,8 @@
 #include "graphics_component.h"
 #include "unit_prototypes.h"
 #include "attackable_component.h"
+#include "materials/sphere_mat/VertexShader.glsl.h"
+#include "materials/sphere_mat/FragmentShader.glsl.h"
 
 class ShellPlayerController : public System
 {
@@ -243,14 +245,8 @@ public:
                 auto* pos_comp = test_ent.cmp<CompPosition>();
                 pos_comp->pos = player_pos;
                 auto sphere_mat = std::make_shared<bgfx::Material>();
-                std::ifstream t_sphere("C:\\Users\\tjwal\\projects\\ECS\\materials\\sphere_mat\\VertexShader.glsl");
-                std::stringstream buffer_sphere;
-                buffer_sphere << t_sphere.rdbuf();
-                auto vshader_sphere = std::make_shared<Shader>(Shader::Type::Vertex, buffer_sphere.str(), true);
-                std::ifstream t_sphere_f("C:\\Users\\tjwal\\projects\\ECS\\materials\\sphere_mat\\FragmentShader.glsl");
-                std::stringstream buffer2_sphere;
-                buffer2_sphere << t_sphere_f.rdbuf();
-                auto fshader_sphere = std::make_shared<Shader>(Shader::Type::Fragment, buffer2_sphere.str(), true);
+                auto vshader_sphere = std::make_shared<Shader>(Shader::Type::Vertex, sphere_vertex_shader, true);
+                auto fshader_sphere = std::make_shared<Shader>(Shader::Type::Fragment, sphere_fragment_shader, true);
                 sphere_mat->set_vertex_shader(vshader_sphere);
                 sphere_mat->set_fragment_shader(fshader_sphere);
                 sphere_mat->link();

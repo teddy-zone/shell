@@ -95,9 +95,8 @@ public:
         */
         player.cmp<CompTeam>()->team = 1;
         c->add_component(CompPlayer(), player.get_id());
-
-        
-
+        c->add_component(CompRespawn(), player.get_id());
+        player.cmp<CompRespawn>()->default_respawn_time = 5; 
     }
 
     virtual void update(double dt) override

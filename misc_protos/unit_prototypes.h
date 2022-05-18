@@ -20,6 +20,9 @@
 #include "ice_shards.h"
 #include "eye_component.h"
 #include "vision_affected_component.h"
+#include "respawn_component.h"
+#include "materials/box_mat/VertexShader.glsl.h"
+#include "materials/box_mat/FragmentShader.glsl.h"
 
 struct UnitProto : public ActorProto
 {
@@ -66,14 +69,8 @@ struct UnitProto : public ActorProto
 
         entity.cmp<CompEye>()->vision_range = 50;
 
-        std::ifstream t("C:\\Users\\tjwal\\projects\\ECS\\materials\\box_mat\\VertexShader.glsl");
-        std::stringstream buffer;
-        buffer << t.rdbuf();
-        auto vshader = std::make_shared<Shader>(Shader::Type::Vertex, buffer.str(), true);
-        std::ifstream t2("C:\\Users\\tjwal\\projects\\ECS\\materials\\box_mat\\FragmentShader.glsl");
-        std::stringstream buffer2;
-        buffer2 << t2.rdbuf();
-        auto fshader = std::make_shared<Shader>(Shader::Type::Fragment, buffer2.str(), true);
+        auto vshader = std::make_shared<Shader>(Shader::Type::Vertex, box_vertex_shader, true);
+        auto fshader = std::make_shared<Shader>(Shader::Type::Fragment, box_fragment_shader, true);
         box_mat->set_vertex_shader(vshader);
         box_mat->set_fragment_shader(fshader);
         box_mat->link();
@@ -139,6 +136,8 @@ struct UnitProto : public ActorProto
         AttackAbilityProto attack_ability_proto(entity);
         entity.cmp<CompAttacker>()->attack_ability = iface->add_entity_from_proto(static_cast<EntityProto*>(&attack_ability_proto));
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
+        
+        //entity.cmp<CompRespawn>()->default_respawn_time = 5;
     }
 };
 
