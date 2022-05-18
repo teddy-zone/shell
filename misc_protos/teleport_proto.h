@@ -68,7 +68,7 @@ struct TeleportProto : public ActorProto
                 _interface->unload_level("TestLevel");
                 _interface->load_level("Test2Level");
                 Sound new_sound;
-                new_sound.path = "C:\\Users\\tjwal\\OneDrive\\Documents\\REAPER Media\\teleport.wav";
+                new_sound.path = "sounds/teleport.wav";
                 new_sound.trigger = false;
                 interactor.cmp<CompVoice>()->sounds["teleport"] = new_sound;
                 interactor.cmp<CompVoice>()->sounds["teleport"].trigger = true;

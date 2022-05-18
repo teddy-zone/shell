@@ -55,7 +55,7 @@ struct IceShardsInstanceProto : public ActorProto
         entity.cmp<CompPhysics>()->has_gravity = false;
 
         Sound new_sound;
-        new_sound.path = "C:\\Users\\tjwal\\OneDrive\\Documents\\REAPER Media\\beam.wav";
+        new_sound.path = "sounds/beam.wav";
         new_sound.trigger = true;
         entity.cmp<CompVoice>()->sounds["beam"] = new_sound;
 
