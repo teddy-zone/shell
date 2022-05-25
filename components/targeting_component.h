@@ -13,6 +13,7 @@ struct CompTargeting : public Component
 {
     TargetingMode mode;
     glm::vec3 ground_target;
-    glm::vec3 vector_target;
+    glm::vec3 vector_start_target;
+    glm::vec3 vector_end_target;
     EntityRef unit_target;
 };
