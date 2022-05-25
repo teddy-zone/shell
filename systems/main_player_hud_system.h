@@ -10,6 +10,8 @@ public:
 
     const int widget_margin = 10;
     const int ability_widget_height = 150;
+    const float last_level_up_blink_period = 0.4;
+    float last_level_up_blink = 0;
 
     virtual void update_gui(double dt) override
     {
@@ -214,12 +216,31 @@ public:
                         {
                             if (caster_comp->get_is_levelable(ability_num, experience_comp->get_level()))
                             {
+                                if (caster_comp->ability_level_mode && 
+                                    _interface->get_current_game_time() - last_level_up_blink > last_level_up_blink_period &&
+                                    _interface->get_current_game_time() - last_level_up_blink < 2*last_level_up_blink_period)
+                                {
+                                    ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(50,160,50,255));
+                                }
+
                                 ImGui::PushID(ability_num);
                                 if (ImGui::Button("+"))
                                 {
                                     ab->level++;
                                 }
                                 ImGui::PopID();
+
+                                if (caster_comp->ability_level_mode && 
+                                    _interface->get_current_game_time() - last_level_up_blink > last_level_up_blink_period &&
+                                    _interface->get_current_game_time() - last_level_up_blink < 2*last_level_up_blink_period)
+                                {
+                                    ImGui::PopStyleColor();
+                                }
+                                if (caster_comp->ability_level_mode && 
+                                    _interface->get_current_game_time() - last_level_up_blink > 2*last_level_up_blink_period)
+                                {
+                                    last_level_up_blink = _interface->get_current_game_time();
+                                }
                             }
                         }
                         ImGui::NextColumn();

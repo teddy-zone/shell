@@ -2,6 +2,7 @@
 
 #include "level.h"
 #include "gui_system.h"
+#include "widget_component.h"
 
 enum class MainMenuState
 {
@@ -24,6 +25,10 @@ public:
 
     virtual void update_gui(double dt) override
     {
+        const int main_menu_height = 400;
+        const int main_menu_width = 400;
+        ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width/2 - main_menu_width/2, CompWidget::window_height/2 - main_menu_height/2));
+        ImGui::SetNextWindowSize(ImVec2(main_menu_width, main_menu_width));
         switch (menu_state)
         {
             case MainMenuState::Main:
@@ -97,8 +102,10 @@ public:
                 break;
             case MainMenuState::None:
                 {
+                    /*
                     ImGui::Begin("MainMenuNone");
                     ImGui::End();
+                    */
                 }
                 break;
         }

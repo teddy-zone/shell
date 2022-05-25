@@ -12,11 +12,33 @@ struct CompCaster : public Component
     float state_time;
     std::optional<EntityRef> unit_target;
     std::optional<glm::vec3> ground_target;
+    bool ability_level_mode = false;
     void activate_ability(int index)
     {
         ability_index = index;
         state = AbilityState::CastPoint;
         state_time = 0.0;
+    }
+
+    bool get_has_extra_levels(int current_level)
+    {
+        if (auto* ability_set = sibling<CompAbilitySet>())
+        {
+            int total_levels = 0;
+            for (auto& ability : ability_set->abilities)
+            {
+                if (ability.is_valid())
+                {
+                    auto* comp_ability_it = ability.cmp<CompAbility>();
+                    total_levels += comp_ability_it->level;
+                }
+            }
+            if (current_level > total_levels)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     bool get_is_levelable(int ability_num, int current_level)
