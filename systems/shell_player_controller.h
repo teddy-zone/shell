@@ -233,35 +233,15 @@ public:
                 }
                 keystate.cursor_mode = CursorMode::Select;
             }
-            if (keystate.push[GLFW_KEY_SPACE])
+            if (keystate.push[GLFW_KEY_T])
             {
-                EntityRef test_ent = _interface->add_entity_with_components({
-                        uint32_t(type_id<CompPosition>),
-                        uint32_t(type_id<CompBounds>),
-                        uint32_t(type_id<CompPhysics>),
-                        uint32_t(type_id<CompStaticMesh>),
-                        uint32_t(type_id<CompProjectile>),
-                        uint32_t(type_id<CompLifetime>),
-                        });
-                auto* pos_comp = test_ent.cmp<CompPosition>();
-                pos_comp->pos = player_pos;
-                auto sphere_mat = std::make_shared<bgfx::Material>();
-                auto vshader_sphere = std::make_shared<Shader>(Shader::Type::Vertex, sphere_vertex_shader, true);
-                auto fshader_sphere = std::make_shared<Shader>(Shader::Type::Fragment, sphere_fragment_shader, true);
-                sphere_mat->set_vertex_shader(vshader_sphere);
-                sphere_mat->set_fragment_shader(fshader_sphere);
-                sphere_mat->link();
-
-                auto sphere_mesh = std::make_shared<bgfx::Mesh>();
-                sphere_mesh->load_obj("sphere.obj");
-                auto* mesh = test_ent.cmp<CompStaticMesh>();
-                mesh->mesh.set_mesh(sphere_mesh);
-                mesh->mesh.set_material(sphere_mat);
-                mesh->mesh.set_id(test_ent.get_id());
-                test_ent.cmp<CompProjectile>()->speed = 10;
-                test_ent.cmp<CompProjectile>()->direction = glm::vec3(1,0,0);
-                test_ent.cmp<CompPhysics>()->has_collision = false;
-                test_ent.cmp<CompLifetime>()->lifetime = 2;
+                if (auto* comp_experience = caster_comp->sibling<CompExperience>())
+                {
+                    if (caster_comp->get_has_extra_levels(comp_experience->get_level()))
+                    {
+                        caster_comp->ability_level_mode = true;
+                    }
+                }
             }
             if (keystate.push[GLFW_KEY_A])
             {
@@ -279,9 +259,8 @@ public:
             if (keystate.push[GLFW_KEY_4]) {items_to_service.push_back(3);}
             if (keystate.push[GLFW_KEY_5]) {items_to_service.push_back(4);}
             if (keystate.push[GLFW_KEY_6]) {items_to_service.push_back(5);}
-            if (keystate.push[GLFW_KEY_LEFT_CONTROL])
+            if (caster_comp->ability_level_mode)
             {
-                printf("LEVEL ABILITY\n");
                 for (auto ability_to_service : abilities_to_service)
                 {
                     if (auto* comp_ability = caster_comp->get_ability(ability_to_service))
@@ -291,6 +270,7 @@ public:
                             if (caster_comp->get_is_levelable(ability_to_service, comp_experience->get_level()))
                             {
                                 comp_ability->level += 1;
+                                caster_comp->ability_level_mode = false;
                             }
                         }
                     }
