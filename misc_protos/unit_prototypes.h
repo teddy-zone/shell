@@ -165,6 +165,7 @@ struct CommandIndicatorProto : public ActorProto
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
         auto box_mat = std::make_shared<bgfx::Material>();
 
+        /*
         std::ifstream t("C:\\Users\\tjwal\\projects\\ECS\\materials\\box_mat\\VertexShader.glsl");
         std::stringstream buffer;
         buffer << t.rdbuf();
@@ -176,7 +177,9 @@ struct CommandIndicatorProto : public ActorProto
         box_mat->set_vertex_shader(vshader);
         box_mat->set_fragment_shader(fshader);
         box_mat->link();
+
         entity.cmp<CompStaticMesh>()->mesh.set_material(box_mat);
+        */
         entity.cmp<CompStaticMesh>()->mesh.set_id(entity.get_id());
         entity.cmp<CompPosition>()->pos = pos;
         entity.cmp<CompLifetime>()->lifetime = 0.5;

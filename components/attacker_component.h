@@ -35,7 +35,6 @@ struct AttackInstanceProto : public ActorProto
 
         DamageInstance attack_damage;
         attack_damage.is_attack = true;
-        attack_damage.is_attack = true;
         attack_damage.type = DamageType::Physical;
         attack_damage.damage = 5;
         attack_damage.applier = _owner;
