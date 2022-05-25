@@ -24,6 +24,8 @@ enum class AbilityState
     None,
     GroundTargeting,
     UnitTargeting,
+    VectorStartTargeting,
+    VectorEndTargeting,
     CastPoint,
     Channeling,
     Backswing
