@@ -55,6 +55,7 @@ public:
         }
         else
         {
+            return;
             player_comp = &get_array<CompPosition>()[0];
         } 
         auto player_pos = player_comp->sibling<CompPosition>()->pos;

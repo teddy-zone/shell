@@ -23,6 +23,7 @@
 #include "basic_enemy_ai_component.h"
 #include "crystal_nova.h"
 #include "ice_shards.h"
+#include "character_type_component.h"
 
 class BaseLevel : public Level
 {
@@ -83,20 +84,21 @@ public:
         auto cn_proto2 = std::dynamic_pointer_cast<EntityProto>(crystal_nova_proto2);
         ab_inst2->proto = cn_proto2;
         */
-
-        UnitProto unit_proto(glm::vec3(1.0));
-        auto player = c->add_entity_from_proto(static_cast<EntityProto*>(&unit_proto));
-        /*
-        player.cmp<CompAbilitySet>()->abilities[0] = test_ability;
-        player.cmp<CompAbilitySet>()->abilities[2] = test_ability2;
-        player.cmp<CompAbilitySet>()->abilities[1] = test_ability3;
-        AttackAbilityProto attack_ability_proto(player);
-        player.cmp<CompAttacker>()->attack_ability = c->add_entity_from_proto(static_cast<EntityProto*>(&attack_ability_proto));
-        */
-        player.cmp<CompTeam>()->team = 1;
-        c->add_component(CompPlayer(), player.get_id());
-        c->add_component(CompRespawn(), player.get_id());
-        player.cmp<CompRespawn>()->default_respawn_time = 5; 
+        auto& char_type_components = get_array<CompCharacterType>();
+        if (char_type_components.size())
+        {
+            auto player = c->add_entity_from_proto(char_type_components[0].type_proto.get());
+            player.cmp<CompTeam>()->team = 1;
+            c->add_component(CompPlayer(), player.get_id());
+            c->add_component(CompRespawn(), player.get_id());
+            player.cmp<CompRespawn>()->default_respawn_time = 5; 
+            auto& selected_objects = get_array<CompSelectedObjects>();
+            for (auto& comp_selected_objects : selected_objects)
+            {
+                comp_selected_objects.selected_objects.resize(1);
+                comp_selected_objects.selected_objects[0] = player;
+            }
+        }
     }
 
     virtual void update(double dt) override

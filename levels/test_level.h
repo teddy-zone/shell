@@ -38,15 +38,14 @@ public:
     virtual void level_init() override
     {
         Sound music_sound;
-        music_sound.path = "C:\\Users\\tjwal\\Music\\main_theme.wav";
+        music_sound.path = "sounds\\main_theme.wav";
         music_sound.loop = true;
         music_sound.trigger = true;
         music_sound.range = 100;
 
         auto& player1 = get_array<CompPlayer>()[0];
-        player1.sibling<CompPosition>()->pos = glm::vec3(30,135,30);
+        player1.sibling<CompPosition>()->pos = glm::vec3(30,135,20);
         get_array<CompCamera>()[0].set_look_target(player1.sibling<CompPosition>()->pos, true);
-
 
         UnitProto unit_proto(glm::vec3(1.0));
 
@@ -123,7 +122,7 @@ public:
         bounds->insert_size = 5.0;
         pos->pos = glm::vec3(1,1,1);
         
-        for (int i = 0; i < 40; ++i)
+        for (int i = 0; i < 20; ++i)
         {
             auto enemy_playerr = c->add_entity_from_proto(static_cast<EntityProto*>(&unit_proto));
             enemy_playerr.cmp<CompPosition>()->pos = glm::vec3(zerotoone_level()* 100.0f, zerotoone_level()* 100.0f, (zerotoone_level()*0.5 + 0.5)*100.0f) + glm::vec3(2.0, 2.0,0);
@@ -136,9 +135,11 @@ public:
             enemy_playerr.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 15;
         }
 
+/*
         TeleportProto teleproto(glm::vec3(1.0));
         auto teleport_entity = c->add_entity_from_proto(&teleproto);
         teleport_entity.cmp<CompPosition>()->pos = glm::vec3(75,75,20);
+        */
 
         if (1)
         {
