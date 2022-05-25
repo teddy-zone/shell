@@ -17,6 +17,7 @@
 #include "static_mesh_component.h"
 #include "voice_component.h"
 #include "item_component.h"
+#include "targeting_component.h"
 
 enum class AbilityState
 {
@@ -89,6 +90,7 @@ struct TargetingProto : public ActorProto
         std::vector<CompType> unit_components = {{
                     uint32_t(type_id<CompLifetime>),
                     uint32_t(type_id<CompDecal>),
+                    uint32_t(type_id<CompTargeting>),
             }};
         append_components(unit_components);
     }
