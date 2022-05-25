@@ -107,6 +107,35 @@ public:
         }
 
         {
+            if (keystate.release[0] && caster_comp)
+            {
+                auto& camera = get_array<CompCamera>()[0];
+                switch (caster_comp->state)
+                {
+                    case AbilityState::VectorEndTargeting:
+                        {
+                            auto click_ray = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
+                                keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
+                            auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
+                            auto result = _interface->fire_ray(full_ray, ray::HitType::StaticOnly);
+                            if (result)
+                            {
+                                caster_comp->state = AbilityState::None;
+                                AbilityCommand ability_command;
+                                ability_command.ability_index = caster_comp->ability_index;
+                                ability_command.vector_start_target = targeting_entity.cmp<CompTargeting>()->vector_start_target;
+                                ability_command.vector_end_target = result.value().hit_point;
+                                auto* command_sys = player_comp->sibling<CompCommand>();
+                                command_sys->set_command(StopCommand());
+                                command_sys->queue_command(ability_command);
+                                keystate.cursor_mode = CursorMode::Select;
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
             // Left click!
             if (keystate.push[0] && caster_comp)
             {
@@ -154,6 +183,20 @@ public:
                                     command_sys->queue_command(ability_command);
                                 }
                                 keystate.cursor_mode = CursorMode::Select;
+                            }
+                            break;
+                        case AbilityState::VectorStartTargeting:
+                            {
+                                auto click_ray = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
+                                    keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
+                                auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
+                                auto result = _interface->fire_ray(full_ray, ray::HitType::StaticOnly);
+                                if (result)
+                                {
+                                    caster_comp->state = AbilityState::VectorEndTargeting;
+                                    keystate.cursor_mode = CursorMode::Gameplay;
+                                    targeting_entity.cmp<CompTargeting>()->vector_start_target = result.value().hit_point;
+                                }
                             }
                             break;
                         case AbilityState::UnitTargeting:
@@ -314,6 +357,15 @@ public:
                                     keystate.cursor_mode = CursorMode::Gameplay;
                                     TargetingProto targeting_proto(glm::vec3(0), ability->target_decal_type);
                                     targeting_entity = _interface->add_entity_from_proto(&targeting_proto);
+                                }
+                                else if (ability->vector_targeted)
+                                {
+                                    caster_comp->state = AbilityState::VectorStartTargeting;
+                                    caster_comp->ability_index = ability_index;
+                                    keystate.cursor_mode = CursorMode::Gameplay;
+                                    TargetingProto targeting_proto(glm::vec3(0), ability->target_decal_type);
+                                    targeting_entity = _interface->add_entity_from_proto(&targeting_proto);
+                                    targeting_entity.cmp<CompTargeting>()->mode = TargetingMode::Vector;
                                 }
                                 else if (ability->unit_targeted)
                                 {
