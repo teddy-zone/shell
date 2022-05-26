@@ -13,6 +13,8 @@ struct CompInventory : public StatInterface, public CompWidget
 
     virtual StatPart get_stat(Stat stat) override;
 
+    virtual bool get_status_state(StatusState state) override;
+
     virtual void tick() 
     {
     };

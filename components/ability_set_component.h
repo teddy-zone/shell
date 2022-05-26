@@ -25,6 +25,24 @@ struct CompAbilitySet : public Component, public StatInterface
         return out_part;
     }
 
+    virtual bool get_status_state(StatusState state) override
+    {
+        for (auto& ability_ref : abilities)
+        {
+            if (ability_ref.is_valid())
+            {
+                if (auto* single_ability_stat_comp = ability_ref.cmp<CompStat>())
+                {
+                    if (single_ability_stat_comp->get_status_state(state))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     EntityRef get_ability_by_name(const std::string& ability_name)
     {
         for (int i = 0; i < abilities.size(); ++i)
