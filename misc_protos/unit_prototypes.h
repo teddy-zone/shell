@@ -23,6 +23,7 @@
 #include "respawn_component.h"
 #include "jump.h"
 #include "dash.h"
+#include "basic_enemy_ai_component.h"
 #include "materials/box_mat/VertexShader.glsl.h"
 #include "materials/box_mat/FragmentShader.glsl.h"
 
@@ -196,5 +197,25 @@ struct CommandIndicatorProto : public ActorProto
         entity.cmp<CompAnimation>()->end_time = 0.5;
         entity.cmp<CompAnimation>()->start_scale = glm::vec3(0.7);
         entity.cmp<CompAnimation>()->end_scale = glm::vec3(0.0);
+    }
+};
+
+struct EnemyUnitProto : public UnitProto
+{
+
+    EnemyUnitProto(const glm::vec3& in_pos, const std::vector<CompType>& extension_types={}):
+        UnitProto(in_pos, extension_types)
+    {
+        std::vector<CompType> unit_components = {{
+            uint32_t(type_id<CompBasicEnemyAI>),           
+        }};
+        append_components(unit_components);
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface) override
+    {
+        UnitProto::init(entity, iface);
+        entity.cmp<CompTeam>()->team = 2;
+        entity.cmp<CompBasicEnemyAI>()->vision_range = 20;
     }
 };

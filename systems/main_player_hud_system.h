@@ -55,6 +55,19 @@ public:
             ImGui::SetNextWindowPos(ImVec2(2,2));
             ImGui::Begin("FPS");
             ImGui::Text(std::to_string(fps).c_str());
+            auto& selected_entities = get_array<CompSelectedObjects>();
+            if (selected_entities.size())
+            {
+                int my_team = 0;
+                if (selected_entities[0].selected_objects.size())
+                {
+                    auto selected_entity = selected_entities[0].selected_objects[0];
+                    if (auto* comp_pos = selected_entity.cmp<CompPosition>())
+                    {
+                        ImGui::Text(glm::to_string(comp_pos->pos).c_str());
+                    }
+                }
+            }
             ImGui::End();
     }
 

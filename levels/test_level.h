@@ -26,6 +26,7 @@
 #include "teleport_proto.h"
 #include "materials/line_mat/FragmentShader.glsl.h"
 #include "materials/line_mat/VertexShader.glsl.h"
+#include "spawner_proto.h"
 
 class TestLevel : public Level
 {
@@ -169,6 +170,20 @@ public:
     #endif
             test_ent.cmp<CompPosition>()->pos = glm::vec3(0);
         }
+        auto radial_actuator_proto = std::make_shared<RadialActuatorProto>(glm::vec3(0));
+        auto radial_actuator = c->add_entity_from_proto(radial_actuator_proto.get());
+        radial_actuator.cmp<CompPosition>()->pos = glm::vec3(125,125,7);
+        radial_actuator.cmp<CompRadialSensor>()->radius = 10;
+        radial_actuator.cmp<CompRadialSensor>()->component_filter = {uint32_t(type_id<CompPlayer>)};
+
+        auto spawner_proto = std::make_shared<SpawnerProto>(glm::vec3(0));
+        auto spawner = c->add_entity_from_proto(spawner_proto.get());
+        spawner.cmp<CompPosition>()->pos = glm::vec3(125,125,7);
+        spawner.cmp<CompActuatorDetector>()->actuator = radial_actuator;
+        auto enemy_proto = std::make_shared<EnemyUnitProto>(glm::vec3(0));
+        spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
+        spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
+        spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
 
     }
 
