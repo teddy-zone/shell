@@ -23,6 +23,7 @@
 #include "respawn_component.h"
 #include "jump.h"
 #include "dash.h"
+#include "ability_mod.h"
 #include "basic_enemy_ai_component.h"
 #include "materials/box_mat/VertexShader.glsl.h"
 #include "materials/box_mat/FragmentShader.glsl.h"
@@ -56,6 +57,7 @@ struct UnitProto : public ActorProto
                     uint32_t(type_id<CompVoice>),
                     uint32_t(type_id<CompEye>),
                     uint32_t(type_id<CompVisionAffected>),
+                    uint32_t(type_id<CompAbilityMod>),
             }};
         append_components(unit_components);
     }
@@ -172,6 +174,7 @@ struct CommandIndicatorProto : public ActorProto
         monkey_mesh->set_solid_color(glm::vec3(0.0,1,0.0));
         entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 1);
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
+        entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 10;
         auto box_mat = std::make_shared<bgfx::Material>();
 
         /*

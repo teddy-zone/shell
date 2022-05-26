@@ -27,6 +27,7 @@
 #include "materials/line_mat/FragmentShader.glsl.h"
 #include "materials/line_mat/VertexShader.glsl.h"
 #include "spawner_proto.h"
+#include "ability_mod_station_proto.h"
 
 class TestLevel : public Level
 {
@@ -185,6 +186,14 @@ public:
         spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
         spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
 
+/*
+        auto mod_proto = std::make_shared<AbilityModStationProto>(glm::vec3(0));
+        auto mod_spawner_proto = std::make_shared<SpawnerProto>(glm::vec3(0));
+        auto mod_spawner = c->add_entity_from_proto(mod_spawner_proto.get());
+        mod_spawner.cmp<CompPosition>()->pos = glm::vec3(125,125,7);
+        mod_spawner.cmp<CompActuatorDetector>()->actuator = spawner;
+        mod_spawner.cmp<CompSpawnProtoList>()->protos.push_back(mod_proto);
+        */
     }
 
     virtual void update(double dt) override

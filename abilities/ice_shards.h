@@ -63,6 +63,6 @@ struct IceShardsInstanceProto : public ActorProto
         entity.cmp<CompRadiusApplication>()->radius = 3;
         entity.cmp<CompRadiusApplication>()->tick_time = 0;
         entity.cmp<CompRadiusApplication>()->apply_once = true;
-        entity.cmp<CompRadiusApplication>()->damage = {entity, DamageType::Magical, 100, false};
+        entity.cmp<CompRadiusApplication>()->damage = {entity, DamageType::Magical, 200, false};
     }
 };

@@ -9,6 +9,22 @@ struct CompAbilitySet : public Component, public StatInterface
 
     std::array<EntityRef, 6> abilities;
 
+    std::vector<std::string> get_ability_names()
+    {
+        std::vector<std::string> out_names;
+        for (auto& ability_ref : abilities)
+        {
+            if (ability_ref.is_valid())
+            {
+                if (auto* ab = ability_ref.cmp<CompAbility>())
+                {
+                    out_names.push_back(ab->ability_name);
+                }
+            }
+        }
+        return out_names;
+    }
+
     virtual StatPart get_stat(Stat stat) override
     {
         StatPart out_part;
