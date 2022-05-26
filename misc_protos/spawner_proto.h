@@ -3,7 +3,7 @@
 #include "entity_prototype.h"
 #include "component.h"
 
-struct CompProtoList : public Component
+struct CompSpawnProtoList : public Component
 {
     std::vector<std::shared_ptr<EntityProto>> protos;
 };
@@ -16,8 +16,8 @@ struct SpawnerProto : public ActorProto
         ActorProto(in_pos, extension_types)
     {
         std::vector<CompType> unit_components = {{
-              uint32_t(type_id<CompProtoList>),
-              
+              uint32_t(type_id<CompSpawnProtoList>),
+              uint32_t(type_id<CompActuatorSensor>),
             }};
         append_components(unit_components);
     }
