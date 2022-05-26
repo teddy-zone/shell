@@ -1,11 +1,16 @@
 #pragma once
 
+#include <unordered_set>
+
 #include "entity_prototype.h"
 #include "component.h"
+#include "actuator_component.h"
 
 struct CompSpawnProtoList : public Component
 {
     std::vector<std::shared_ptr<EntityProto>> protos;
+    std::unordered_set<EntityRef> instantiated_entities;
+    bool has_spawned = false;
 };
 
 struct SpawnerProto : public ActorProto
@@ -17,7 +22,8 @@ struct SpawnerProto : public ActorProto
     {
         std::vector<CompType> unit_components = {{
               uint32_t(type_id<CompSpawnProtoList>),
-              uint32_t(type_id<CompActuatorSensor>),
+              uint32_t(type_id<CompActuatorDetector>),
+              uint32_t(type_id<CompActuator>),
             }};
         append_components(unit_components);
     }
