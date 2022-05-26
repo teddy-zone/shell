@@ -25,6 +25,8 @@ struct BlinkDaggerProto : public ItemProto
         entity.cmp<CompAbility>()->cooldown = 12.0;
         entity.cmp<CompAbility>()->cast_range = 100;
         entity.cmp<CompAbility>()->radius = 10;
+        entity.cmp<CompAbility>()->level = 1;
+        entity.cmp<CompAbility>()->max_level = 1;
         entity.cmp<CompAbility>()->target_decal_type = TargetDecalType::Circle;
         entity.cmp<CompOnCast>()->on_cast_callbacks.push_back([] 
             (EntityRef casting_entity, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target)
@@ -33,7 +35,7 @@ struct BlinkDaggerProto : public ItemProto
                 if (auto* caster_pos = casting_entity.cmp<CompPosition>())
                 {
                     printf("REEALYY Cast blink!\n");
-                    caster_pos->pos = ground_target.value() + glm::vec3(0,0,0);
+                    caster_pos->pos = ground_target.value() + glm::vec3(0,0,2);
                 }
             });
     }
