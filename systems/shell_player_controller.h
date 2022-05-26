@@ -62,6 +62,7 @@ public:
         auto* command_comp = player_comp->sibling<CompCommand>();
         auto* caster_comp = player_comp->sibling<CompCaster>();
         auto* attacker_comp = player_comp->sibling<CompAttacker>();
+        auto* physics_comp = player_comp->sibling<CompPhysics>();
         auto& graphics_comp = get_array<CompGraphics>()[0];
         auto& keystate = get_array<CompKeyState>()[0];
 
@@ -199,7 +200,7 @@ public:
                 auto click_ray = ray::New(camera.graphics_camera.get_position(), click_dir);
                 auto result = _interface->fire_ray(click_ray, ray::HitType::StaticAndDynamic);
                 // Clicked on something!
-                if (result)
+                if (result && physics_comp->on_ground)
                 {
                     int clicked_team = 0;
                     if (auto* team_comp = result.value().entity.cmp<CompTeam>())

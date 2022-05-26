@@ -21,6 +21,7 @@
 #include "eye_component.h"
 #include "vision_affected_component.h"
 #include "respawn_component.h"
+#include "jump.h"
 #include "materials/box_mat/VertexShader.glsl.h"
 #include "materials/box_mat/FragmentShader.glsl.h"
 
@@ -88,7 +89,7 @@ struct UnitProto : public ActorProto
         entity.cmp<CompBounty>()->money_bounty = 200;
         entity.cmp<CompBounty>()->exp_bounty = 100;
 
-        SpeedBoostAbilityProto speed_boost_proto;
+        JumpAbilityProto speed_boost_proto;
         auto test_ability = iface->add_entity_from_proto(&speed_boost_proto);
         test_ability.cmp<CompAbility>()->cast_point = 0.5;
         test_ability.cmp<CompAbility>()->backswing = 1.5;
