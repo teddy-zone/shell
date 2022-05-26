@@ -12,7 +12,16 @@ enum class Stat
     MaxMana,
     ManaRegen,
     MagicResist,
-    Armor
+    Armor,
+};
+
+enum class StatusState 
+{
+    Stunned,
+    Rooted,
+    Silenced,
+    Phased,
+    Disarmed
 };
 
 struct StatPart
@@ -30,6 +39,7 @@ class StatInterface
 {
 public:
     virtual StatPart get_stat(Stat stat) = 0;
+    virtual bool get_status_state(StatusState state) = 0;
     virtual float get_abs_stat(Stat stat)
     {
         auto out_part = get_stat(stat);

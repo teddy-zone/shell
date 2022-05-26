@@ -29,3 +29,32 @@ StatPart CompStat::get_stat(Stat stat)
     }
     return out_part;
 }
+
+bool CompStat::get_status_state(StatusState state) 
+{
+    auto ability_set_comp = sibling<CompAbilitySet>();
+    if (ability_set_comp)
+    {
+        if (ability_set_comp->get_status_state(state))
+        {
+            return true;
+        }
+    }
+    auto inventory_comp = sibling<CompInventory>();
+    if (inventory_comp)
+    {
+        if (inventory_comp->get_status_state(state))
+        {
+            return true;
+        }
+    }
+    auto status_manager_comp = sibling<CompStatusManager>();
+    if (status_manager_comp)
+    {
+        if (status_manager_comp->get_status_state(state))
+        {
+            return true;
+        }
+    }
+    return false;
+}

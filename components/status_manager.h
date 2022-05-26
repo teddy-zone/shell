@@ -43,6 +43,26 @@ struct CompStatusManager : public Component, public StatInterface
         return out_part;
     }
 
+    virtual bool get_status_state(StatusState state) override
+    {
+        for (auto& [application_id, status_application] : statuses)
+        {
+            auto& [entity_id, stack_id] = application_id;
+            auto entity = EntityRef(entity_id);
+            if (entity.is_valid())
+            {
+                if (auto* single_status_stat_comp = EntityRef(entity_id).cmp<CompStat>())
+                {
+                    if (single_status_stat_comp->get_status_state(state))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     void apply_status(CompStatus* status)
     {
         //auto status = (CompStatus*)get_component(type_id<CompStatus>, status_eid);

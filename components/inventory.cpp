@@ -17,3 +17,21 @@ StatPart CompInventory::get_stat(Stat stat)
     }
     return out_part;
 }
+
+bool CompInventory::get_status_state(StatusState state) 
+{
+    for (auto& item_ref : items)
+    {
+        if (item_ref.is_valid())
+        {
+            if (auto* single_item_stat_comp = item_ref.cmp<CompStat>())
+            {
+                if (single_item_stat_comp->get_status_state(state))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}

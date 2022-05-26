@@ -22,6 +22,7 @@
 #include "vision_affected_component.h"
 #include "respawn_component.h"
 #include "jump.h"
+#include "dash.h"
 #include "materials/box_mat/VertexShader.glsl.h"
 #include "materials/box_mat/FragmentShader.glsl.h"
 
@@ -95,6 +96,12 @@ struct UnitProto : public ActorProto
         test_ability.cmp<CompAbility>()->backswing = 1.5;
         test_ability.cmp<CompAbility>()->max_level = 4;
 
+        DashAbilityProto dash_proto;
+        auto dash_ability = iface->add_entity_from_proto(&dash_proto);
+        dash_ability.cmp<CompAbility>()->cast_point = 0.5;
+        dash_ability.cmp<CompAbility>()->backswing = 1.5;
+        dash_ability.cmp<CompAbility>()->max_level = 4;
+
         AbilityProto test_ability_proto2(TargetDecalType::Circle);
         auto test_ability2 = iface->add_entity_from_proto(static_cast<EntityProto*>(&test_ability_proto2));
         test_ability2.cmp<CompAbility>()->cast_point = 1.5;
@@ -132,7 +139,7 @@ struct UnitProto : public ActorProto
         ab_inst2->proto = cn_proto2;
 
         entity.cmp<CompAbilitySet>()->abilities[0] = test_ability;
-        entity.cmp<CompAbilitySet>()->abilities[2] = test_ability2;
+        entity.cmp<CompAbilitySet>()->abilities[2] = dash_ability;
         entity.cmp<CompAbilitySet>()->abilities[1] = test_ability3;
         AttackAbilityProto attack_ability_proto(entity);
         entity.cmp<CompAttacker>()->attack_ability = iface->add_entity_from_proto(static_cast<EntityProto*>(&attack_ability_proto));

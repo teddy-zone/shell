@@ -277,16 +277,12 @@ public:
         auto* ab = caster->get_ability();
         ab->current_cooldown = 
             ab->cooldown;
-        if (auto* on_cast_comp = ab->sibling<CompOnCast>())
+        std::optional<CompAbilityInstance*> instance_comp; 
+        std::optional<EntityRef> instance_entity;
+        if (instance_comp = ab->sibling<CompAbilityInstance>())
         {
-            for (auto& on_cast_func : on_cast_comp->on_cast_callbacks)
-            {
-                on_cast_func(caster->get_entity(), caster->ground_target, caster->unit_target);
-            }
-        }
-        if (auto* instance_comp = ab->sibling<CompAbilityInstance>())
-        {
-            auto ability_instance = _interface->add_entity_from_proto(instance_comp->proto.get());
+            auto ability_instance = _interface->add_entity_from_proto(instance_comp.value()->proto.get());
+            instance_entity = ability_instance;
             if (auto* team_comp = ability_instance.cmp<CompTeam>())
             {
                 team_comp->team = caster_team;
@@ -327,6 +323,13 @@ public:
                 {
                     ability_instance.cmp<CompPosition>()->pos = caster->ground_target.value();
                 }
+            }
+        }
+        if (auto* on_cast_comp = ab->sibling<CompOnCast>())
+        {
+            for (auto& on_cast_func : on_cast_comp->on_cast_callbacks)
+            {
+                on_cast_func(caster->get_entity(), caster->ground_target, caster->unit_target, instance_entity);
             }
         }
         caster->unit_target = std::nullopt;
