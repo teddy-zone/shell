@@ -29,7 +29,7 @@ struct BlinkDaggerProto : public ItemProto
         entity.cmp<CompAbility>()->max_level = 1;
         entity.cmp<CompAbility>()->target_decal_type = TargetDecalType::Circle;
         entity.cmp<CompOnCast>()->on_cast_callbacks.push_back([] 
-            (EntityRef casting_entity, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target)
+            (EntityRef casting_entity, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
             {
                 printf("Cast blink!\n");
                 if (auto* caster_pos = casting_entity.cmp<CompPosition>())
