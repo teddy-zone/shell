@@ -1,6 +1,8 @@
 #pragma once
 
 #include "system.h"
+#include "actuator_sensor_component.h"
+#include "spawner_proto.h"
 
 class SysSpawner : public System
 {
@@ -17,11 +19,11 @@ public:
                 {
                     if (comp_actuator->is_triggered)
                     {
-                        if (auto* proto_list_comp = spawn_sensor.sibling<CompProtoList>())
+                        if (auto* proto_list_comp = spawn_sensor.sibling<CompSpawnProtoList>())
                         {
                             for (auto& proto : proto_list_comp->protos)
                             {
-                                auto new_entity = _interface->create_entity_from_prototype(proto);
+                                auto new_entity = _interface->add_entity_from_proto(proto.get());
                                 if (my_pos_comp)
                                 {
                                     if (auto* new_pos_comp = new_entity.cmp<CompPosition>())

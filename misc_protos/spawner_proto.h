@@ -12,7 +12,7 @@ struct SpawnerProto : public ActorProto
 {
     std::string _level_to_load;
 
-    TeleportProto(const glm::vec3& in_pos, const std::vector<CompType>& extension_types={}):
+    SpawnerProto(const glm::vec3& in_pos, const std::vector<CompType>& extension_types={}):
         ActorProto(in_pos, extension_types)
     {
         std::vector<CompType> unit_components = {{
