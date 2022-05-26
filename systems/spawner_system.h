@@ -1,12 +1,23 @@
 #pragma once
 
+#include <random>
+
 #include "system.h"
 #include "actuator_detector_component.h"
 #include "spawner_proto.h"
 
 class SysSpawner : public System
 {
+    std::uniform_real_distribution<float> dist;
+    std::mt19937 generator;
 public:
+
+    SysSpawner():
+        dist(0,1)
+    {
+
+    }
+
     void update(double dt) override
     {
         auto& spawn_sensors = get_array<CompActuatorDetector>();
@@ -43,6 +54,7 @@ public:
                         {
                             if (!proto_list_comp->has_spawned)
                             {
+                                printf("Spawning!\n");
                                 for (auto& proto : proto_list_comp->protos)
                                 {
                                     auto new_entity = _interface->add_entity_from_proto(proto.get());
@@ -51,10 +63,14 @@ public:
                                     {
                                         if (auto* new_pos_comp = new_entity.cmp<CompPosition>())
                                         {
-                                            new_pos_comp->pos = my_pos_comp->pos;
+                                            float radius = proto_list_comp->radius*dist(generator);
+                                            float az = 2*3.1415926*dist(generator);
+                                            glm::vec3 offset(radius*cos(az), radius*sin(az), 0);
+                                            new_pos_comp->pos = my_pos_comp->pos + offset;
                                         }
                                     }
                                 }
+                                proto_list_comp->has_spawned = true;
                             }
                         }
                     }
