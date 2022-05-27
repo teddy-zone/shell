@@ -221,7 +221,7 @@ struct EnemyUnitProto : public UnitProto
     {
         UnitProto::init(entity, iface);
         entity.cmp<CompTeam>()->team = 2;
-        entity.cmp<CompBasicEnemyAI>()->vision_range = 20;
+        entity.cmp<CompBasicEnemyAI>()->vision_range = 0;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 10;
     }
 };
