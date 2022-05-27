@@ -54,6 +54,7 @@ struct CompAbility : public Component
     TargetDecalType target_decal_type;
     float radius;
     float angle;
+    std::vector<DamageInstance> damages;
 };
 
 struct CompAbilityLevel : public Component 
@@ -67,6 +68,11 @@ struct CompAbilityInstance : public Component
     std::vector<EntityRef> instances;
 };
 
+struct OwnerDamageSpec
+{
+    int damage_index;
+};
+
 struct CompRadiusApplication : public Component
 {
     bool apply_to_same_team = false;
@@ -77,6 +83,7 @@ struct CompRadiusApplication : public Component
     float last_tick_time = -1000;
     std::set<EntityId> applied_already;
     std::optional<DamageInstance> damage;
+    std::optional<OwnerDamageSpec> owner_damage;
 }; 
 
 struct TargetingProto : public ActorProto

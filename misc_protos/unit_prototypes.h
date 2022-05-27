@@ -133,7 +133,9 @@ struct UnitProto : public ActorProto
         test_ability3.cmp<CompAbility>()->cast_range = 100;
         test_ability3.cmp<CompAbility>()->radius = 2;
         test_ability3.cmp<CompAbility>()->max_level = 4;
+        test_ability3.cmp<CompAbility>()->ability_name = "Ice Shards";
         test_ability3.cmp<CompAbility>()->target_decal_type = TargetDecalType::Cone;
+        test_ability3.cmp<CompAbility>()->damages = {{test_ability3, DamageType::Magical, 200, false}};
         test_ability3.cmp<CompTeam>()->team = 1;
         auto crystal_nova_proto2 = std::make_shared<IceShardsInstanceProto>(glm::vec3(0,0,0));
         iface->add_component(CompAbilityInstance(), test_ability3.get_id());
@@ -174,7 +176,7 @@ struct CommandIndicatorProto : public ActorProto
         monkey_mesh->set_solid_color(glm::vec3(0.0,1,0.0));
         entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 1);
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
-        entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 10;
+        
         auto box_mat = std::make_shared<bgfx::Material>();
 
         /*
@@ -220,5 +222,6 @@ struct EnemyUnitProto : public UnitProto
         UnitProto::init(entity, iface);
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompBasicEnemyAI>()->vision_range = 20;
+        entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 10;
     }
 };

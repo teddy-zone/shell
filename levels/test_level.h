@@ -186,14 +186,16 @@ public:
         spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
         spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
 
-/*
         auto mod_proto = std::make_shared<AbilityModStationProto>(glm::vec3(0));
         auto mod_spawner_proto = std::make_shared<SpawnerProto>(glm::vec3(0));
         auto mod_spawner = c->add_entity_from_proto(mod_spawner_proto.get());
         mod_spawner.cmp<CompPosition>()->pos = glm::vec3(125,125,7);
         mod_spawner.cmp<CompActuatorDetector>()->actuator = spawner;
         mod_spawner.cmp<CompSpawnProtoList>()->protos.push_back(mod_proto);
-        */
+
+        auto start_mod_proto = std::make_shared<AbilityModStationProto>(glm::vec3(0));
+        auto start_mod = c->add_entity_from_proto(mod_proto.get());
+        start_mod.cmp<CompPosition>()->pos = glm::vec3(45, 125, 40);
     }
 
     virtual void update(double dt) override

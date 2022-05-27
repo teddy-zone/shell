@@ -63,9 +63,12 @@ struct CompAbilitySet : public Component, public StatInterface
     {
         for (int i = 0; i < abilities.size(); ++i)
         {
-            if (abilities[i].get_name() == ability_name)
+            if (auto* comp_ability = abilities[i].cmp<CompAbility>())
             {
-                return abilities[i];
+                if (comp_ability->ability_name == ability_name)
+                {
+                    return abilities[i];
+                }
             }
         }
         return EntityRef();
