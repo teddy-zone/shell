@@ -18,7 +18,7 @@ public:
 
     }
 
-    void update(double dt) override
+    virtual void update(double dt) override
     {
         auto& spawn_sensors = get_array<CompActuatorDetector>();
         for (auto& spawn_sensor : spawn_sensors)

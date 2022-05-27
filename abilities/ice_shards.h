@@ -16,6 +16,7 @@ struct AbilityIceShardsProto : AbilityProto
 
     virtual void init(EntityRef entity, SystemInterface* iface) override
     {
+        entity.cmp<CompAbility>()->ability_name = "Ice Shards";
     }
 };
 struct IceShardsInstanceProto : public ActorProto
@@ -35,6 +36,7 @@ struct IceShardsInstanceProto : public ActorProto
                     uint32_t(type_id<CompBounds>),
                     uint32_t(type_id<CompVoice>),
                     uint32_t(type_id<CompTeam>),
+                    uint32_t(type_id<CompHasOwner>),
             }};
         append_components(unit_components);
     }
@@ -63,6 +65,7 @@ struct IceShardsInstanceProto : public ActorProto
         entity.cmp<CompRadiusApplication>()->radius = 3;
         entity.cmp<CompRadiusApplication>()->tick_time = 0;
         entity.cmp<CompRadiusApplication>()->apply_once = true;
-        entity.cmp<CompRadiusApplication>()->damage = {entity, DamageType::Magical, 100, false};
+        //entity.cmp<CompRadiusApplication>()->damage = {entity, DamageType::Magical, 200, false};
+        entity.cmp<CompRadiusApplication>()->owner_damage = {0};
     }
 };

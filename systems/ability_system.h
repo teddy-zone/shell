@@ -277,12 +277,15 @@ public:
         auto* ab = caster->get_ability();
         ab->current_cooldown = 
             ab->cooldown;
-        std::optional<CompAbilityInstance*> instance_comp; 
         std::optional<EntityRef> instance_entity;
-        if (instance_comp = ab->sibling<CompAbilityInstance>())
+        if (auto* instance_comp = ab->sibling<CompAbilityInstance>())
         {
-            auto ability_instance = _interface->add_entity_from_proto(instance_comp.value()->proto.get());
+            auto ability_instance = _interface->add_entity_from_proto(instance_comp->proto.get());
             instance_entity = ability_instance;
+            if (auto* owner_comp = ability_instance.cmp<CompHasOwner>())
+            {
+                owner_comp->owner = ab->get_entity();
+            }
             if (auto* team_comp = ability_instance.cmp<CompTeam>())
             {
                 team_comp->team = caster_team;
@@ -382,6 +385,38 @@ public:
                                 {
                                     auto* other_health = inside_entity.cmp<CompHealth>();
                                     other_health->apply_damage(applicator.damage.value());
+                                }
+                            }
+                        }
+                        if (applicator.owner_damage)
+                        {
+                            if (auto* has_owner = applicator.sibling<CompHasOwner>())
+                            {
+                                if (has_owner->owner.is_valid())
+                                {
+                                    if (auto* ab_comp = has_owner->owner.cmp<CompAbility>())
+                                    {
+                                        if (ab_comp->damages.size() > applicator.owner_damage.value().damage_index)
+                                        {
+                                            if (my_team == other_team)
+                                            {
+                                                if (applicator.apply_to_same_team)
+                                                {
+                                                    auto* other_health = inside_entity.cmp<CompHealth>();
+                                                    other_health->apply_damage(ab_comp->damages[applicator.owner_damage.value().damage_index]);
+                                                }
+                                            }
+                                            if (my_team != other_team)
+                                            {
+                                                if (applicator.apply_to_other_teams)
+                                                {
+                                                    auto* other_health = inside_entity.cmp<CompHealth>();
+                                                    other_health->apply_damage(ab_comp->damages[applicator.owner_damage.value().damage_index]);
+                                                    printf("Applied owner damage\n");
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
