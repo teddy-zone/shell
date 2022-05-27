@@ -35,6 +35,8 @@ struct DashProjectileProto : public EntityProto
                     uint32_t(type_id<CompBounds>),
                     uint32_t(type_id<CompLifetime>),
                     uint32_t(type_id<CompAttachment>),
+                    uint32_t(type_id<CompHasOwner>),
+                    uint32_t(type_id<CompTeam>),
             }};
         append_components(unit_components);
     }
@@ -43,7 +45,7 @@ struct DashProjectileProto : public EntityProto
     {
         entity.cmp<CompProjectile>()->speed = 200;
         entity.cmp<CompProjectile>()->constant_height = 1.0;
-        entity.cmp<CompLifetime>()->lifetime = 0.2;
+        entity.cmp<CompLifetime>()->lifetime = 1.2;
         entity.cmp<CompPhysics>()->has_collision = false;
         printf("INitialized proje!\n");
     }
@@ -58,7 +60,8 @@ public:
     {
         std::vector<CompType> unit_components = {{
                     uint32_t(type_id<CompOnCast>),
-                    uint32_t(type_id<CompAbilityInstance>)
+                    uint32_t(type_id<CompAbilityInstance>),
+                    uint32_t(type_id<CompTeam>),
             }};
         append_components(unit_components);
     }
@@ -75,6 +78,7 @@ public:
         entity.cmp<CompAbility>()->self_targeted = false;
         entity.cmp<CompAbility>()->ground_targeted = true;
         entity.cmp<CompAbility>()->ability_name = "Dash";
+        entity.cmp<CompAbility>()->radius = 5;
         entity.cmp<CompOnCast>()->on_cast_callbacks.push_back(
             [status_entity](EntityRef caster, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
             {

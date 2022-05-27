@@ -281,6 +281,18 @@ public:
         if (auto* instance_comp = ab->sibling<CompAbilityInstance>())
         {
             auto ability_instance = _interface->add_entity_from_proto(instance_comp->proto.get());
+            if (instance_comp->intersect_callback)
+            {
+                _interface->add_component(instance_comp->intersect_callback.value(), ability_instance.get_id());
+            }
+            if (instance_comp->hit_callback)
+            {
+                _interface->add_component(instance_comp->hit_callback.value(), ability_instance.get_id());
+            }
+            if (instance_comp->radial_application)
+            {
+                _interface->add_component(instance_comp->radial_application.value(), ability_instance.get_id());
+            }
             instance_entity = ability_instance;
             if (auto* owner_comp = ability_instance.cmp<CompHasOwner>())
             {
@@ -410,9 +422,10 @@ public:
                                             {
                                                 if (applicator.apply_to_other_teams)
                                                 {
-                                                    auto* other_health = inside_entity.cmp<CompHealth>();
-                                                    other_health->apply_damage(ab_comp->damages[applicator.owner_damage.value().damage_index]);
-                                                    printf("Applied owner damage\n");
+                                                    if (auto* other_health = inside_entity.cmp<CompHealth>())
+                                                    {
+                                                        other_health->apply_damage(ab_comp->damages[applicator.owner_damage.value().damage_index]);
+                                                    }
                                                 }
                                             }
                                         }

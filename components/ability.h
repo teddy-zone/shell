@@ -17,6 +17,8 @@
 #include "static_mesh_component.h"
 #include "voice_component.h"
 #include "item_component.h"
+#include "on_intersect_component.h"
+#include "on_hit_component.h"
 
 enum class AbilityState
 {
@@ -62,11 +64,6 @@ struct CompAbilityLevel : public Component
     int level;
 };
 
-struct CompAbilityInstance : public Component
-{
-    std::shared_ptr<EntityProto> proto;
-    std::vector<EntityRef> instances;
-};
 
 struct OwnerDamageSpec
 {
@@ -79,12 +76,21 @@ struct CompRadiusApplication : public Component
     bool apply_to_other_teams = true;
     bool apply_once;
     float radius;
-    float tick_time;
+    float tick_time = 0;
     float last_tick_time = -1000;
     std::set<EntityId> applied_already;
     std::optional<DamageInstance> damage;
     std::optional<OwnerDamageSpec> owner_damage;
 }; 
+
+struct CompAbilityInstance : public Component
+{
+    std::shared_ptr<EntityProto> proto;
+    std::vector<EntityRef> instances;
+    std::optional<CompOnIntersect> intersect_callback;
+    std::optional<CompOnHit> hit_callback;
+    std::optional<CompRadiusApplication> radial_application;
+};
 
 struct TargetingProto : public ActorProto
 {

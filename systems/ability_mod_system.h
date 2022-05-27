@@ -6,7 +6,7 @@
 #include "system.h"
 #include "ability_mod.h"
 #include "ability_set_component.h"
-
+#include "on_intersect_component.h"
 struct AbilityModEntry
 {
 
@@ -58,6 +58,7 @@ public:
 
     virtual void init_update() override
     {
+        /*
         _mods.abilities["Ice Shards"] = std::vector<AbilityMod>();
         _mods.abilities["Ice Shards"].push_back(AbilityMod());
         _mods.abilities["Ice Shards"].back().mod_name = "Add damage";
@@ -71,6 +72,29 @@ public:
                     {
                         ability_comp->damages[0].damage += 100;
                         printf("Added damage!\n");
+                    }
+                }
+            };
+            */
+
+        _mods.abilities["Dash"] = std::vector<AbilityMod>();
+        _mods.abilities["Dash"].push_back(AbilityMod());
+        _mods.abilities["Dash"].back().mod_name = "Dash does damage";
+        _mods.abilities["Dash"].back().ability_name = "Dash";
+        _mods.abilities["Dash"].back().mod_function = [](EntityRef entity)
+            {
+                if (auto* ability_comp = entity.cmp<CompAbility>())
+                {
+                    ability_comp->damages.push_back({entity, DamageType::Magical, 50, false});
+                    if (auto* instance_comp = entity.cmp<CompAbilityInstance>())    
+                    {
+                        printf("Applied dash damage!\n");
+                        instance_comp->radial_application = CompRadiusApplication();
+                        instance_comp->radial_application.value().apply_to_same_team = false;
+                        instance_comp->radial_application.value().apply_to_other_teams = true;
+                        instance_comp->radial_application.value().apply_once = true;
+                        instance_comp->radial_application.value().radius = 10;
+                        instance_comp->radial_application.value().owner_damage = {int(ability_comp->damages.size()-1)};
                     }
                 }
             };
