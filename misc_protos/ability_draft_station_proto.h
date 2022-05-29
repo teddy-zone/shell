@@ -23,7 +23,7 @@ struct AbilityDraftStationProto : public ActorProto
     {
         auto monkey_mesh = std::make_shared<bgfx::Mesh>();
         monkey_mesh->load_obj("cube.obj" );
-        monkey_mesh->set_solid_color(glm::vec4(0.4,0.9,1.0,0.75));
+        monkey_mesh->set_solid_color(glm::vec4(0.9,0.2,1.0,0.75));
         entity.cmp<CompPosition>()->scale = glm::vec3(2, 2, 10);
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
         auto box_mat = std::make_shared<bgfx::Material>();
@@ -53,10 +53,10 @@ struct AbilityDraftStationProto : public ActorProto
         entity.cmp<CompInteractable>()->interaction_callback = 
             [] (SystemInterface* _interface, EntityRef interactor, EntityRef interactee) 
             {
-                if (auto* ability_mod_comp = interactor.cmp<CompAbilityMod>())
+                if (auto* ability_set_comp = interactor.cmp<CompAbilitySet>())
                 {
-                    ability_mod_comp->mods_available += 1;
-                    printf("Ability up!\n");
+                    ability_set_comp->drafts_available += 1;
+                    ability_set_comp->selection_state = AbilityDraftSelectionState::AbilitySelection;
                 }
             };
     }

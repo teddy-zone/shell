@@ -4,18 +4,29 @@
 #include "stat_component.h"
 #include "ability.h"
 
+enum class AbilityDraftSelectionState
+{
+    AbilitySelection,
+    SlotSelection,
+    Done
+};
+
 struct DraftableAbility
 {
     std::shared_ptr<EntityProto> ability_proto;
-    std::string ability_name;
+    std::string name;
 };
 
 struct CompAbilitySet : public Component, public StatInterface
 {
 
     std::array<EntityRef, 6> abilities;
+
+    // Drafting states
+    std::optional<DraftableAbility> selected_ability;
     std::vector<DraftableAbility> draft_choices;
     int drafts_available = 0;
+    AbilityDraftSelectionState selection_state = AbilityDraftSelectionState::Done;
 
     std::vector<std::string> get_ability_names()
     {
