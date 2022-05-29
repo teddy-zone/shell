@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entity_prototype.h"
+#include "tooltip_component.h"
 
 struct AbilityModStationProto : public ActorProto
 {
@@ -15,6 +16,7 @@ struct AbilityModStationProto : public ActorProto
                     uint32_t(type_id<CompPhysics>), 
                     uint32_t(type_id<CompBounds>),
                     uint32_t(type_id<CompLifetime>),
+                    uint32_t(type_id<CompTooltip>),
             }};
         append_components(unit_components);
     }
@@ -28,20 +30,9 @@ struct AbilityModStationProto : public ActorProto
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
         auto box_mat = std::make_shared<bgfx::Material>();
 
-        std::ifstream t("C:\\Users\\tjwal\\projects\\ECS\\materials\\box_mat\\VertexShader.glsl");
-        std::stringstream buffer;
-        buffer << t.rdbuf();
-        auto vshader = std::make_shared<Shader>(Shader::Type::Vertex, buffer.str(), true);
-        std::ifstream t2("C:\\Users\\tjwal\\projects\\ECS\\materials\\box_mat\\FragmentShader.glsl");
-        std::stringstream buffer2;
-        buffer2 << t2.rdbuf();
-        auto fshader = std::make_shared<Shader>(Shader::Type::Fragment, buffer2.str(), true);
-        box_mat->set_vertex_shader(vshader);
-        box_mat->set_fragment_shader(fshader);
-        box_mat->link();
-        entity.cmp<CompStaticMesh>()->mesh.set_material(box_mat);
         entity.cmp<CompStaticMesh>()->mesh.set_id(entity.get_id());
         entity.cmp<CompPosition>()->pos = pos;
+        entity.cmp<CompTooltip>()->text = "Ability Upgrade Station";
 /*
         entity.cmp<CompAnimation>()->start_time = 0;
         entity.cmp<CompAnimation>()->end_time = 0.5;

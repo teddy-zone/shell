@@ -51,7 +51,7 @@ public:
             case MainMenuState::CharacterSelect:
                 {
                     ImGui::Begin("CharacterSelect");
-                    if (ImGui::Button("Crystal Maiden"))
+                    if (ImGui::Button("Juggernaut"))
                     {
                         auto unit_proto = std::make_shared<UnitProto>(glm::vec3(1.0));
                         auto& char_type_components = get_array<CompCharacterType>();

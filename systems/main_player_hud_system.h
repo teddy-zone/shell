@@ -226,7 +226,8 @@ public:
                     if (ability.is_valid())
                     {
                         CompAbility* ab = ability.cmp<CompAbility>();
-                        ImGui::ImageButton(0, ImVec2(widget_height - 100, widget_height - 100));
+                        //ImGui::ImageButton(0, ImVec2(widget_height - 100, widget_height - 100));
+                        ImGui::Button(ab->ability_name.c_str());
                         ImGui::Text((std::string("Level: ") + std::to_string(ab->level)).c_str());
                         if (ab->current_cooldown)
                         {
