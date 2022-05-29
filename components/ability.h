@@ -53,6 +53,7 @@ struct CompAbility : public Component
     float channel_time;
     int level;
     int max_level;
+    int mana_cost;
     std::string ability_name;
     TargetDecalType target_decal_type;
     float radius;

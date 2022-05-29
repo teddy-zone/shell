@@ -21,6 +21,7 @@
 #include "eye_component.h"
 #include "vision_affected_component.h"
 #include "respawn_component.h"
+#include "mana_component.h"
 #include "jump.h"
 #include "dash.h"
 #include "ability_mod.h"
@@ -48,6 +49,7 @@ struct UnitProto : public ActorProto
                     uint32_t(type_id<CompCaster>),
                     uint32_t(type_id<CompLifetime>),
                     uint32_t(type_id<CompHealth>),
+                    uint32_t(type_id<CompMana>),
                     uint32_t(type_id<CompTeam>),
                     uint32_t(type_id<CompStat>),
                     uint32_t(type_id<CompExperience>),
@@ -85,7 +87,9 @@ struct UnitProto : public ActorProto
         entity.cmp<CompStaticMesh>()->mesh.set_id(entity.get_id());
         entity.cmp<CompPosition>()->pos = glm::vec3(20,20,45);
         entity.cmp<CompHealth>()->health_percentage = 100;
+        entity.cmp<CompMana>()->mana_percentage = 100;
         entity.cmp<CompStat>()->set_stat(Stat::MaxHealth, 200);
+        entity.cmp<CompStat>()->set_stat(Stat::MaxMana, 200);
         entity.cmp<CompStat>()->set_stat(Stat::MagicResist, 0.25);
         entity.cmp<CompStat>()->set_stat(Stat::Armor, 2);
         entity.cmp<CompStat>()->set_stat(Stat::Movespeed, 150);
@@ -228,6 +232,8 @@ struct JuggernautProto : public UnitProto
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
+        entity.cmp<CompStat>()->set_stat(Stat::HealthRegen, 10);
+        entity.cmp<CompStat>()->set_stat(Stat::ManaRegen, 10);
         auto bf_proto = std::make_shared<BladefuryAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(bf_proto.get());
     }

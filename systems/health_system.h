@@ -15,6 +15,11 @@ public:
             health_comp.filtered_health_percentage = 
                 std::max(health_comp.filtered_health_percentage - filter_velocity*float(dt), 
                          health_comp.health_percentage);
+            if (auto* stat_comp = health_comp.sibling<CompStat>())
+            {
+                auto health_regen = stat_comp->get_abs_stat(Stat::HealthRegen);
+                health_comp.add_health(health_regen*dt);
+            }
         }
     }
 };

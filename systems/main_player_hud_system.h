@@ -3,6 +3,7 @@
 #include "system.h"
 #include "status_manager.h"
 #include "keystate_component.h"
+#include "mana_component.h"
 
 class SysMainPlayerHud : public GuiSystem
 {
@@ -187,18 +188,22 @@ public:
 
                 bool active = true;
 
+                constexpr int health_bar_width = 200;
+                constexpr int health_bar_height = 20;
+                constexpr int mana_bar_width = 200;
+                constexpr int mana_bar_height = 15;
+
                 const int ability_width = 100;
                 const int widget_height = ability_widget_height;
-                const int widget_width = ability_width * ability_count;;
+                const int widget_width = std::max(ability_width * ability_count, health_bar_width + 40);
                 ImGui::SetNextWindowPos(ImVec2(widget_margin, CompWidget::window_height - (widget_margin + widget_height)));
                 ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
                 ImGui::Begin("Abilities", &active, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
                 // HEALTH BAR DRAWING
+                const ImVec2 p = ImGui::GetCursorScreenPos();
                 if (auto* health_comp = ab_set->sibling<CompHealth>())
                 {
-                    constexpr int health_bar_width = 200;
-                    constexpr int health_bar_height = 20;
                     int current_health_width = health_bar_width*health_comp->health_percentage/100.0;
                     int max_disp_health = 100;
                     int cur_disp_health = health_comp->health_percentage;
@@ -209,13 +214,30 @@ public:
                     }
                     std::string health_text(std::to_string(cur_disp_health) + "/" + std::to_string(max_disp_health));
                     ImDrawList* draw_list = ImGui::GetWindowDrawList();
-                    const ImVec2 p = ImGui::GetCursorScreenPos();
                     draw_list->AddRectFilled(p, ImVec2(p.x + health_bar_width, p.y + health_bar_height), ImColor(0,0,0));
                     draw_list->AddRectFilled(ImVec2(p.x+1, p.y+1), ImVec2(p.x + current_health_width - 2, p.y + health_bar_height - 2), ImColor(255,0,0));
                     draw_list->AddText(ImGui::GetIO().FontDefault, 14, ImVec2(p.x + 5, p.y), ImColor(255,255,255), health_text.c_str(), health_text.c_str() + health_text.size(), 200, nullptr);
-                    ImGui::Dummy(ImVec2(health_bar_width + 10, health_bar_height + 10));
                 }
                 // END HEALTH BAR
+                if (auto* mana_comp = ab_set->sibling<CompMana>())
+                {
+                    int current_mana_width = mana_bar_width*mana_comp->mana_percentage/100.0;
+                    int max_disp_mana = 100;
+                    int cur_disp_mana = mana_comp->mana_percentage;
+                    if (auto* stat_comp = mana_comp->sibling<CompStat>())
+                    {
+                        max_disp_mana = int(stat_comp->get_abs_stat(Stat::MaxMana));
+                        cur_disp_mana = max_disp_mana*mana_comp->mana_percentage/100.0;
+                    }
+                    std::string mana_text(std::to_string(cur_disp_mana) + "/" + std::to_string(max_disp_mana));
+                    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+                    ImVec2 mp(p.x, p.y + health_bar_height);
+                    draw_list->AddRectFilled(ImVec2(mp.x, mp.y), ImVec2(mp.x + mana_bar_width, mp.y + mana_bar_height), ImColor(0,0,0));
+                    draw_list->AddRectFilled(ImVec2(mp.x+1, mp.y+1), ImVec2(mp.x + current_mana_width - 2, mp.y + mana_bar_height - 2), ImColor(0,0,255));
+                    draw_list->AddText(ImGui::GetIO().FontDefault, 12, ImVec2(mp.x + 5, mp.y), ImColor(255,255,255), mana_text.c_str(), mana_text.c_str() + mana_text.size(), 200, nullptr);
+                }
+                ImGui::Dummy(ImVec2(health_bar_width + mana_bar_width + 10, health_bar_height + mana_bar_height + 10));
+
                 auto* caster_comp = ab_set->sibling<CompCaster>();
                 auto* experience_comp = ab_set->sibling<CompExperience>();
                 
@@ -235,6 +257,7 @@ public:
                         }
                         if (caster_comp && experience_comp)
                         {
+                            printf("current- exp: %d\n", experience_comp->get_level());
                             if (caster_comp->get_is_levelable(ability_num, experience_comp->get_level()))
                             {
                                 if (caster_comp->ability_level_mode && 
