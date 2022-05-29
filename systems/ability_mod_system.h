@@ -251,7 +251,7 @@ public:
         bool active = true;
         ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width/2 - widget_width/2, CompWidget::window_height/2 - widget_height/2));
         ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
-        ImGui::Begin("AbilityMods", &active, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+        ImGui::Begin("AbilityMods", &active, ImGuiWindowFlags_NoResize);
         for (auto& mod : ability_mod_comp->currently_available_mods)
         {
             if (ImGui::Button(mod.mod_name.c_str()))
@@ -349,12 +349,36 @@ public:
         bool active = true;
         ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width/2 - widget_width/2, CompWidget::window_height/2 - widget_height/2));
         ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
-        ImGui::Begin("AbilityDraft", &active, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
-        for (auto& ability : ability_set_comp->draft_choices)
+        ImGui::Begin("AbilityDraft", &active, ImGuiWindowFlags_NoResize);
+        switch (ability_set_comp->selection_state)
         {
-            if (ImGui::Button(ability.ability_name.c_str()))
-            {
-            }
+            case AbilityDraftSelectionState::AbilitySelection:
+                {
+                    for (auto& ability : ability_set_comp->draft_choices)
+                    {
+                        if (ImGui::Button(ability.ability_name.c_str()))
+                        {
+                            ability_set_comp->selected_ability = ability;
+                            ability_set_comp->selection_state = AbilityDraftSelectionState::SlotSelection;
+                        }
+                    }
+                }
+                break;
+            case AbilityDraftSelectionState::SlotSelection:
+                {
+                    int slot_num = 1;
+                    for (auto& ability : ability_set_comp->abilities)
+                    {
+                        if (ImGui::Button(std::to_string(slot_num).c_str()))
+                        {
+                            auto ability_entity = _interface->add_entity_from_proto(ability_set_comp->selected_ability.value().ability_proto.get());
+                            ability = ability_entity;
+                            ability_set_comp->drafts_available -= 1;
+                        }
+                        slot_num++;
+                    }
+                }
+                break;
         }
         ImGui::End();
     }
