@@ -53,7 +53,7 @@ public:
                     ImGui::Begin("CharacterSelect");
                     if (ImGui::Button("Juggernaut"))
                     {
-                        auto unit_proto = std::make_shared<UnitProto>(glm::vec3(1.0));
+                        auto unit_proto = std::make_shared<JuggernautProto>();
                         auto& char_type_components = get_array<CompCharacterType>();
                         if (char_type_components.size())
                         {
@@ -75,9 +75,9 @@ public:
                         _interface->load_level("TestLevel");
                         menu_state = MainMenuState::None;
                     }
-                    if (ImGui::Button("Sniper"))
+                    if (ImGui::Button("Crystal Maiden"))
                     {
-                        auto unit_proto = std::make_shared<UnitProto>(glm::vec3(1.0));
+                        auto unit_proto = std::make_shared<CrystalMaidenProto>();
                         auto& char_type_components = get_array<CompCharacterType>();
                         if (char_type_components.size())
                         {

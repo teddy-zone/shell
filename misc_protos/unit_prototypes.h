@@ -152,9 +152,9 @@ struct UnitProto : public ActorProto
         auto cn_proto2 = std::dynamic_pointer_cast<EntityProto>(crystal_nova_proto2);
         ab_inst2->proto = cn_proto2;
 
-        entity.cmp<CompAbilitySet>()->abilities[0] = bf_ability;
-        entity.cmp<CompAbilitySet>()->abilities[2] = dash_ability;
-        entity.cmp<CompAbilitySet>()->abilities[1] = test_ability3;
+        //entity.cmp<CompAbilitySet>()->abilities[0] = bf_ability;
+        //entity.cmp<CompAbilitySet>()->abilities[2] = dash_ability;
+        //entity.cmp<CompAbilitySet>()->abilities[1] = test_ability3;
         MeleeAttackAbilityProto attack_ability_proto(entity);
         entity.cmp<CompAttacker>()->attack_ability = iface->add_entity_from_proto(static_cast<EntityProto*>(&attack_ability_proto));
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
@@ -211,6 +211,46 @@ struct CommandIndicatorProto : public ActorProto
         entity.cmp<CompAnimation>()->end_time = 0.5;
         entity.cmp<CompAnimation>()->start_scale = glm::vec3(0.7);
         entity.cmp<CompAnimation>()->end_scale = glm::vec3(0.0);
+    }
+};
+
+struct JuggernautProto : public UnitProto
+{
+
+    JuggernautProto(const std::vector<CompType>& extension_types={}):
+        UnitProto(glm::vec3(0), extension_types)
+    {
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface) override
+    {
+        UnitProto::init(entity, iface);
+        entity.cmp<CompTeam>()->team = 2;
+        entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
+        entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
+        auto bf_proto = std::make_shared<BladefuryAbilityProto>();
+        entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(bf_proto.get());
+    }
+};
+
+struct CrystalMaidenProto : public UnitProto
+{
+
+    CrystalMaidenProto(const std::vector<CompType>& extension_types={}):
+        UnitProto(glm::vec3(0), extension_types)
+    {
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface) override
+    {
+        UnitProto::init(entity, iface);
+        entity.cmp<CompTeam>()->team = 2;
+        auto ranged_attack_proto = std::make_shared<AttackAbilityProto>(entity);
+        entity.cmp<CompAttacker>()->attack_ability = iface->add_entity_from_proto(ranged_attack_proto.get());
+        entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 15;
+        entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
+        auto cn_proto = std::make_shared<CrystalNovaAbilityProto>();
+        entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
     }
 };
 

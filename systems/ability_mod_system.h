@@ -7,6 +7,7 @@
 #include "ability_mod.h"
 #include "ability_set_component.h"
 #include "on_intersect_component.h"
+#include "crystal_nova.h"
 
 template <typename T>
 struct AbilityDraftDatabase
@@ -249,6 +250,41 @@ public:
                 }
             };
 
+        _mods.abilities["Crystal Nova"] = std::vector<AbilityMod>();
+        _mods.abilities["Crystal Nova"].push_back(AbilityMod());
+        _mods.abilities["Crystal Nova"].back().mod_name = "3 Instances of Crystal Nova. 1 every 2 seconds.";
+        _mods.abilities["Crystal Nova"].back().ability_name = "Crystal Nova";
+        _mods.abilities["Crystal Nova"].back().mod_function = [](EntityRef entity)
+            {
+
+                if (auto* ability_comp = entity.cmp<CompAbility>())
+                {
+                    if (!entity.cmp<CompAbilityInstance>()->destruction_callback)
+                    {
+                        entity.cmp<CompAbilityInstance>()->destruction_callback = CompOnDestruction();
+                    }
+                    entity.cmp<CompAbilityInstance>()->destruction_callback.value().on_destruction_callbacks.push_back(
+                        [](SystemInterface* iface, EntityRef me)
+                        {
+                            if (me.is_valid())
+                            {
+                                if (auto* my_on_destruct = me.cmp<CompOnDestruction>())
+                                {
+                                    if (my_on_destruct->generation < 2)
+                                    {
+                                        printf("DUPED\n");
+                                        auto new_entity = iface->duplicate_entity(me);
+                                        if (auto* on_destruct = new_entity.cmp<CompOnDestruction>())
+                                        {
+                                            on_destruct->generation += 1;
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                }
+            };
+
     }
 
     virtual void update_gui(double dt) override
@@ -351,6 +387,11 @@ public:
         _abilities.abilities.back().name = "Jump";
         auto jump_proto = std::make_shared<JumpAbilityProto>();
         _abilities.abilities.back().ability_proto = jump_proto;
+
+        _abilities.abilities.push_back(DraftableAbility());
+        _abilities.abilities.back().name = "Crystal Nova";
+        auto cn_proto = std::make_shared<CrystalNovaAbilityProto>();
+        _abilities.abilities.back().ability_proto = cn_proto;
     }
 
     virtual void update_gui(double dt) override

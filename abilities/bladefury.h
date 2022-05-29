@@ -58,7 +58,6 @@ public:
         std::vector<CompType> unit_components = {{
                     uint32_t(type_id<CompOnCast>),
                     uint32_t(type_id<CompAbilityInstance>),
-                    uint32_t(type_id<CompTeam>),
             }};
         append_components(unit_components);
     }
