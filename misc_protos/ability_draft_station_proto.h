@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entity_prototype.h"
+#include "tooltip_component.h"
 
 struct AbilityDraftStationProto : public ActorProto
 {
@@ -15,6 +16,7 @@ struct AbilityDraftStationProto : public ActorProto
                     uint32_t(type_id<CompPhysics>), 
                     uint32_t(type_id<CompBounds>),
                     uint32_t(type_id<CompLifetime>),
+                    uint32_t(type_id<CompTooltip>),
             }};
         append_components(unit_components);
     }
@@ -42,6 +44,7 @@ struct AbilityDraftStationProto : public ActorProto
         entity.cmp<CompStaticMesh>()->mesh.set_material(box_mat);
         entity.cmp<CompStaticMesh>()->mesh.set_id(entity.get_id());
         entity.cmp<CompPosition>()->pos = pos;
+        entity.cmp<CompTooltip>()->text = "Ability Draft Station";
 /*
         entity.cmp<CompAnimation>()->start_time = 0;
         entity.cmp<CompAnimation>()->end_time = 0.5;
