@@ -14,7 +14,7 @@ enum class AbilityDraftSelectionState
 struct DraftableAbility
 {
     std::shared_ptr<EntityProto> ability_proto;
-    std::string ability_name;
+    std::string name;
 };
 
 struct CompAbilitySet : public Component, public StatInterface

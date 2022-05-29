@@ -28,6 +28,7 @@
 #include "materials/line_mat/VertexShader.glsl.h"
 #include "spawner_proto.h"
 #include "ability_mod_station_proto.h"
+#include "ability_draft_station_proto.h"
 
 class TestLevel : public Level
 {
@@ -194,8 +195,12 @@ public:
         mod_spawner.cmp<CompSpawnProtoList>()->protos.push_back(mod_proto);
 
         auto start_mod_proto = std::make_shared<AbilityModStationProto>(glm::vec3(0));
-        auto start_mod = c->add_entity_from_proto(mod_proto.get());
+        auto start_mod = c->add_entity_from_proto(start_mod_proto.get());
         start_mod.cmp<CompPosition>()->pos = glm::vec3(45, 125, 40);
+
+        auto start_draft_proto = std::make_shared<AbilityDraftStationProto>(glm::vec3(0));
+        auto start_draft = c->add_entity_from_proto(start_draft_proto.get());
+        start_draft.cmp<CompPosition>()->pos = glm::vec3(50, 125, 40);
     }
 
     virtual void update(double dt) override
