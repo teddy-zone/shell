@@ -155,7 +155,7 @@ struct UnitProto : public ActorProto
         entity.cmp<CompAbilitySet>()->abilities[0] = bf_ability;
         entity.cmp<CompAbilitySet>()->abilities[2] = dash_ability;
         entity.cmp<CompAbilitySet>()->abilities[1] = test_ability3;
-        AttackAbilityProto attack_ability_proto(entity);
+        MeleeAttackAbilityProto attack_ability_proto(entity);
         entity.cmp<CompAttacker>()->attack_ability = iface->add_entity_from_proto(static_cast<EntityProto*>(&attack_ability_proto));
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
         
@@ -231,6 +231,6 @@ struct EnemyUnitProto : public UnitProto
         UnitProto::init(entity, iface);
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompBasicEnemyAI>()->vision_range = 15;
-        entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 10;
+        entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
     }
 };
