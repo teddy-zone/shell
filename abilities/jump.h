@@ -24,7 +24,7 @@ public:
         entity.cmp<CompAbility>()->ground_targeted = true;
         entity.cmp<CompAbility>()->ability_name = "Jump";
         entity.cmp<CompOnCast>()->on_cast_callbacks.push_back(
-            [iface](EntityRef caster, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
+            [iface](SystemInterface* iface, EntityRef caster, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
             {
                 if (ground_target)
                 {

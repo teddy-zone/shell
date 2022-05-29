@@ -52,6 +52,7 @@ struct IceShardsInstanceProto : public ActorProto
         entity.cmp<CompAnimation>()->end_scale = glm::vec3(2.0);
 
         entity.cmp<CompProjectile>()->speed = 40;
+        entity.cmp<CompProjectile>()->max_range = 20;
         entity.cmp<CompDecal>()->decal.type = 3;
         entity.cmp<CompPhysics>()->has_collision = false;
         entity.cmp<CompPhysics>()->has_gravity = false;
@@ -67,5 +68,35 @@ struct IceShardsInstanceProto : public ActorProto
         entity.cmp<CompRadiusApplication>()->apply_once = true;
         //entity.cmp<CompRadiusApplication>()->damage = {entity, DamageType::Magical, 200, false};
         entity.cmp<CompRadiusApplication>()->owner_damage = {0};
+    }
+};
+
+struct IceShardProto : public ActorProto
+{
+
+    IceShardProto(const glm::vec3& in_pos, const std::vector<CompType>& extension_types={}):
+        ActorProto(in_pos, extension_types)
+    {
+        std::vector<CompType> unit_components = {{
+                    uint32_t(type_id<CompStaticMesh>),
+                    uint32_t(type_id<CompLifetime>),
+                    uint32_t(type_id<CompPhysics>),
+                    uint32_t(type_id<CompBounds>),
+                    uint32_t(type_id<CompHasOwner>),
+            }};
+        append_components(unit_components);
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface) 
+    {
+        entity.cmp<CompLifetime>()->lifetime = 10;
+        entity.cmp<CompPhysics>()->has_collision = true;
+        entity.cmp<CompPhysics>()->has_gravity = false;
+
+        auto monkey_mesh = std::make_shared<bgfx::Mesh>();
+        monkey_mesh->load_obj("cube.obj" );
+        monkey_mesh->set_solid_color(glm::vec3(0.0,1,0.0));
+        entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 1);
+        entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
     }
 };

@@ -45,7 +45,7 @@ public:
         entity.cmp<CompAbility>()->ground_targeted = false;
         entity.cmp<CompAbility>()->ability_name = "Speed Boost";
         entity.cmp<CompOnCast>()->on_cast_callbacks.push_back(
-            [status_entity](EntityRef caster, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
+            [status_entity](SystemInterface* iface, EntityRef caster, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
             {
                 if (unit_target)
                 {

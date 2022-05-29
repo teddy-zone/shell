@@ -3,9 +3,9 @@
 #include "ability_proto.h"
 #include "attachment_component.h"
 
-struct DashStatusProto : public EntityProto 
+struct BladefuryStatusProto : public EntityProto 
 {
-    DashStatusProto(const std::vector<CompType>& extension_types={}):
+    BladefuryStatusProto(const std::vector<CompType>& extension_types={}):
         EntityProto(extension_types)
     {
         std::vector<CompType> unit_components = {{
@@ -23,39 +23,36 @@ struct DashStatusProto : public EntityProto
     }
 };
 
-struct DashProjectileProto : public EntityProto 
+struct BladefuryInstanceProto : public EntityProto 
 {
-    DashProjectileProto(const std::vector<CompType>& extension_types={}):
+    BladefuryInstanceProto(const std::vector<CompType>& extension_types={}):
         EntityProto(extension_types)
     {
         std::vector<CompType> unit_components = {{
-                    uint32_t(type_id<CompProjectile>),
                     uint32_t(type_id<CompPosition>),
-                    uint32_t(type_id<CompPhysics>),
-                    uint32_t(type_id<CompBounds>),
                     uint32_t(type_id<CompLifetime>),
-                    uint32_t(type_id<CompAttachment>),
                     uint32_t(type_id<CompHasOwner>),
                     uint32_t(type_id<CompTeam>),
+                    uint32_t(type_id<CompDecal>),
+                    uint32_t(type_id<CompRadiusApplication>),
             }};
         append_components(unit_components);
     }
 
     virtual void init(EntityRef entity, SystemInterface* iface) 
     {
-        entity.cmp<CompProjectile>()->speed = 200;
-        entity.cmp<CompProjectile>()->constant_height = 1.0;
-        entity.cmp<CompLifetime>()->lifetime = 1.2;
-        entity.cmp<CompPhysics>()->has_collision = false;
+        entity.cmp<CompRadiusApplication>()->damage = {entity, DamageType::Magical, 90/10.0, false};
+        entity.cmp<CompRadiusApplication>()->tick_time = 0.1;
+        entity.cmp<CompDecal>()->decal.type = 3;
+        entity.cmp<CompLifetime>()->lifetime = 5;
         printf("INitialized proje!\n");
     }
 };
 
-
-class DashAbilityProto : public AbilityProto 
+class BladefuryAbilityProto : public AbilityProto 
 {
 public:
-    DashAbilityProto(const std::vector<CompType>& extension_types={}):
+    BladefuryAbilityProto(const std::vector<CompType>& extension_types={}):
         AbilityProto(TargetDecalType::None, extension_types)
     {
         std::vector<CompType> unit_components = {{
@@ -68,17 +65,17 @@ public:
 
     virtual void init(EntityRef entity, SystemInterface* iface) override
     {
-        DashStatusProto status_proto;
+        BladefuryStatusProto status_proto;
         auto status_entity = iface->add_entity_from_proto(&status_proto);
-        auto projectile_proto = std::make_shared<DashProjectileProto>();
+        auto projectile_proto = std::make_shared<BladefuryInstanceProto>();
         entity.cmp<CompAbilityInstance>()->proto = projectile_proto;
-        entity.cmp<CompAbility>()->cooldown = 5;
+        entity.cmp<CompAbility>()->cooldown = 10;
         entity.cmp<CompAbility>()->cast_range = 50;
         entity.cmp<CompAbility>()->unit_targeted = false;
-        entity.cmp<CompAbility>()->self_targeted = false;
-        entity.cmp<CompAbility>()->ground_targeted = true;
-        entity.cmp<CompAbility>()->ability_name = "Dash";
-        entity.cmp<CompAbility>()->radius = 5;
+        entity.cmp<CompAbility>()->self_targeted = true;
+        entity.cmp<CompAbility>()->ground_targeted = false;
+        entity.cmp<CompAbility>()->ability_name = "Bladefury";
+        entity.cmp<CompAbility>()->radius = 7;
         entity.cmp<CompOnCast>()->on_cast_callbacks.push_back(
             [status_entity](SystemInterface* iface, EntityRef caster, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
             {
@@ -93,7 +90,8 @@ public:
                 }
                 if (instance_entity)
                 {
-                    instance_entity.value().cmp<CompAttachment>()->attached_entities.push_back(caster);
+                    caster.cmp<CompAttachment>()->attached_entities.push_back(instance_entity.value());
+
                 }
             }
         );

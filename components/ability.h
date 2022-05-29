@@ -19,6 +19,7 @@
 #include "item_component.h"
 #include "on_intersect_component.h"
 #include "on_hit_component.h"
+#include "on_destruction_component.h"
 
 enum class AbilityState
 {
@@ -90,6 +91,7 @@ struct CompAbilityInstance : public Component
     std::optional<CompOnIntersect> intersect_callback;
     std::optional<CompOnHit> hit_callback;
     std::optional<CompRadiusApplication> radial_application;
+    std::optional<CompOnDestruction> destruction_callback;
 };
 
 struct TargetingProto : public ActorProto

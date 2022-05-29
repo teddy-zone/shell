@@ -24,6 +24,7 @@
 #include "jump.h"
 #include "dash.h"
 #include "ability_mod.h"
+#include "bladefury.h"
 #include "basic_enemy_ai_component.h"
 #include "materials/box_mat/VertexShader.glsl.h"
 #include "materials/box_mat/FragmentShader.glsl.h"
@@ -58,6 +59,7 @@ struct UnitProto : public ActorProto
                     uint32_t(type_id<CompEye>),
                     uint32_t(type_id<CompVisionAffected>),
                     uint32_t(type_id<CompAbilityMod>),
+                    uint32_t(type_id<CompAttachment>),
             }};
         append_components(unit_components);
     }
@@ -91,7 +93,7 @@ struct UnitProto : public ActorProto
         entity.cmp<CompWallet>()->balance = 2200;
         entity.cmp<CompExperience>()->experience = 0;
         entity.cmp<CompBounty>()->money_bounty = 200;
-        entity.cmp<CompBounty>()->exp_bounty = 100;
+        entity.cmp<CompBounty>()->exp_bounty = 300;
 
         JumpAbilityProto speed_boost_proto;
         auto test_ability = iface->add_entity_from_proto(&speed_boost_proto);
@@ -104,6 +106,12 @@ struct UnitProto : public ActorProto
         dash_ability.cmp<CompAbility>()->cast_point = 0.5;
         dash_ability.cmp<CompAbility>()->backswing = 1.5;
         dash_ability.cmp<CompAbility>()->max_level = 4;
+
+        BladefuryAbilityProto bf_proto;
+        auto bf_ability = iface->add_entity_from_proto(&bf_proto);
+        bf_ability.cmp<CompAbility>()->cast_point = 0.0;
+        bf_ability.cmp<CompAbility>()->backswing = 0.0;
+        bf_ability.cmp<CompAbility>()->max_level = 4;
 
         AbilityProto test_ability_proto2(TargetDecalType::Circle);
         auto test_ability2 = iface->add_entity_from_proto(static_cast<EntityProto*>(&test_ability_proto2));
@@ -137,13 +145,14 @@ struct UnitProto : public ActorProto
         test_ability3.cmp<CompAbility>()->target_decal_type = TargetDecalType::Cone;
         test_ability3.cmp<CompAbility>()->damages = {{test_ability3, DamageType::Magical, 200, false}};
         test_ability3.cmp<CompTeam>()->team = 1;
+        test_ability3.cmp<CompHasOwner>()->owner = entity;
         auto crystal_nova_proto2 = std::make_shared<IceShardsInstanceProto>(glm::vec3(0,0,0));
         iface->add_component(CompAbilityInstance(), test_ability3.get_id());
         auto ab_inst2 = test_ability3.cmp<CompAbilityInstance>();
         auto cn_proto2 = std::dynamic_pointer_cast<EntityProto>(crystal_nova_proto2);
         ab_inst2->proto = cn_proto2;
 
-        entity.cmp<CompAbilitySet>()->abilities[0] = test_ability;
+        entity.cmp<CompAbilitySet>()->abilities[0] = bf_ability;
         entity.cmp<CompAbilitySet>()->abilities[2] = dash_ability;
         entity.cmp<CompAbilitySet>()->abilities[1] = test_ability3;
         AttackAbilityProto attack_ability_proto(entity);
@@ -221,7 +230,7 @@ struct EnemyUnitProto : public UnitProto
     {
         UnitProto::init(entity, iface);
         entity.cmp<CompTeam>()->team = 2;
-        entity.cmp<CompBasicEnemyAI>()->vision_range = 0;
+        entity.cmp<CompBasicEnemyAI>()->vision_range = 15;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 10;
     }
 };
