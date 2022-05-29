@@ -200,6 +200,19 @@ public:
                     case AbilityState::CastPoint:
                         {
                             nav_comp->stop();
+                            if (auto* mana_comp = caster_component.sibling<CompMana>())
+                            {
+                                if (ability->mana_cost > mana_comp->get_current_mana())
+                                {
+                                    caster_component.state = AbilityState::None;
+                                    caster_component.state_time = 0.0;
+                                }
+                            }
+                            else
+                            {
+                                    caster_component.state = AbilityState::None;
+                                    caster_component.state_time = 0.0;
+                            }
                             if (ability->current_cooldown)
                             {
                                 caster_component.state = AbilityState::None;
@@ -267,6 +280,14 @@ public:
 
     void cast_ability(CompCaster* caster)
     {
+        auto* ab = caster->get_ability();
+        if (auto* mana_comp = caster->sibling<CompMana>())
+        {
+            if (!mana_comp->use_mana(ab->mana_cost))
+            {
+                return;
+            }
+        }
         auto* ability_set = caster->sibling<CompAbilitySet>();
         int caster_team = 0;
         if (auto* caster_team_comp = caster->sibling<CompTeam>())
@@ -274,9 +295,9 @@ public:
             caster_team = caster_team_comp->team;
         }
         //auto* ab = ability_set->abilities[caster->ability_index].cmp<CompAbility>();
-        auto* ab = caster->get_ability();
         ab->current_cooldown = 
             ab->cooldown;
+
         std::optional<EntityRef> instance_entity;
         if (auto* instance_comp = ab->sibling<CompAbilityInstance>())
         {

@@ -74,7 +74,9 @@ public:
         entity.cmp<CompAbility>()->self_targeted = true;
         entity.cmp<CompAbility>()->ground_targeted = false;
         entity.cmp<CompAbility>()->ability_name = "Bladefury";
+        entity.cmp<CompAbility>()->mana_cost = 80;
         entity.cmp<CompAbility>()->radius = 7;
+        entity.cmp<CompAbility>()->max_level = 4;
         entity.cmp<CompOnCast>()->on_cast_callbacks.push_back(
             [status_entity](SystemInterface* iface, EntityRef caster, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
             {

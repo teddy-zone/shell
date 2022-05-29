@@ -52,18 +52,23 @@ struct CompCaster : public Component
                 {
                     auto* comp_ability_it = ability.cmp<CompAbility>();
                     total_levels += comp_ability_it->level;
+                    printf("Ability %s level %d\n", comp_ability_it->ability_name.c_str(), comp_ability_it->level);
                 }
             }
             if (current_level > total_levels)
             {
+                printf("Check 1: %d\n", current_level);
                 auto* comp_ability = ability_set->abilities[ability_num].cmp<CompAbility>();
                 const int current_ability_level = comp_ability->level;
                 if (ability_num < 3)
                 {
+                    printf("Check 2: %d\n", current_level);
                     if (current_level > 2*current_ability_level)
                     {
+                        printf("Check 3: %d\n", current_level);
                         if (comp_ability->max_level > current_level)
                         {
+                            printf("Check 4: %d\n", current_level);
                             return true;
                         }
                     }

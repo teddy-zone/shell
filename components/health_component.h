@@ -25,6 +25,16 @@ struct CompHealth : public Component
     std::optional<EntityRef> killer;
     float health_percentage = 100.0;
     float filtered_health_percentage = 100.0;
+
+    void add_health(float health_amount)
+    {
+        auto* stat_comp = sibling<CompStat>();
+        const float max_health = stat_comp->get_abs_stat(Stat::MaxHealth);
+        const float current_health_value = get_current_health();
+        const float new_health_value = current_health_value + health_amount;
+        health_percentage = std::max(0.0f, std::min(100.0f, 100.0f*new_health_value*1.0f/max_health));
+    }
+
     float get_current_health() const
     {
         auto stat_comp = sibling<CompStat>();
@@ -41,9 +51,7 @@ struct CompHealth : public Component
 
     void apply_damage(const DamageInstance& instance)
     {
-        auto* stat_comp = sibling<CompStat>();
-        const float max_health = stat_comp->get_abs_stat(Stat::MaxHealth);
-        const float current_health_value = get_current_health();
+        auto stat_comp = sibling<CompStat>();
         float net_damage = instance.damage;
         switch (instance.type)
         {
@@ -61,8 +69,7 @@ struct CompHealth : public Component
                 }
                 break;
         }
-        const float new_health_value = current_health_value - net_damage;
-        health_percentage = 100.0*new_health_value*1.0/max_health;
+        add_health(net_damage*(-1.0f));
         if (health_percentage <= 0.0001)
         {
             is_dead = true;
