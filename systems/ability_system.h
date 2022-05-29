@@ -293,6 +293,11 @@ public:
             {
                 _interface->add_component(instance_comp->radial_application.value(), ability_instance.get_id());
             }
+            if (instance_comp->destruction_callback)
+            {
+                printf("Added destruction\n");
+                _interface->add_component(instance_comp->destruction_callback.value(), ability_instance.get_id());
+            }
             instance_entity = ability_instance;
             if (auto* owner_comp = ability_instance.cmp<CompHasOwner>())
             {
@@ -331,8 +336,11 @@ public:
                 if (auto* projectile_comp = ability_instance.cmp<CompProjectile>())
                 {
                     ability_instance.cmp<CompPosition>()->pos = caster->sibling<CompPosition>()->pos;
+                    float dist = glm::length(caster->ground_target.value() - caster->sibling<CompPosition>()->pos);
                     auto dir = glm::normalize(caster->ground_target.value() - caster->sibling<CompPosition>()->pos);
                     projectile_comp->direction = dir;
+                    projectile_comp->origin = ability_instance.cmp<CompPosition>()->pos;
+                    projectile_comp->max_range = dist;
                 }
                 else
                 {
@@ -344,7 +352,7 @@ public:
         {
             for (auto& on_cast_func : on_cast_comp->on_cast_callbacks)
             {
-                on_cast_func(caster->get_entity(), caster->ground_target, caster->unit_target, instance_entity);
+                on_cast_func(_interface, caster->get_entity(), caster->ground_target, caster->unit_target, instance_entity);
             }
         }
         caster->unit_target = std::nullopt;
@@ -414,8 +422,12 @@ public:
                                             {
                                                 if (applicator.apply_to_same_team)
                                                 {
-                                                    auto* other_health = inside_entity.cmp<CompHealth>();
-                                                    other_health->apply_damage(ab_comp->damages[applicator.owner_damage.value().damage_index]);
+                                                    if (auto* other_health = inside_entity.cmp<CompHealth>())
+                                                    {
+                                                        auto copied_damage = ab_comp->damages[applicator.owner_damage.value().damage_index];
+                                                        copied_damage.applier = has_owner->get_root_owner();
+                                                        other_health->apply_damage(copied_damage);
+                                                    }
                                                 }
                                             }
                                             if (my_team != other_team)
@@ -424,7 +436,9 @@ public:
                                                 {
                                                     if (auto* other_health = inside_entity.cmp<CompHealth>())
                                                     {
-                                                        other_health->apply_damage(ab_comp->damages[applicator.owner_damage.value().damage_index]);
+                                                        auto copied_damage = ab_comp->damages[applicator.owner_damage.value().damage_index];
+                                                        copied_damage.applier = has_owner->get_root_owner();
+                                                        other_health->apply_damage(copied_damage);
                                                     }
                                                 }
                                             }

@@ -4,10 +4,18 @@
 #include "stat_component.h"
 #include "ability.h"
 
+struct DraftableAbility
+{
+    std::shared_ptr<EntityProto> ability_proto;
+    std::string ability_name;
+};
+
 struct CompAbilitySet : public Component, public StatInterface
 {
 
     std::array<EntityRef, 6> abilities;
+    std::vector<DraftableAbility> draft_choices;
+    int drafts_available = 0;
 
     std::vector<std::string> get_ability_names()
     {

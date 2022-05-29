@@ -32,7 +32,7 @@ struct CompExperience : public Component
         }
         while (higher_level != lower_level + 1)
         {
-            int mid_point = std::floor((higher_level - lower_level)/2);
+            int mid_point = std::floor((higher_level - lower_level)/2) + lower_level;
             if (experience > exp_curve[mid_point])
             {
                 if (lower_level == mid_point)
