@@ -2,6 +2,7 @@
 
 #include "system.h"
 #include "status_manager.h"
+#include "keystate_component.h"
 
 class SysMainPlayerHud : public GuiSystem
 {
@@ -104,12 +105,14 @@ public:
     {
         int index = 0;
         auto& cameras = get_array<CompCamera>();
+        auto& key_state = get_array<CompKeyState>()[0];
         if (!cameras.size())
         {
             return;
         }
         auto* camera = &cameras[0].graphics_camera;
         auto& health_components = get_array<CompHealth>();
+        auto& io = ImGui::GetIO();
         for (auto& health_component : health_components)
         {
             auto* comp_static_mesh = health_component.sibling<CompStaticMesh>();
@@ -139,6 +142,10 @@ public:
                 ImGuiWindowFlags_NoBackground |
                 ImGuiWindowFlags_NoTitleBar |
                 ImGuiWindowFlags_NoResize); 
+            if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RectOnly))
+            {
+                key_state.disable_hud_capture = true;
+            }
             {
                 int filter_health_width = unit_health_bar_width*health_component.filtered_health_percentage/100.0;
                 int current_health_width = unit_health_bar_width*health_component.health_percentage/100.0;
