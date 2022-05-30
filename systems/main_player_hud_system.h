@@ -257,7 +257,6 @@ public:
                         }
                         if (caster_comp && experience_comp)
                         {
-                            printf("current- exp: %d\n", experience_comp->get_level());
                             if (caster_comp->get_is_levelable(ability_num, experience_comp->get_level()))
                             {
                                 if (caster_comp->ability_level_mode && 

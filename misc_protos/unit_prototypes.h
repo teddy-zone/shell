@@ -93,6 +93,8 @@ struct UnitProto : public ActorProto
         entity.cmp<CompStat>()->set_stat(Stat::MagicResist, 0.25);
         entity.cmp<CompStat>()->set_stat(Stat::Armor, 2);
         entity.cmp<CompStat>()->set_stat(Stat::Movespeed, 150);
+        entity.cmp<CompStat>()->set_stat_mult(Stat::Lifesteal, 1);
+        entity.cmp<CompStat>()->set_stat(Stat::Lifesteal, 0);
         entity.cmp<CompInventory>()->visible = true;
         entity.cmp<CompWallet>()->balance = 2200;
         entity.cmp<CompExperience>()->experience = 0;
@@ -232,8 +234,8 @@ struct JuggernautProto : public UnitProto
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
-        entity.cmp<CompStat>()->set_stat(Stat::HealthRegen, 10);
-        entity.cmp<CompStat>()->set_stat(Stat::ManaRegen, 10);
+        //entity.cmp<CompStat>()->set_stat(Stat::HealthRegen, 10);
+        //entity.cmp<CompStat>()->set_stat(Stat::ManaRegen, 10);
         auto bf_proto = std::make_shared<BladefuryAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(bf_proto.get());
     }
