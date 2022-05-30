@@ -13,6 +13,7 @@ enum class Stat
     ManaRegen,
     MagicResist,
     Armor,
+    Lifesteal,
 };
 
 enum class StatusState 

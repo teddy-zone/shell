@@ -20,6 +20,8 @@ struct VladmirAuraProto : public EntityProto
     {
         entity.cmp<CompStat>()->set_stat(Stat::Armor, 3);
         entity.cmp<CompStat>()->set_stat_mult(Stat::MaxHealth, 1.2);
+        entity.cmp<CompStat>()->set_stat_mult(Stat::Lifesteal, 0.15);
+        entity.cmp<CompStat>()->set_stat(Stat::Lifesteal, 1.0);
     }
 };
 

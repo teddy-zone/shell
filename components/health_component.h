@@ -17,6 +17,7 @@ struct DamageInstance
     DamageType type;
     float damage;
     bool is_attack;
+    float lifesteal = 0.0;
 };
 
 struct CompHealth : public Component
@@ -70,6 +71,14 @@ struct CompHealth : public Component
                 break;
         }
         add_health(net_damage*(-1.0f));
+        if (auto* applier_health_comp = instance.applier.cmp<CompHealth>())
+        {
+            if (auto* applier_stat_comp = instance.applier.cmp<CompStat>())
+            {
+                printf("Lifesteal: %f, %f\n", applier_stat_comp->get_abs_stat(Stat::Lifesteal), applier_stat_comp->get_stat(Stat::Lifesteal).multiplication);
+                applier_health_comp->add_health(net_damage*applier_stat_comp->get_abs_stat(Stat::Lifesteal));
+            }
+        }
         if (health_percentage <= 0.0001)
         {
             is_dead = true;
