@@ -195,10 +195,19 @@ public:
                 {
                     continue;
                 }
+                const glm::vec3 default_color(0.9);
                 switch (caster_component.state)
                 {
                     case AbilityState::CastPoint:
                         {
+                            const float cast_point_done_fraction = caster_component.state_time/ability->cast_point;
+                            printf("Frac: %f\n", cast_point_done_fraction);
+                            if (auto* static_mesh_component = caster_component.sibling<CompStaticMesh>())
+                            {
+                                static_mesh_component->mesh.get_mesh()->set_solid_color(
+                                    glm::vec4(ability->cast_color*cast_point_done_fraction + default_color*(1 - cast_point_done_fraction), 1.0)
+                                );
+                            }
                             nav_comp->stop();
                             if (auto* mana_comp = caster_component.sibling<CompMana>())
                             {
@@ -235,6 +244,14 @@ public:
                         break;
                     case AbilityState::Backswing:
                         {
+                            const float cast_point_done_fraction = caster_component.state_time/ability->backswing;
+                            printf("Frac: %f\n", cast_point_done_fraction);
+                            if (auto* static_mesh_component = caster_component.sibling<CompStaticMesh>())
+                            {
+                                static_mesh_component->mesh.get_mesh()->set_solid_color(
+                                    glm::vec4(ability->cast_color*(1 - cast_point_done_fraction) + default_color*(cast_point_done_fraction), 1.0)
+                                );
+                            }
                             // if state_time >= backswing of ability
                             // set state to None
                             if (caster_component.state_time >= ability->backswing)
@@ -250,6 +267,12 @@ public:
                         break;
                     case AbilityState::None:
                         {
+                            if (auto* static_mesh_component = caster_component.sibling<CompStaticMesh>())
+                            {
+                                static_mesh_component->mesh.get_mesh()->set_solid_color(
+                                    glm::vec4(default_color, 1.0)
+                                );
+                            }
                         }
                         break;
                 }
