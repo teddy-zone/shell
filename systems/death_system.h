@@ -37,7 +37,8 @@ public:
                         if (auto* pos_comp = health_comp.sibling<CompPosition>())
                         {
                             respawn_comp->death_location = pos_comp->pos;
-                            pos_comp->pos = glm::vec3(1000,1000,10);
+                            pos_comp->pos = glm::vec3(64,64,64);
+                            pos_comp->sibling<CompPhysics>()->has_gravity = false;
                         }
                         respawn_comp->current_respawn_time = respawn_comp->default_respawn_time;
                     }
@@ -64,6 +65,7 @@ public:
                         if (auto* pos_comp = health_comp->sibling<CompPosition>())
                         {
                             pos_comp->pos = respawn_comp.death_location;
+                            pos_comp->sibling<CompPhysics>()->has_gravity = true;
                         }
                     }
                 }
