@@ -2,23 +2,6 @@
 
 #include "ability_proto.h"
 
-struct AbilityIceShardsProto : AbilityProto
-{
-    AbilityIceShardsProto(const std::vector<CompType>& extension_types={}):
-        AbilityProto(TargetDecalType::None, extension_types)
-    {
-        std::vector<CompType> unit_components = {{
-                    uint32_t(type_id<CompAbilityInstance>),
-                    uint32_t(type_id<CompOnCast>),
-            }};
-        append_components(unit_components);
-    }
-
-    virtual void init(EntityRef entity, SystemInterface* iface) override
-    {
-        entity.cmp<CompAbility>()->ability_name = "Ice Shards";
-    }
-};
 struct IceShardsInstanceProto : public ActorProto
 {
 
@@ -98,5 +81,37 @@ struct IceShardProto : public ActorProto
         monkey_mesh->set_solid_color(glm::vec3(0.0,1,0.0));
         entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 1);
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
+    }
+};
+
+struct AbilityIceShardsProto : AbilityProto
+{
+    AbilityIceShardsProto(const std::vector<CompType>& extension_types={}):
+        AbilityProto(TargetDecalType::None, extension_types)
+    { 
+        std::vector<CompType> unit_components = {{
+                    uint32_t(type_id<CompAbilityInstance>),
+            }};
+        append_components(unit_components);
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface) override
+    {
+        entity.cmp<CompAbility>()->cast_point = 0.5;
+        entity.cmp<CompAbility>()->backswing = 0.5;
+        entity.cmp<CompAbility>()->ground_targeted = true;
+        entity.cmp<CompAbility>()->unit_targeted = false;
+        entity.cmp<CompAbility>()->cooldown = 3.5;
+        entity.cmp<CompAbility>()->cast_range = 100;
+        entity.cmp<CompAbility>()->radius = 2;
+        entity.cmp<CompAbility>()->max_level = 4;
+        entity.cmp<CompAbility>()->ability_name = "Ice Shards";
+        entity.cmp<CompAbility>()->target_decal_type = TargetDecalType::Cone;
+        entity.cmp<CompAbility>()->damages = {{entity, DamageType::Magical, 20, false}};
+        //entity.cmp<CompHasOwner>()->owner = entity;
+        auto crystal_nova_proto2 = std::make_shared<IceShardsInstanceProto>(glm::vec3(0,0,0));
+        auto* ab_inst2 = entity.cmp<CompAbilityInstance>();
+        auto cn_proto2 = std::dynamic_pointer_cast<EntityProto>(crystal_nova_proto2);
+        ab_inst2->proto = crystal_nova_proto2;
     }
 };

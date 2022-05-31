@@ -65,7 +65,7 @@ public:
                     }
                     if (ImGui::Button("Tusk"))
                     {
-                        auto unit_proto = std::make_shared<UnitProto>(glm::vec3(1.0));
+                        auto unit_proto = std::make_shared<TuskProto>();
                         auto& char_type_components = get_array<CompCharacterType>();
                         if (char_type_components.size())
                         {

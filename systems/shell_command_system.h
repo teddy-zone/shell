@@ -6,6 +6,7 @@
 #include "command_component.h"
 #include "nav_component.h"
 #include "interactable_component.h"
+#include "ability.h"
 //#include "ability.h"
 
 class SysCommandShell : public System
@@ -113,9 +114,11 @@ public:
 
     bool process_ability_command(std::shared_ptr<AbilityCommand> cmd, CompNav* nav_component, bool is_new)
     {
+        printf("Processing ability comnmand\n");
         auto* caster_comp = nav_component->sibling<CompCaster>();
         if (caster_comp)
         {
+            printf("Caster\n");
             auto my_loc = caster_comp->sibling<CompPosition>()->pos;
             //auto* ability_comp = caster_comp->sibling<CompAbilitySet>()->get_ability_component_by_index(cmd->ability_index);
             auto* ability_comp = caster_comp->get_ability(cmd->ability_index);
@@ -123,9 +126,12 @@ public:
             {
                 return false;
             }
+            printf("Level\n");
+
             // if within cast range or not unit targeted and not ground targeted
             if (cmd->entity_target)
             {
+                printf("EntityTarget\n");
                 if (cmd->entity_target.value().is_valid())
                 {
                     auto target_loc = cmd->entity_target.value().cmp<CompPosition>()->pos;
@@ -156,12 +162,15 @@ public:
             }
             else if (cmd->ground_target)
             {
+                printf("Ground\n");
                 auto range = glm::length(my_loc - cmd->ground_target.value());
-                if (range < ability_comp->cast_range)
+                if (range < ability_comp->cast_range && caster_comp->state == AbilityState::None && !caster_comp->activated)
                 {
+                    printf("Cast range\n");
                     caster_comp->activate_ability(cmd->ability_index);
                     caster_comp->ground_target = cmd->ground_target;
                     caster_comp->unit_target = std::nullopt;
+                    caster_comp->activated = true;
                 }
                 else
                 {
@@ -169,7 +178,19 @@ public:
                 }
             }
         }
-        return true;
+        if (caster_comp->state == AbilityState::None)
+        {
+            caster_comp->activated = false;
+            return true;
+        }
+        else if (caster_comp->ability_index != cmd->ability_index)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     bool process_interact_command(std::shared_ptr<InteractCommand> cmd, CompNav* nav_component, bool is_new)

@@ -26,6 +26,7 @@
 #include "dash.h"
 #include "ability_mod.h"
 #include "bladefury.h"
+#include "ice_shards.h"
 #include "basic_enemy_ai_component.h"
 #include "materials/box_mat/VertexShader.glsl.h"
 #include "materials/box_mat/FragmentShader.glsl.h"
@@ -101,6 +102,7 @@ struct UnitProto : public ActorProto
         entity.cmp<CompBounty>()->money_bounty = 200;
         entity.cmp<CompBounty>()->exp_bounty = 300;
 
+/*
         JumpAbilityProto speed_boost_proto;
         auto test_ability = iface->add_entity_from_proto(&speed_boost_proto);
         test_ability.cmp<CompAbility>()->cast_point = 0.5;
@@ -161,6 +163,7 @@ struct UnitProto : public ActorProto
         //entity.cmp<CompAbilitySet>()->abilities[0] = bf_ability;
         //entity.cmp<CompAbilitySet>()->abilities[2] = dash_ability;
         //entity.cmp<CompAbilitySet>()->abilities[1] = test_ability3;
+        */
         MeleeAttackAbilityProto attack_ability_proto(entity);
         entity.cmp<CompAttacker>()->attack_ability = iface->add_entity_from_proto(static_cast<EntityProto*>(&attack_ability_proto));
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
@@ -238,6 +241,7 @@ struct JuggernautProto : public UnitProto
         //entity.cmp<CompStat>()->set_stat(Stat::ManaRegen, 10);
         auto bf_proto = std::make_shared<BladefuryAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(bf_proto.get());
+        entity.set_name("Juggernaut" + std::to_string(entity.get_id()));
     }
 };
 
@@ -259,6 +263,28 @@ struct CrystalMaidenProto : public UnitProto
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
         auto cn_proto = std::make_shared<CrystalNovaAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
+        entity.set_name("CrystalMaiden" + std::to_string(entity.get_id()));
+    }
+};
+
+struct TuskProto : public UnitProto
+{
+
+    TuskProto(const std::vector<CompType>& extension_types={}):
+        UnitProto(glm::vec3(0), extension_types)
+    {
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface) override
+    {
+        UnitProto::init(entity, iface);
+        entity.cmp<CompTeam>()->team = 2;
+        entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
+        entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
+        auto cn_proto = std::make_shared<AbilityIceShardsProto>();
+        entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
+        entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompHasOwner>()->owner = entity;
+        entity.set_name("Tusk" + std::to_string(entity.get_id()));
     }
 };
 
@@ -280,5 +306,12 @@ struct EnemyUnitProto : public UnitProto
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompBasicEnemyAI>()->vision_range = 15;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
+        auto cn_proto = std::make_shared<CrystalNovaAbilityProto>();
+        entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
+        entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->level = 1;
+        auto is_proto = std::make_shared<AbilityIceShardsProto>();
+        entity.cmp<CompAbilitySet>()->abilities[1] = iface->add_entity_from_proto(is_proto.get());
+        entity.cmp<CompAbilitySet>()->abilities[1].cmp<CompAbility>()->level = 1;
+        entity.set_name("Enemy" + std::to_string(entity.get_id()));
     }
 };

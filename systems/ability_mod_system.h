@@ -173,7 +173,6 @@ public:
         _mods.abilities["Ice Shards"].back().ability_name = "Ice Shards";
         _mods.abilities["Ice Shards"].back().mod_function = [](EntityRef entity)
             {
-                printf("MODDED\n");
                 if (auto* ability_comp = entity.cmp<CompAbility>())
                 {
                     printf("1\n");
@@ -186,7 +185,6 @@ public:
                         }
                         instance_comp->destruction_callback.value().on_destruction_callbacks.push_back([](SystemInterface* iface, EntityRef me)
                             {
-                                printf("DESTRUCTTTTT\n");
                                 if (auto* my_pos_comp = me.cmp<CompPosition>())
                                 {
                                     auto* phys_comp = me.cmp<CompPhysics>();

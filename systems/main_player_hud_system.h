@@ -143,7 +143,7 @@ public:
                 ImGuiWindowFlags_NoBackground |
                 ImGuiWindowFlags_NoTitleBar |
                 ImGuiWindowFlags_NoResize); 
-            if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RectOnly))
+            if (ImGui::IsWindowHovered())
             {
                 key_state.disable_hud_capture = true;
             }

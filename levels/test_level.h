@@ -114,6 +114,8 @@ public:
         lmesh->mesh.set_id(1);
         player2.cmp<CompVoice>()->sounds["music"] = music_sound;
         lmesh->mesh.set_material(box_mat);
+        player2.set_name("LevelMesh" + std::to_string(player2.get_id()));
+
         
         //lmesh->mesh.set_scale(glm::vec3(5, 5, 1.0));
         auto tri_oct_comp = octree::vector_to_octree(lmesh->mesh.get_mesh()->_saved_vertices, lmesh->mesh.get_mesh()->_bmin, lmesh->mesh.get_mesh()->_bmax);
@@ -125,7 +127,7 @@ public:
         bounds->insert_size = 5.0;
         pos->pos = glm::vec3(1,1,1);
         
-        for (int i = 0; i < 20; ++i)
+        for (int i = 0; i < 0; ++i)
         {
             auto enemy_playerr = c->add_entity_from_proto(static_cast<EntityProto*>(&unit_proto));
             enemy_playerr.cmp<CompPosition>()->pos = glm::vec3(zerotoone_level()* 100.0f, zerotoone_level()* 100.0f, (zerotoone_level()*0.5 + 0.5)*100.0f) + glm::vec3(2.0, 2.0,0);

@@ -18,6 +18,8 @@ public:
 
     virtual void update(double dt) override
     {
+        static std::ofstream fd("vision.log");
+        fd << "Start Tick" << "\n";
         Team my_team = 0;
         auto& selected_entities = get_array<CompSelectedObjects>();
         if (selected_entities.size())
@@ -47,6 +49,7 @@ public:
             {
                 eye_team = eye_team_comp->team;
             }
+            fd << "\tProcessing eye: " << eye.get_entity().get_name() << " on team " << eye_team << "\n";
             for (auto& vision_status : vision_statuses)
             {
                 if (vision_status.team_vision.find(eye_team) == vision_status.team_vision.end())
@@ -81,11 +84,14 @@ public:
                     {
                         entity_team = entity_team_comp->team;
                     }
+                    fd << "\t\tentity in range: " << entity_in_range.get_name() << " on team " << entity_team << "\n";
                     if (eye_team != entity_team)
                     {
+                        fd << "\t\tnot on my team!" << "\n";
                         if (auto* entity_pos_comp = entity_in_range.cmp<CompPosition>())
                         {
                             glm::vec3 ray_dir = entity_pos_comp->pos - eye_pos_comp->pos;
+                            ray_dir.z = 0;
                             float distance = glm::length(ray_dir);
                             if (distance < eye.vision_range)
                             {
@@ -95,15 +101,18 @@ public:
                                 {
                                     for (auto& vision_status : vision_statuses)
                                     {
+                                        fd << "\t\tdeclared visible 1!" << "\n";
                                         vision_status.team_vision[eye_team].insert(entity_in_range.get_id());
                                     }
                                 }
                                 else
                                 {
+                                    fd << "\t\tray hit: " << ray_result.value().entity.get_name() << "\n";
                                     if (ray_result.value().t >= distance)
                                     {
                                         for (auto& vision_status : vision_statuses)
                                         {
+                                            fd << "\t\tdeclared visible 2!" << "\n";
                                             vision_status.team_vision[eye_team].insert(entity_in_range.get_id());
                                         }
                                     }
