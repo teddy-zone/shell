@@ -310,9 +310,25 @@ public:
         int widget_width = 400;
         int widget_height = 100 + num_mods_choice*choice_height;
         bool active = true;
-        ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width/2 - widget_width/2, CompWidget::window_height/2 - widget_height/2));
-        ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
-        ImGui::Begin("AbilityMods", &active, ImGuiWindowFlags_NoResize);
+        static bool is_collapsed = false;
+        if (!is_collapsed)
+        {
+            ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width/2 - widget_width/2, CompWidget::window_height/2 - widget_height/2));
+        }
+        else
+        {
+            ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width/2 - widget_width/2, 0));//CompWidget::window_height/2 - widget_height/2));
+        }
+        //ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
+        ImGui::Begin("AbilityMods", &active, ImGuiWindowFlags_AlwaysAutoResize);
+        if (ImGui::IsWindowCollapsed())
+        {
+            is_collapsed = true;
+        }
+        else
+        {
+            is_collapsed = false;
+        }
         for (auto& mod : ability_mod_comp->currently_available_mods)
         {
             if (ImGui::Button(mod.mod_name.c_str()))
@@ -417,9 +433,25 @@ public:
         int widget_width = 400;
         int widget_height = 100 + num_ability_choice*choice_height;
         bool active = true;
-        ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width/2 - widget_width/2, CompWidget::window_height/2 - widget_height/2));
-        ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
-        ImGui::Begin("AbilityDraft", &active, ImGuiWindowFlags_NoResize);
+        static bool is_collapsed = false;
+        if (!is_collapsed)
+        {
+            ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width/2 - widget_width/2, CompWidget::window_height/2 - widget_height/2));
+        }
+        else
+        {
+            ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width/2 - widget_width/2, 0));//CompWidget::window_height/2 - widget_height/2));
+        }
+        //ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
+        ImGui::Begin("AbilityDraft", &active, ImGuiWindowFlags_AlwaysAutoResize);
+        if (ImGui::IsWindowCollapsed())
+        {
+            is_collapsed = true;
+        }
+        else
+        {
+            is_collapsed = false;
+        }
         switch (ability_set_comp->selection_state)
         {
             case AbilityDraftSelectionState::AbilitySelection:

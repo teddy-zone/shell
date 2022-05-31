@@ -24,9 +24,10 @@ struct AbilityDraftStationProto : public ActorProto
     virtual void init(EntityRef entity, SystemInterface* iface) 
     {
         auto monkey_mesh = std::make_shared<bgfx::Mesh>();
-        monkey_mesh->load_obj("cube.obj" );
+        monkey_mesh->load_obj("sphere.obj" );
         monkey_mesh->set_solid_color(glm::vec4(0.9,0.2,1.0,0.75));
-        entity.cmp<CompPosition>()->scale = glm::vec3(2, 2, 10);
+        entity.cmp<CompPosition>()->scale = glm::vec3(0.5, 0.5, 0.5);
+        entity.cmp<CompBounds>()->set_bounds(monkey_mesh->_bmax - monkey_mesh->_bmin);
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
         auto box_mat = std::make_shared<bgfx::Material>();
 
@@ -44,7 +45,7 @@ struct AbilityDraftStationProto : public ActorProto
         entity.cmp<CompStaticMesh>()->mesh.set_material(box_mat);
         entity.cmp<CompStaticMesh>()->mesh.set_id(entity.get_id());
         entity.cmp<CompPosition>()->pos = pos;
-        entity.cmp<CompTooltip>()->text = "Ability Draft Station";
+        entity.cmp<CompTooltip>()->text = "New Ability";
 /*
         entity.cmp<CompAnimation>()->start_time = 0;
         entity.cmp<CompAnimation>()->end_time = 0.5;
@@ -60,6 +61,7 @@ struct AbilityDraftStationProto : public ActorProto
                 {
                     ability_set_comp->drafts_available += 1;
                     ability_set_comp->selection_state = AbilityDraftSelectionState::AbilitySelection;
+                    _interface->delete_entity(interactee.get_id());
                 }
             };
     }

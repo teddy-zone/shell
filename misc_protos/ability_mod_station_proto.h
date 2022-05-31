@@ -24,15 +24,15 @@ struct AbilityModStationProto : public ActorProto
     virtual void init(EntityRef entity, SystemInterface* iface) 
     {
         auto monkey_mesh = std::make_shared<bgfx::Mesh>();
-        monkey_mesh->load_obj("cube.obj" );
+        monkey_mesh->load_obj("sphere.obj" );
         monkey_mesh->set_solid_color(glm::vec4(0.4,0.9,1.0,0.75));
-        entity.cmp<CompPosition>()->scale = glm::vec3(2, 2, 10);
+        entity.cmp<CompPosition>()->scale = glm::vec3(0.5, 0.5, 0.5);
+        entity.cmp<CompBounds>()->set_bounds(monkey_mesh->_bmax - monkey_mesh->_bmin);
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
-        auto box_mat = std::make_shared<bgfx::Material>();
-
+        entity.set_name("AbilityUpgrade");
         entity.cmp<CompStaticMesh>()->mesh.set_id(entity.get_id());
         entity.cmp<CompPosition>()->pos = pos;
-        entity.cmp<CompTooltip>()->text = "Ability Upgrade Station";
+        entity.cmp<CompTooltip>()->text = "Ability Upgrade";
 /*
         entity.cmp<CompAnimation>()->start_time = 0;
         entity.cmp<CompAnimation>()->end_time = 0.5;

@@ -59,6 +59,7 @@ struct CompAbility : public Component
     float radius;
     float angle;
     std::vector<DamageInstance> damages;
+    glm::vec3 cast_color = glm::vec3(0.02,0.02, 0.9);
 };
 
 struct CompAbilityLevel : public Component 
