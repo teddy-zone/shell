@@ -42,7 +42,9 @@ struct AttackInstanceProto : public ActorProto
 
         auto sphere_mesh = std::make_shared<bgfx::Mesh>();
         sphere_mesh->load_obj("sphere.obj");
+        sphere_mesh->set_solid_color(glm::vec4(0,0,0,1.0));
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(sphere_mesh);
+        entity.cmp<CompPosition>()->scale = glm::vec3(0.1);
     }
 };
 

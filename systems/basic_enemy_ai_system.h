@@ -43,11 +43,101 @@ public:
                         {
                             if (auto* command_comp = ai_component.sibling<CompCommand>())
                             {
+                                if (auto* ability_set_comp = ai_component.sibling<CompAbilitySet>())
+                                {
+                                    for (auto& ability : ability_set_comp->abilities)
+                                    {
+                                        if (auto* comp_ability = ability.cmp<CompAbility>())
+                                        {
+                                            if (auto* comp_mana = ability.cmp<CompMana>())
+                                            {
+                                                if (!comp_ability->current_cooldown && comp_ability->mana_cost < comp_mana->get_current_mana())
+                                                {
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                                 AttackCommand attack_command;
                                 attack_command.target = attack_candidate;
                                 command_comp->set_command(attack_command);
+                                printf("Set new attack target\n");
                             }
                             ai_component.target = attack_candidate;
+                        }
+                        if (ai_component.target)
+                        {
+                            if (auto* command_comp = ai_component.sibling<CompCommand>())
+                            {
+                                if (auto* ability_set_comp = ai_component.sibling<CompAbilitySet>())
+                                {
+                                    int ability_index = 0;
+                                    for (auto& ability : ability_set_comp->abilities)
+                                    {
+                                        if (auto* comp_ability = ability.cmp<CompAbility>())
+                                        {
+                                            if (auto* comp_mana = command_comp->sibling<CompMana>())
+                                            {
+                                                if (!comp_ability->current_cooldown && comp_ability->mana_cost < comp_mana->get_current_mana())
+                                                {
+                                                    bool already_commanded = false;
+                                                    if (!command_comp->command_queue.empty())
+                                                    {
+                                                        if (std::dynamic_pointer_cast<AbilityCommand>(command_comp->command_queue.back()))
+                                                        {
+                                                            already_commanded = true;
+                                                        }
+                                                    }
+                                                    if (!already_commanded)
+                                                    {
+                                                        if (comp_ability->unit_targeted || comp_ability->ground_targeted)
+                                                        {
+                                                            float dist = glm::length(command_comp->sibling<CompPosition>()->pos - ai_component.target.value().cmp<CompPosition>()->pos);
+                                                            if (dist <= comp_ability->cast_range)
+                                                            {
+                                                                AbilityCommand ability_command;
+                                                                ability_command.ability_index = ability_index;
+                                                                if (comp_ability->unit_targeted)
+                                                                {
+                                                                    printf("Commanded unit ability\n");
+                                                                    ability_command.entity_target = ai_component.target.value();
+                                                                }
+                                                                else if (comp_ability->ground_targeted)
+                                                                {
+                                                                    printf("Commanded ground ability\n");
+                                                                    ability_command.ground_target = ai_component.target.value().cmp<CompPosition>()->pos;
+                                                                }
+                                                                command_comp->set_command(StopCommand());
+                                                                command_comp->queue_command(ability_command);
+                                                                ai_component.ability_index_using = ability_index;
+                                                                AttackCommand attack_command;
+                                                                attack_command.target = ai_component.target.value();
+                                                                command_comp->queue_command(attack_command);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            float dist = glm::length(command_comp->sibling<CompPosition>()->pos - ai_component.target.value().cmp<CompPosition>()->pos);
+                                                            if (dist <= comp_ability->cast_range)
+                                                            {
+                                                                AbilityCommand ability_command;
+                                                                ability_command.ability_index = ability_index;
+                                                                command_comp->set_command(StopCommand());
+                                                                command_comp->queue_command(ability_command);
+                                                                ai_component.ability_index_using = ability_index;
+                                                                AttackCommand attack_command;
+                                                                attack_command.target = ai_component.target.value();
+                                                                command_comp->queue_command(attack_command);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        ability_index++;
+                                    }
+                                }
+                            }
                         }
                     }
                     ai_component.last_radius_check = current_time;

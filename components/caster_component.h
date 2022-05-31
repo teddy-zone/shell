@@ -13,6 +13,7 @@ struct CompCaster : public Component
     std::optional<EntityRef> unit_target;
     std::optional<glm::vec3> ground_target;
     bool ability_level_mode = false;
+    bool activated = false;
     void activate_ability(int index)
     {
         ability_index = index;
