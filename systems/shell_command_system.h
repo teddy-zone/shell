@@ -18,12 +18,24 @@ public:
         auto& command_components = get_array<CompCommand>();
         for (auto& command_component : command_components)
         {
+            auto* nav_comp = command_component.sibling<CompNav>();
+            auto* stat_component = command_component.sibling<CompStat>();
+            if (stat_component)
+            {
+                if (stat_component->get_status_state(StatusState::Stunned))
+                {
+                    if (nav_comp)
+                    {
+                        nav_comp->stop();
+                    }
+                    continue;
+                }
+            }
             if (!command_component.command_queue.empty())
             {
                 auto next_command = command_component.command_queue.back(); 
                 if (auto cmd = std::dynamic_pointer_cast<StopCommand>(next_command)) 
                 {
-                    auto* nav_comp = command_component.sibling<CompNav>();
                     auto* caster_comp = nav_comp->sibling<CompCaster>();
                     if (nav_comp)
                     {
@@ -78,6 +90,16 @@ public:
                 } 
                 else if (auto cmd = std::dynamic_pointer_cast<AbilityCommand>(next_command)) 
                 {
+                    if (stat_component)
+                    {
+                        if (stat_component->get_status_state(StatusState::Silenced))
+                        {
+                            if (cmd->ability_index < 6)
+                            {
+                                continue;
+                            }
+                        }
+                    }
                     auto* nav_comp = command_component.sibling<CompNav>();
                     if (process_ability_command(cmd, nav_comp, command_component.new_command))
                     {

@@ -8,6 +8,7 @@
 #include "ability_set_component.h"
 #include "on_intersect_component.h"
 #include "crystal_nova.h"
+#include "cask.h"
 
 template <typename T>
 struct AbilityDraftDatabase
@@ -406,6 +407,11 @@ public:
         _abilities.abilities.back().name = "Crystal Nova";
         auto cn_proto = std::make_shared<CrystalNovaAbilityProto>();
         _abilities.abilities.back().ability_proto = cn_proto;
+
+        _abilities.abilities.push_back(DraftableAbility());
+        _abilities.abilities.back().name = "Cask";
+        auto cask_proto = std::make_shared<CaskAbilityProto>();
+        _abilities.abilities.back().ability_proto = cask_proto;
     }
 
     virtual void update_gui(double dt) override

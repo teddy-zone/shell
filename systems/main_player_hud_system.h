@@ -142,7 +142,7 @@ public:
             ImGui::Begin(("HealthBar" + std::to_string(index)).c_str(), &active, 
                 ImGuiWindowFlags_NoBackground |
                 ImGuiWindowFlags_NoTitleBar |
-                ImGuiWindowFlags_NoResize); 
+                ImGuiWindowFlags_AlwaysAutoResize); 
             if (ImGui::IsWindowHovered())
             {
                 key_state.disable_hud_capture = true;
@@ -162,6 +162,18 @@ public:
                     health_bar_color = ImColor(0,255,0);
                 }
                 draw_list->AddRectFilled(ImVec2(p.x+w_border_size, p.y+w_border_size), ImVec2(p.x + current_health_width - 2*w_border_size, p.y + unit_health_bar_height - 2*w_border_size), health_bar_color, 2.0);
+            }
+            //ImGui::Dummy(ImVec2(unit_health_bar_width, unit_health_bar_width));
+            if (auto* stat_comp = health_component.sibling<CompStat>())
+            {
+                if (stat_comp->get_status_state(StatusState::Stunned))
+                {
+                    ImGui::Text("STUNNED");
+                }
+                else
+                {
+                    ImGui::Text("NOT STUNNED");
+                }
             }
             ImGui::End();
             // END ABOVE UNIT HEALTH BAR

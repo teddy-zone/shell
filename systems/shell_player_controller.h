@@ -164,6 +164,15 @@ public:
                                     keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
                                 auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
                                 auto result = _interface->fire_ray(full_ray, ray::HitType::DynamicOnly);
+                                if (result)
+                                {
+                                    AbilityCommand ability_command;
+                                    ability_command.ability_index = caster_comp->ability_index;
+                                    ability_command.entity_target = result.value().entity;
+                                    auto* command_sys = player_comp->sibling<CompCommand>();
+                                    command_sys->set_command(StopCommand());
+                                    command_sys->queue_command(ability_command);
+                                }
                                 keystate.cursor_mode = CursorMode::Select;
                             }
                             break;

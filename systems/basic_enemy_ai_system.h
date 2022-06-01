@@ -105,7 +105,8 @@ public:
                                                                 else if (comp_ability->ground_targeted)
                                                                 {
                                                                     printf("Commanded ground ability\n");
-                                                                    ability_command.ground_target = ai_component.target.value().cmp<CompPosition>()->pos;
+                                                                    auto vel = ai_component.target.value().cmp<CompPhysics>()->vel;
+                                                                    ability_command.ground_target = ai_component.target.value().cmp<CompPosition>()->pos + vel*0.8;
                                                                 }
                                                                 command_comp->set_command(StopCommand());
                                                                 command_comp->queue_command(ability_command);
