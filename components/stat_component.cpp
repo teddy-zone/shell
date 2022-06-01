@@ -32,6 +32,14 @@ StatPart CompStat::get_stat(Stat stat)
 
 bool CompStat::get_status_state(StatusState state) 
 {
+    if (_states.count(state))
+    {
+        auto out_part = _states.at(state);
+        if (out_part)
+        {
+            return true;
+        }
+    }
     auto ability_set_comp = sibling<CompAbilitySet>();
     if (ability_set_comp)
     {

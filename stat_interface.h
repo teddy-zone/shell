@@ -41,6 +41,7 @@ class StatInterface
 public:
     virtual StatPart get_stat(Stat stat) = 0;
     virtual bool get_status_state(StatusState state) = 0;
+    virtual void set_status_state(StatusState state, bool new_state) {};
     virtual float get_abs_stat(Stat stat)
     {
         auto out_part = get_stat(stat);
