@@ -54,7 +54,6 @@ public:
                         {
                             if (!proto_list_comp->has_spawned)
                             {
-                                printf("Spawning!\n");
                                 for (auto& proto : proto_list_comp->protos)
                                 {
                                     auto new_entity = _interface->add_entity_from_proto(proto.get());
@@ -66,7 +65,9 @@ public:
                                             float radius = proto_list_comp->radius*dist(generator);
                                             float az = 2*3.1415926*dist(generator);
                                             glm::vec3 offset(radius*cos(az), radius*sin(az), 0);
+                                            std::cout << "SPAWN: " << glm::to_string(offset) << "\n";
                                             new_pos_comp->pos = my_pos_comp->pos + offset;
+                                            std::cout << "\t" << glm::to_string(new_pos_comp->pos) << "\n";
                                         }
                                     }
                                 }

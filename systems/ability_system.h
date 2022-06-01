@@ -201,7 +201,6 @@ public:
                     case AbilityState::CastPoint:
                         {
                             const float cast_point_done_fraction = caster_component.state_time/ability->cast_point;
-                            printf("Frac: %f\n", cast_point_done_fraction);
                             if (auto* static_mesh_component = caster_component.sibling<CompStaticMesh>())
                             {
                                 static_mesh_component->mesh.get_mesh()->set_solid_color(
@@ -245,7 +244,6 @@ public:
                     case AbilityState::Backswing:
                         {
                             const float cast_point_done_fraction = caster_component.state_time/ability->backswing;
-                            printf("Frac: %f\n", cast_point_done_fraction);
                             if (auto* static_mesh_component = caster_component.sibling<CompStaticMesh>())
                             {
                                 static_mesh_component->mesh.get_mesh()->set_solid_color(
