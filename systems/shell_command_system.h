@@ -90,6 +90,16 @@ public:
                 } 
                 else if (auto cmd = std::dynamic_pointer_cast<AbilityCommand>(next_command)) 
                 {
+                    if (stat_component)
+                    {
+                        if (stat_component->get_status_state(StatusState::Silenced))
+                        {
+                            if (cmd->ability_index < 6)
+                            {
+                                continue;
+                            }
+                        }
+                    }
                     auto* nav_comp = command_component.sibling<CompNav>();
                     if (process_ability_command(cmd, nav_comp, command_component.new_command))
                     {
