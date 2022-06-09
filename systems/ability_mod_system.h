@@ -412,6 +412,11 @@ public:
         _abilities.abilities.back().name = "Cask";
         auto cask_proto = std::make_shared<CaskAbilityProto>();
         _abilities.abilities.back().ability_proto = cask_proto;
+
+        _abilities.abilities.push_back(DraftableAbility());
+        _abilities.abilities.back().name = "Dash";
+        auto dash_proto = std::make_shared<DashAbilityProto>();
+        _abilities.abilities.back().ability_proto = dash_proto;
     }
 
     virtual void update_gui(double dt) override

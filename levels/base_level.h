@@ -24,6 +24,7 @@
 #include "crystal_nova.h"
 #include "ice_shards.h"
 #include "character_type_component.h"
+#include "skeletal_mesh_component.h"
 
 class BaseLevel : public Level
 {
@@ -98,7 +99,12 @@ public:
                 comp_selected_objects.selected_objects.resize(1);
                 comp_selected_objects.selected_objects[0] = player;
             }
+
+            //auto skeleton_proto = std::make_shared<SkeletonProto>();
+            //auto skeleton_entity = c->add_entity_from_proto(skeleton_proto.get());
+            //skeleton_entity.cmp<CompAttachment>()->attached_entities.push_back(player);
         }
+
     }
 
     virtual void update(double dt) override
