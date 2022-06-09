@@ -57,8 +57,6 @@ class SysShop : public GuiSystem
                     {
                         // Can execute buy
                         shopper_inventory->items[i] = _interface->duplicate_entity(slot.item_entity);
-                        std::cout << "Item id: " << shopper_inventory->items[i].get_id() << "\n";
-                        std::cout << "Shopper id: " << shopper_inventory->get_id() << "\n";
                         auto* owner = &shopper_inventory->items[i].cmp<CompHasOwner>()->owner;
                         *owner = shopper_wallet->get_entity();
                         shopper_wallet->balance -= slot.cost;

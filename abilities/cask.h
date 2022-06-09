@@ -67,7 +67,6 @@ struct CaskInstanceProto : public ActorProto
                     if (auto* status_manager = hittee.cmp<CompStatusManager>())
                     {
                         auto* status_comp = status_entity.cmp<CompStatus>();
-                        printf("Applying status\n");
                         status_manager->apply_status(status_comp);
                     }
                 }
@@ -89,7 +88,6 @@ struct CaskInstanceProto : public ActorProto
                             }
                             if (my_on_destruct->generation < 4)
                             {
-                                printf("DUPED\n");
                                 auto new_entity = iface->duplicate_entity(me);
                                 new_entity.cmp<CompProjectile>()->homing_target = candidate;
                                 if (auto* on_destruct = new_entity.cmp<CompOnDestruction>())

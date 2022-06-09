@@ -45,7 +45,6 @@ struct BladefuryInstanceProto : public EntityProto
         entity.cmp<CompRadiusApplication>()->tick_time = 0.1;
         entity.cmp<CompDecal>()->decal.type = 3;
         entity.cmp<CompLifetime>()->lifetime = 5;
-        printf("INitialized proje!\n");
     }
 };
 
@@ -85,7 +84,6 @@ public:
                     if (auto* status_manager = unit_target->cmp<CompStatusManager>())
                     {
                         auto* status_comp = status_entity.cmp<CompStatus>();
-                        printf("Applying status\n");
                         status_manager->apply_status(status_comp);
                     }
                 }

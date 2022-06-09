@@ -47,7 +47,6 @@ struct AbilityModStationProto : public ActorProto
                 if (auto* ability_mod_comp = interactor.cmp<CompAbilityMod>())
                 {
                     ability_mod_comp->mods_available += 1;
-                    printf("Ability up!\n");
                 }
             };
     }

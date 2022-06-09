@@ -64,7 +64,6 @@ struct TeleportProto : public ActorProto
         entity.cmp<CompInteractable>()->interaction_callback = 
             [level_to_load] (SystemInterface* _interface, EntityRef interactor, EntityRef interactee) 
             {
-                printf("executing level unloan");
                 _interface->unload_level("TestLevel");
                 _interface->load_level("Test2Level");
                 Sound new_sound;

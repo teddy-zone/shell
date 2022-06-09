@@ -61,7 +61,6 @@ public:
                                 AttackCommand attack_command;
                                 attack_command.target = attack_candidate;
                                 command_comp->set_command(attack_command);
-                                printf("Set new attack target\n");
                             }
                             ai_component.target = attack_candidate;
                         }
@@ -99,12 +98,10 @@ public:
                                                                 ability_command.ability_index = ability_index;
                                                                 if (comp_ability->unit_targeted)
                                                                 {
-                                                                    printf("Commanded unit ability\n");
                                                                     ability_command.entity_target = ai_component.target.value();
                                                                 }
                                                                 else if (comp_ability->ground_targeted)
                                                                 {
-                                                                    printf("Commanded ground ability\n");
                                                                     auto vel = ai_component.target.value().cmp<CompPhysics>()->vel;
                                                                     ability_command.ground_target = ai_component.target.value().cmp<CompPosition>()->pos + vel*0.8;
                                                                 }

@@ -337,7 +337,6 @@ public:
             }
             if (instance_comp->destruction_callback)
             {
-                printf("Added destruction\n");
                 _interface->add_component(instance_comp->destruction_callback.value(), ability_instance.get_id());
             }
             instance_entity = ability_instance;

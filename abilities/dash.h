@@ -47,7 +47,6 @@ struct DashProjectileProto : public EntityProto
         entity.cmp<CompProjectile>()->constant_height = 1.0;
         entity.cmp<CompLifetime>()->lifetime = 1.2;
         entity.cmp<CompPhysics>()->has_collision = false;
-        printf("INitialized proje!\n");
     }
 };
 
@@ -87,7 +86,6 @@ public:
                     if (auto* status_manager = unit_target->cmp<CompStatusManager>())
                     {
                         auto* status_comp = status_entity.cmp<CompStatus>();
-                        printf("Applying status\n");
                         status_manager->apply_status(status_comp);
                     }
                 }
