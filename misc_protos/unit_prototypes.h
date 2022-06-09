@@ -27,6 +27,7 @@
 #include "ability_mod.h"
 #include "bladefury.h"
 #include "ice_shards.h"
+#include "skeletal_mesh_component.h"
 #include "basic_enemy_ai_component.h"
 #include "materials/box_mat/VertexShader.glsl.h"
 #include "materials/box_mat/FragmentShader.glsl.h"
@@ -63,6 +64,7 @@ struct UnitProto : public ActorProto
                     uint32_t(type_id<CompVisionAffected>),
                     uint32_t(type_id<CompAbilityMod>),
                     uint32_t(type_id<CompAttachment>),
+                    uint32_t(type_id<CompSkeletalMesh>),
             }};
         append_components(unit_components);
     }
@@ -74,6 +76,8 @@ struct UnitProto : public ActorProto
         auto monkey_mesh = std::make_shared<bgfx::Mesh>();
         monkey_mesh->load_obj("suzanne.obj" );
         entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 1);
+        entity.cmp<CompPhysics>()->has_collision = false;
+        entity.cmp<CompPhysics>()->has_gravity = false;
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
         auto box_mat = std::make_shared<bgfx::Material>();
 
@@ -101,6 +105,8 @@ struct UnitProto : public ActorProto
         entity.cmp<CompExperience>()->experience = 0;
         entity.cmp<CompBounty>()->money_bounty = 200;
         entity.cmp<CompBounty>()->exp_bounty = 300;
+
+        legs_init(entity, iface);
 
 /*
         JumpAbilityProto speed_boost_proto;

@@ -209,7 +209,7 @@ public:
                 auto click_ray = ray::New(camera.graphics_camera.get_position(), click_dir);
                 auto result = _interface->fire_ray(click_ray, ray::HitType::StaticAndDynamic);
                 // Clicked on something!
-                if (result && physics_comp->on_ground)
+                if (result)// && physics_comp->on_ground)
                 {
                     int clicked_team = 0;
                     if (auto* team_comp = result.value().entity.cmp<CompTeam>())
