@@ -31,10 +31,8 @@ struct BlinkDaggerProto : public ItemProto
         entity.cmp<CompOnCast>()->on_cast_callbacks.push_back([] 
             (SystemInterface* iface, EntityRef casting_entity, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
             {
-                printf("Cast blink!\n");
                 if (auto* caster_pos = casting_entity.cmp<CompPosition>())
                 {
-                    printf("REEALYY Cast blink!\n");
                     caster_pos->pos = ground_target.value() + glm::vec3(0,0,2);
                 }
             });

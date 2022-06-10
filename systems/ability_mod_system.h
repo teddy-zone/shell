@@ -54,18 +54,15 @@ struct DraftDatabase
         std::vector<std::string> valid_abilities;
         for (auto& ability_name : ability_set)
         {
-            printf("Trying ability %s\n", ability_name.c_str());
             if (abilities.find(ability_name) != abilities.end())
             {
                 valid_abilities.push_back(ability_name);
             }
         }
         size_t num_abilities = valid_abilities.size();
-        printf("number of abilities: %d\n", num_abilities);
         if (num_abilities > 0)
         {
             auto rand_ability_num = distribution(gen) % num_abilities; 
-            printf("Random ability num: %d\n", rand_ability_num);
             //auto ability_mod_entry = *(std::advance(heroes.at(hero_name).abilities.begin(), rand_ability_num)).first;
             return get_random_ability_mod(valid_abilities[rand_ability_num], exclude_mods);
         }
@@ -106,11 +103,9 @@ public:
             {
                 if (auto* ability_comp = entity.cmp<CompAbility>())    
                 {
-                    printf("Damage?\n");
                     if (ability_comp->damages.size())
                     {
                         ability_comp->damages[0].damage += 100;
-                        printf("Added damage!\n");
                     }
                 }
             };
@@ -132,20 +127,16 @@ public:
         _mods.abilities["Ice Shards"].back().ability_name = "Ice Shards";
         _mods.abilities["Ice Shards"].back().mod_function = [](EntityRef entity)
             {
-                printf("MODDED\n");
                 if (auto* ability_comp = entity.cmp<CompAbility>())
                 {
-                    printf("1\n");
                     if (auto* instance_comp = entity.cmp<CompAbilityInstance>())    
                     {
-                        printf("2\n");
                         if (!instance_comp->destruction_callback)
                         {
                             instance_comp->destruction_callback = CompOnDestruction();
                         }
                         instance_comp->destruction_callback.value().on_destruction_callbacks.push_back([](SystemInterface* iface, EntityRef me)
                             {
-                                printf("DESTRUCTTTTT\n");
                                 if (auto* my_pos_comp = me.cmp<CompPosition>())
                                 {
                                     auto* phys_comp = me.cmp<CompPhysics>();
@@ -176,10 +167,8 @@ public:
             {
                 if (auto* ability_comp = entity.cmp<CompAbility>())
                 {
-                    printf("1\n");
                     if (auto* instance_comp = entity.cmp<CompAbilityInstance>())    
                     {
-                        printf("2\n");
                         if (!instance_comp->destruction_callback)
                         {
                             instance_comp->destruction_callback = CompOnDestruction();
@@ -217,7 +206,6 @@ public:
                     ability_comp->damages.push_back({entity, DamageType::Magical, 50, false});
                     if (auto* instance_comp = entity.cmp<CompAbilityInstance>())    
                     {
-                        printf("Applied dash damage!\n");
                         instance_comp->radial_application = CompRadiusApplication();
                         instance_comp->radial_application.value().apply_to_same_team = false;
                         instance_comp->radial_application.value().apply_to_other_teams = true;
@@ -271,7 +259,6 @@ public:
                                 {
                                     if (my_on_destruct->generation < 2)
                                     {
-                                        printf("DUPED\n");
                                         auto new_entity = iface->duplicate_entity(me);
                                         if (auto* on_destruct = new_entity.cmp<CompOnDestruction>())
                                         {
@@ -342,7 +329,6 @@ public:
                         {
                             if (mod.ability_name == ability_entity.cmp<CompAbility>()->ability_name)
                             {
-                                printf("Abplsdinfg mods\n");
                                 mod.mod_function(ability_entity);
                                 ability_mod_comp->mods_available -= 1;
                             }

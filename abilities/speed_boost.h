@@ -52,7 +52,6 @@ public:
                     if (auto* status_manager = unit_target->cmp<CompStatusManager>())
                     {
                         auto* status_comp = status_entity.cmp<CompStatus>();
-                        printf("Applying status\n");
                         status_manager->apply_status(status_comp);
                     }
                 }

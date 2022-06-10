@@ -75,7 +75,6 @@ struct CompHealth : public Component
         {
             if (auto* applier_stat_comp = instance.applier.cmp<CompStat>())
             {
-                printf("Lifesteal: %f, %f\n", applier_stat_comp->get_abs_stat(Stat::Lifesteal), applier_stat_comp->get_stat(Stat::Lifesteal).multiplication);
                 applier_health_comp->add_health(net_damage*applier_stat_comp->get_abs_stat(Stat::Lifesteal));
             }
         }
