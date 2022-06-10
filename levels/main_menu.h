@@ -61,6 +61,7 @@ public:
                         }
                         _interface->load_level("BaseLevel");
                         _interface->load_level("TestLevel");
+                        _interface->unload_level("MainMenu");
                         menu_state = MainMenuState::None;
                     }
                     if (ImGui::Button("Tusk"))
@@ -73,6 +74,7 @@ public:
                         }
                         _interface->load_level("BaseLevel");
                         _interface->load_level("TestLevel");
+                        _interface->unload_level("MainMenu");
                         menu_state = MainMenuState::None;
                     }
                     if (ImGui::Button("Crystal Maiden"))
@@ -85,6 +87,7 @@ public:
                         }
                         _interface->load_level("BaseLevel");
                         _interface->load_level("TestLevel");
+                        _interface->unload_level("MainMenu");
                         menu_state = MainMenuState::None;
                     }
                     ImGui::End();

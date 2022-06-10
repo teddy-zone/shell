@@ -63,7 +63,7 @@ public:
         LightEntityProto light_proto(glm::vec3(10,200,50));
         auto light_entity = c->add_entity_from_proto(&light_proto);
 
-        LightEntityProto light_proto2(glm::vec3(100, 10, 50));
+        LightEntityProto light_proto2(glm::vec3(150, 10, 50));
         auto light_entity2 = c->add_entity_from_proto(&light_proto2);
 
         ShopProto shop_proto(glm::vec3(1,1,40));

@@ -309,6 +309,15 @@ struct EnemyUnitProto : public UnitProto
     virtual void init(EntityRef entity, SystemInterface* iface) override
     {
         UnitProto::init(entity, iface);
+
+        auto monkey_mesh = std::make_shared<bgfx::Mesh>();
+        monkey_mesh->load_obj("skull.obj" );
+
+        entity.cmp<CompPosition>()->scale = glm::vec3(1.5, 1.5, 1.5);
+        entity.cmp<CompPhysics>()->has_collision = false;
+        entity.cmp<CompPhysics>()->has_gravity = false;
+        entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
+
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompBasicEnemyAI>()->vision_range = 15;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;

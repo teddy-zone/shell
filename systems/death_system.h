@@ -31,6 +31,9 @@ public:
                 }
                 if (auto* respawn_comp = health_comp.sibling<CompRespawn>())
                 {
+                    _interface->unload_level("BaseLevel");
+                    _interface->unload_level("TestLevel");
+                    _interface->load_level("MainMenuLevel");
                     // If current respawn time not set, death hasn't been initialized
                     if (!respawn_comp->current_respawn_time)
                     {

@@ -24,13 +24,16 @@ public:
             if (selected_entities[0].selected_objects.size())
             {
                 auto selected_entity = selected_entities[0].selected_objects[0];
-                if (auto* team_comp = selected_entity.cmp<CompTeam>())
+                if (selected_entity.is_valid())
                 {
-                    my_team = team_comp->team;
+                    if (auto* team_comp = selected_entity.cmp<CompTeam>())
+                    {
+                        my_team = team_comp->team;
+                    }
+                    update_statuses(selected_entity);
+                    update_abilities_and_health(selected_entity);
+                    update_inventory(selected_entity);
                 }
-                update_statuses(selected_entity);
-                update_abilities_and_health(selected_entity);
-                update_inventory(selected_entity);
             }
             update_health_bars(my_team);
         }
