@@ -57,6 +57,8 @@ public:
                                 for (auto& proto : proto_list_comp->protos)
                                 {
                                     auto new_entity = _interface->add_entity_from_proto(proto.get());
+                                    my_pos_comp = spawn_sensor.sibling<CompPosition>();
+                                    proto_list_comp = spawn_sensor.sibling<CompSpawnProtoList>();
                                     proto_list_comp->instantiated_entities.insert(new_entity);
                                     if (my_pos_comp)
                                     {
