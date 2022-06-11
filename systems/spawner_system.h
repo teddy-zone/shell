@@ -44,6 +44,7 @@ public:
                 }
             }
             CompPosition* my_pos_comp = spawn_sensor.sibling<CompPosition>();
+            auto my_pos = my_pos_comp->pos;
             if (spawn_sensor.actuator.is_valid())
             {
                 if (auto* comp_actuator = spawn_sensor.actuator.cmp<CompActuator>())
@@ -57,17 +58,15 @@ public:
                                 for (auto& proto : proto_list_comp->protos)
                                 {
                                     auto new_entity = _interface->add_entity_from_proto(proto.get(), proto_list_comp->get_entity());
-                                    my_pos_comp = spawn_sensor.sibling<CompPosition>();
                                     proto_list_comp = spawn_sensor.sibling<CompSpawnProtoList>();
                                     proto_list_comp->instantiated_entities.insert(new_entity);
-                                    if (my_pos_comp)
                                     {
                                         if (auto* new_pos_comp = new_entity.cmp<CompPosition>())
                                         {
                                             float radius = proto_list_comp->radius*dist(generator);
                                             float az = 2*3.1415926*dist(generator);
                                             glm::vec3 offset(radius*cos(az), radius*sin(az), 0);
-                                            new_pos_comp->pos = my_pos_comp->pos + offset;
+                                            new_pos_comp->pos = my_pos + offset;
                                         }
                                     }
                                 }

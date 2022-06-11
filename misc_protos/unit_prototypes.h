@@ -35,9 +35,12 @@
 struct UnitProto : public ActorProto
 {
 
+    std::shared_ptr<bgfx::Mesh> monkey_mesh;
     UnitProto(const glm::vec3& in_pos, const std::vector<CompType>& extension_types={}):
-        ActorProto(in_pos, extension_types)
+        ActorProto(in_pos, extension_types),
+        monkey_mesh(std::make_shared<bgfx::Mesh>())
     {
+        monkey_mesh->load_obj("suzanne.obj" );
         std::vector<CompType> unit_components = {{
                     uint32_t(type_id<CompPhysics>), 
                     uint32_t(type_id<CompBounds>),
@@ -71,10 +74,6 @@ struct UnitProto : public ActorProto
 
     virtual void init(EntityRef entity, SystemInterface* iface) 
     {
-        auto cube_mesh = std::make_shared<bgfx::Mesh>();
-        cube_mesh->load_obj("cube.obj");
-        auto monkey_mesh = std::make_shared<bgfx::Mesh>();
-        monkey_mesh->load_obj("suzanne.obj" );
         entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 1);
         entity.cmp<CompPhysics>()->has_collision = false;
         entity.cmp<CompPhysics>()->has_gravity = false;
@@ -296,10 +295,14 @@ struct TuskProto : public UnitProto
 
 struct EnemyUnitProto : public UnitProto
 {
+    std::shared_ptr<bgfx::Mesh> monkey_mesh;
+
 
     EnemyUnitProto(const glm::vec3& in_pos, const std::vector<CompType>& extension_types={}):
-        UnitProto(in_pos, extension_types)
+        UnitProto(in_pos, extension_types),
+        monkey_mesh(std::make_shared<bgfx::Mesh>())
     {
+        monkey_mesh->load_obj("skull.obj" );
         std::vector<CompType> unit_components = {{
             uint32_t(type_id<CompBasicEnemyAI>),           
         }};
@@ -309,9 +312,6 @@ struct EnemyUnitProto : public UnitProto
     virtual void init(EntityRef entity, SystemInterface* iface) override
     {
         UnitProto::init(entity, iface);
-
-        auto monkey_mesh = std::make_shared<bgfx::Mesh>();
-        monkey_mesh->load_obj("skull.obj" );
 
         entity.cmp<CompPosition>()->scale = glm::vec3(1.5, 1.5, 1.5);
         entity.cmp<CompPhysics>()->has_collision = false;
