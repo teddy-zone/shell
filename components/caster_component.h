@@ -21,6 +21,16 @@ struct CompCaster : public Component
         state_time = 0.0;
     }
 
+    void stop()
+    {
+        ability_index = -1;
+        activated = false;
+        ground_target = std::nullopt;
+        unit_target = std::nullopt;
+        state_time = 0;
+        state = AbilityState::None;
+    }
+
     bool get_has_extra_levels(int current_level)
     {
         if (auto* ability_set = sibling<CompAbilitySet>())

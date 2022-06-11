@@ -34,16 +34,28 @@ public:
             if (!command_component.command_queue.empty())
             {
                 auto next_command = command_component.command_queue.back(); 
-                if (auto cmd = std::dynamic_pointer_cast<StopCommand>(next_command)) 
+                if (auto cmd = std::dynamic_pointer_cast<AbilityCommand>(next_command)) 
                 {
-                    auto* caster_comp = nav_comp->sibling<CompCaster>();
-                    if (nav_comp)
+                    if (stat_component)
                     {
-                        nav_comp->stop();
+                        if (stat_component->get_status_state(StatusState::Silenced))
+                        {
+                            if (cmd->ability_index < 6)
+                            {
+                                continue;
+                            }
+                        }
                     }
-                    command_component.command_queue.pop_back();
-                    command_component.new_command = true;
-                    caster_comp->state = AbilityState::None;
+                    auto* nav_comp = command_component.sibling<CompNav>();
+                    if (process_ability_command(cmd, nav_comp, command_component.new_command))
+                    {
+                        command_component.command_queue.pop_back();
+                        command_component.new_command = true;
+                    }
+                    else
+                    {
+                        command_component.new_command = false;
+                    }
                 } 
                 else if (auto cmd = std::dynamic_pointer_cast<AttackCommand>(next_command)) 
                 {
@@ -88,28 +100,23 @@ public:
                         command_component.set_command(attack_command);
                     }
                 } 
-                else if (auto cmd = std::dynamic_pointer_cast<AbilityCommand>(next_command)) 
+                else
                 {
-                    if (stat_component)
+                    auto* caster_comp = nav_comp->sibling<CompCaster>();
+                    caster_comp->stop();
+                }
+
+                if (auto cmd = std::dynamic_pointer_cast<StopCommand>(next_command)) 
+                {
+                    if (nav_comp)
                     {
-                        if (stat_component->get_status_state(StatusState::Silenced))
-                        {
-                            if (cmd->ability_index < 6)
-                            {
-                                continue;
-                            }
-                        }
+                        nav_comp->stop();
                     }
-                    auto* nav_comp = command_component.sibling<CompNav>();
-                    if (process_ability_command(cmd, nav_comp, command_component.new_command))
-                    {
-                        command_component.command_queue.pop_back();
-                        command_component.new_command = true;
-                    }
-                    else
-                    {
-                        command_component.new_command = false;
-                    }
+                    command_component.command_queue.pop_back();
+                    command_component.new_command = true;
+                } 
+                else if (auto cmd = std::dynamic_pointer_cast<MoveCommand>(next_command)) 
+                {
                 } 
                 else if (auto cmd = std::dynamic_pointer_cast<InteractCommand>(next_command)) 
                 {
@@ -154,13 +161,16 @@ public:
                 {
                     auto target_loc = cmd->entity_target.value().cmp<CompPosition>()->pos;
                     auto range = glm::length(target_loc - my_loc);
-                    if (range < ability_comp->cast_range )
+                    if (range < ability_comp->cast_range)
                     {
-                        if (caster_comp->state == AbilityState::None)
+                        if (caster_comp->state == AbilityState::None && !caster_comp->activated)
                         {
-                            caster_comp->activate_ability(cmd->ability_index);
-                            caster_comp->unit_target = cmd->entity_target;
-                            caster_comp->ground_target = std::nullopt;
+                            if (caster_comp->state == AbilityState::None)
+                            {
+                                caster_comp->activate_ability(cmd->ability_index);
+                                caster_comp->unit_target = cmd->entity_target;
+                                caster_comp->ground_target = std::nullopt;
+                            }
                         }
                     }
                     else
@@ -181,15 +191,24 @@ public:
             else if (cmd->ground_target)
             {
                 auto range = glm::length(my_loc - cmd->ground_target.value());
-                if (range < ability_comp->cast_range && caster_comp->state == AbilityState::None && !caster_comp->activated)
+                if (range < ability_comp->cast_range)
                 {
-                    caster_comp->activate_ability(cmd->ability_index);
-                    caster_comp->ground_target = cmd->ground_target;
-                    caster_comp->unit_target = std::nullopt;
-                    caster_comp->activated = true;
+                    if (caster_comp->state == AbilityState::None && !caster_comp->activated)
+                    {
+                        caster_comp->activate_ability(cmd->ability_index);
+                        caster_comp->ground_target = cmd->ground_target;
+                        caster_comp->unit_target = std::nullopt;
+                        caster_comp->activated = true;
+                    }
                 }
                 else
                 {
+                    if (is_new || !nav_component->path_computed)
+                    {
+                        //caster_comp->activated = false;
+                        nav_component->set_destination(cmd->ground_target.value());
+                        return false;
+                    }
                     // else move to target
                 }
             }
