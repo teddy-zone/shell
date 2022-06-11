@@ -19,7 +19,7 @@ struct CaskStatusProto : public EntityProto
     virtual void init(EntityRef entity, SystemInterface* iface) 
     {
         entity.cmp<CompStat>()->set_status_state(StatusState::Stunned, true);
-        entity.cmp<CompStatus>()->duration = 5;
+        entity.cmp<CompStatus>()->duration = 1;
     }
 };
 
@@ -120,7 +120,7 @@ struct CaskAbilityProto : public AbilityProto
         entity.cmp<CompAbility>()->cast_range = 50;
         entity.cmp<CompAbility>()->cast_point = 0.1;
         entity.cmp<CompAbility>()->backswing = 0.1;
-        entity.cmp<CompAbility>()->cooldown = 4;
+        entity.cmp<CompAbility>()->cooldown = 6;
         entity.cmp<CompAbility>()->max_level = 4;
         entity.cmp<CompAbility>()->ability_name = "Cask";
         entity.cmp<CompAbility>()->unit_targeted = true;
