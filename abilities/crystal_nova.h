@@ -36,7 +36,7 @@ struct CrystalNovaInstanceProto : public ActorProto
 
         //entity.cmp<CompRadiusApplication>()->radius = 5;
         entity.cmp<CompRadiusApplication>()->tick_time = 100;
-        entity.cmp<CompRadiusApplication>()->damage = {entity, DamageType::Magical, 10, false};
+        entity.cmp<CompRadiusApplication>()->damage = {entity, DamageType::Magical, 80, false};
 
         entity.cmp<CompDecal>()->decal.location = glm::vec4(pos, 1);
         entity.cmp<CompDecal>()->decal.color = glm::vec4(0.0,0.0,1.0,1.0);

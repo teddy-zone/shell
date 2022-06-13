@@ -75,11 +75,12 @@ struct IceShardProto : public ActorProto
         entity.cmp<CompLifetime>()->lifetime = 10;
         entity.cmp<CompPhysics>()->has_collision = true;
         entity.cmp<CompPhysics>()->has_gravity = false;
+        entity.cmp<CompBounds>()->is_static = true;
 
         auto monkey_mesh = std::make_shared<bgfx::Mesh>();
         monkey_mesh->load_obj("cube.obj" );
         monkey_mesh->set_solid_color(glm::vec3(0.0,1,0.0));
-        entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 1);
+        entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 2);
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
     }
 };
@@ -103,11 +104,11 @@ struct AbilityIceShardsProto : AbilityProto
         entity.cmp<CompAbility>()->unit_targeted = false;
         entity.cmp<CompAbility>()->cooldown = 3.5;
         entity.cmp<CompAbility>()->cast_range = 100;
-        entity.cmp<CompAbility>()->radius = 2;
+        entity.cmp<CompAbility>()->radius = 3;
         entity.cmp<CompAbility>()->max_level = 4;
         entity.cmp<CompAbility>()->ability_name = "Ice Shards";
         entity.cmp<CompAbility>()->target_decal_type = TargetDecalType::Cone;
-        entity.cmp<CompAbility>()->damages = {{entity, DamageType::Magical, 20, false}};
+        entity.cmp<CompAbility>()->damages = {{entity, DamageType::Magical, 40, false}};
         //entity.cmp<CompHasOwner>()->owner = entity;
         auto crystal_nova_proto2 = std::make_shared<IceShardsInstanceProto>(glm::vec3(0,0,0));
         auto* ab_inst2 = entity.cmp<CompAbilityInstance>();

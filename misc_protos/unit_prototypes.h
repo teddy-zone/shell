@@ -26,6 +26,7 @@
 #include "dash.h"
 #include "ability_mod.h"
 #include "bladefury.h"
+#include "cask.h"
 #include "ice_shards.h"
 #include "skeletal_mesh_component.h"
 #include "basic_enemy_ai_component.h"
@@ -35,9 +36,12 @@
 struct UnitProto : public ActorProto
 {
 
+    std::shared_ptr<bgfx::Mesh> monkey_mesh;
     UnitProto(const glm::vec3& in_pos, const std::vector<CompType>& extension_types={}):
-        ActorProto(in_pos, extension_types)
+        ActorProto(in_pos, extension_types),
+        monkey_mesh(std::make_shared<bgfx::Mesh>())
     {
+        monkey_mesh->load_obj("suzanne.obj" );
         std::vector<CompType> unit_components = {{
                     uint32_t(type_id<CompPhysics>), 
                     uint32_t(type_id<CompBounds>),
@@ -71,10 +75,6 @@ struct UnitProto : public ActorProto
 
     virtual void init(EntityRef entity, SystemInterface* iface) 
     {
-        auto cube_mesh = std::make_shared<bgfx::Mesh>();
-        cube_mesh->load_obj("cube.obj");
-        auto monkey_mesh = std::make_shared<bgfx::Mesh>();
-        monkey_mesh->load_obj("suzanne.obj" );
         entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 1);
         entity.cmp<CompPhysics>()->has_collision = false;
         entity.cmp<CompPhysics>()->has_gravity = false;
@@ -291,15 +291,20 @@ struct TuskProto : public UnitProto
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompHasOwner>()->owner = entity;
         entity.set_name("Tusk" + std::to_string(entity.get_id()));
+        entity.cmp<CompSkeletalMesh>()->leg_color = glm::vec3(0.02,0.02, 1.0);
     }
 };
 
 struct EnemyUnitProto : public UnitProto
 {
+    std::shared_ptr<bgfx::Mesh> monkey_mesh;
+
 
     EnemyUnitProto(const glm::vec3& in_pos, const std::vector<CompType>& extension_types={}):
-        UnitProto(in_pos, extension_types)
+        UnitProto(in_pos, extension_types),
+        monkey_mesh(std::make_shared<bgfx::Mesh>())
     {
+        monkey_mesh->load_obj("skull.obj" );
         std::vector<CompType> unit_components = {{
             uint32_t(type_id<CompBasicEnemyAI>),           
         }};
@@ -309,10 +314,53 @@ struct EnemyUnitProto : public UnitProto
     virtual void init(EntityRef entity, SystemInterface* iface) override
     {
         UnitProto::init(entity, iface);
+
+        entity.cmp<CompPosition>()->scale = glm::vec3(1.2, 1.2, 1.2);
+        entity.cmp<CompPhysics>()->has_collision = false;
+        entity.cmp<CompPhysics>()->has_gravity = false;
+        entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
+
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompBasicEnemyAI>()->vision_range = 15;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
         auto cn_proto = std::make_shared<CrystalNovaAbilityProto>();
+        entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
+        entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->level = 1;
+        auto is_proto = std::make_shared<AbilityIceShardsProto>();
+        entity.cmp<CompAbilitySet>()->abilities[1] = iface->add_entity_from_proto(is_proto.get());
+        entity.cmp<CompAbilitySet>()->abilities[1].cmp<CompAbility>()->level = 1;
+        entity.set_name("Enemy" + std::to_string(entity.get_id()));
+    }
+};
+
+struct EnemyUnitProto2 : public UnitProto
+{
+    std::shared_ptr<bgfx::Mesh> monkey_mesh;
+
+    EnemyUnitProto2(const glm::vec3& in_pos, const std::vector<CompType>& extension_types={}):
+        UnitProto(in_pos, extension_types),
+        monkey_mesh(std::make_shared<bgfx::Mesh>())
+    {
+        monkey_mesh->load_obj("skull.obj" );
+        std::vector<CompType> unit_components = {{
+            uint32_t(type_id<CompBasicEnemyAI>),           
+        }};
+        append_components(unit_components);
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface) override
+    {
+        UnitProto::init(entity, iface);
+
+        entity.cmp<CompPosition>()->scale = glm::vec3(1.2, 1.2, 1.2);
+        entity.cmp<CompPhysics>()->has_collision = false;
+        entity.cmp<CompPhysics>()->has_gravity = false;
+        entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
+
+        entity.cmp<CompTeam>()->team = 2;
+        entity.cmp<CompBasicEnemyAI>()->vision_range = 15;
+        entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
+        auto cn_proto = std::make_shared<CaskAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->level = 1;
         auto is_proto = std::make_shared<AbilityIceShardsProto>();

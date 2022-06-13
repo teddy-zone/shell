@@ -21,18 +21,21 @@ struct AbilityDraftDatabase
         distribution(0, 10000)
     {}
 
-    T get_random_ability_mod(const std::set<std::string>& exclude_mods)
+    std::optional<T> get_random_ability_mod(const std::set<std::string>& exclude_mods)
     {
         T current;
         int tried = 0;
         while ((exclude_mods.find(current.name) != exclude_mods.end() 
-               || current.name == "")
-               && tried < abilities.size())
+               || current.name == ""))
         {
             size_t num_mods = abilities.size();
             auto rand_ability_num = distribution(gen) % (num_mods); 
             current = abilities[rand_ability_num];
             tried += 1;
+            if (tried > abilities.size())
+            {
+                return std::nullopt;
+            }
         }
         return current;
     }
@@ -69,19 +72,22 @@ struct DraftDatabase
         return std::nullopt;
     }
 
-    T get_random_ability_mod(const std::string& ability_name, const std::set<std::string>& exclude_mods)
+    std::optional<T> get_random_ability_mod(const std::string& ability_name, const std::set<std::string>& exclude_mods)
     {
         T current_mod;
         int mods_tried = 0;
         while ((exclude_mods.find(current_mod.mod_name) != exclude_mods.end() 
-               || current_mod.mod_name == "")
-               && mods_tried < abilities.at(ability_name).size())
+               || current_mod.mod_name == ""))
         {
             size_t num_mods = abilities.at(ability_name).size();
             auto rand_ability_num = distribution(gen) % (num_mods); 
             auto begin = abilities.begin();
             current_mod = abilities[ability_name][rand_ability_num];
             mods_tried += 1;
+            if (mods_tried > abilities.at(ability_name).size())
+            {
+                return std::nullopt;
+            }
         }
         return current_mod;
     }
@@ -294,7 +300,7 @@ public:
 
     virtual void update_mod_window(CompAbilityMod* ability_mod_comp)
     {
-        int choice_height = 100;
+        int choice_height = 80;
         int widget_width = 400;
         int widget_height = 100 + num_mods_choice*choice_height;
         bool active = true;
@@ -319,7 +325,7 @@ public:
         }
         for (auto& mod : ability_mod_comp->currently_available_mods)
         {
-            if (ImGui::Button(mod.mod_name.c_str()))
+            if (ImGui::Button(mod.mod_name.c_str(), ImVec2(widget_width - 10, choice_height)))
             {
                 if (auto* ability_set = ability_mod_comp->sibling<CompAbilitySet>())
                 {
@@ -379,7 +385,7 @@ public:
 class SysAbilityDraft : public GuiSystem
 {
     AbilityDraftDatabase<DraftableAbility> _abilities;
-    const int num_ability_choice = 4;
+    const int num_ability_choice = 10;
 public:
 
     virtual void init_update() override
@@ -426,9 +432,9 @@ public:
 
     virtual void update_draft_window(CompAbilitySet* ability_set_comp)
     {
-        int choice_height = 100;
+        int choice_height = 80;
         int widget_width = 400;
-        int widget_height = 100 + num_ability_choice*choice_height;
+        int widget_height = 100 + ability_set_comp->draft_choices.size()*choice_height;
         bool active = true;
         static bool is_collapsed = false;
         if (!is_collapsed)
@@ -453,9 +459,10 @@ public:
         {
             case AbilityDraftSelectionState::AbilitySelection:
                 {
+                    ImGui::Text("Choose New Ability:");
                     for (auto& ability : ability_set_comp->draft_choices)
                     {
-                        if (ImGui::Button(ability.name.c_str()))
+                        if (ImGui::Button(ability.name.c_str(), ImVec2(widget_width - 10, choice_height)))
                         {
                             ability_set_comp->selected_ability = ability;
                             ability_set_comp->selection_state = AbilityDraftSelectionState::SlotSelection;
@@ -466,9 +473,10 @@ public:
             case AbilityDraftSelectionState::SlotSelection:
                 {
                     int slot_num = 1;
+                    ImGui::Text("Choose Ability Slot:");
                     for (auto& ability : ability_set_comp->abilities)
                     {
-                        if (ImGui::Button(std::to_string(slot_num).c_str()))
+                        if (ImGui::Button(std::to_string(slot_num).c_str(), ImVec2(widget_width - 10, choice_height)))
                         {
                             auto ability_entity = _interface->add_entity_from_proto(ability_set_comp->selected_ability.value().ability_proto.get());
                             ability_entity.cmp<CompAbility>()->max_level = 4;
@@ -496,7 +504,12 @@ public:
                 std::set<std::string> done_abilities;
                 for (int i = 0; i < num_ability_choice; ++i)
                 {
-                    ability_set_comp.draft_choices.push_back(_abilities.get_random_ability_mod(done_abilities));
+                    auto new_ability = _abilities.get_random_ability_mod(done_abilities);
+                    if (new_ability)
+                    {
+                        ability_set_comp.draft_choices.push_back(new_ability.value());
+                        done_abilities.insert(new_ability.value().name);
+                    }
                 }
             }
         }

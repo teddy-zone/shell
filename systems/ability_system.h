@@ -301,6 +301,7 @@ public:
 
     void cast_ability(CompCaster* caster)
     {
+        printf("Cast!\n");
         auto* ab = caster->get_ability();
         if (auto* mana_comp = caster->sibling<CompMana>())
         {
