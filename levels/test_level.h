@@ -191,9 +191,9 @@ public:
         spawner.cmp<CompActuatorDetector>()->actuator = radial_actuator;
         auto enemy_proto = std::make_shared<EnemyUnitProto>(glm::vec3(0));
         auto enemy_proto2 = std::make_shared<EnemyUnitProto2>(glm::vec3(0));
-        spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
+        //spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
         spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto2);
-        spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
+        //spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
 
         auto spawner2 = c->add_entity_from_proto(spawner_proto.get());
         spawner2.cmp<CompPosition>()->pos = glm::vec3(50,50,7);
