@@ -104,6 +104,9 @@ public:
             //auto skeleton_entity = c->add_entity_from_proto(skeleton_proto.get());
             //skeleton_entity.cmp<CompAttachment>()->attached_entities.push_back(player);
         }
+        auto& camera = get_array<CompCamera>()[0];
+        camera.graphics_camera.set_position(glm::vec3(50.0f, 50, 50));
+        camera.graphics_camera.set_look_target(glm::vec3(38,38,25));
 
     }
 
