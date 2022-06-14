@@ -25,6 +25,7 @@
 #include "ice_shards.h"
 #include "character_type_component.h"
 #include "skeletal_mesh_component.h"
+#include "hud_control_component.h"
 
 class BaseLevel : public Level
 {
@@ -37,6 +38,8 @@ public:
     virtual void level_init() override
     {
 
+        auto& hud_control = get_array<CompHudControl>()[0];
+        hud_control.hud_enabled = true;
 
         auto cube_mesh = std::make_shared<bgfx::Mesh>();
         cube_mesh->load_obj("cube.obj");

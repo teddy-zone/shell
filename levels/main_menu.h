@@ -3,6 +3,8 @@
 #include "level.h"
 #include "gui_system.h"
 #include "widget_component.h"
+#include "hud_control_component.h"
+#include "main_menu_status_component.h"
 
 enum class MainMenuState
 {
@@ -90,9 +92,29 @@ public:
                     }
 
                     ImGui::Begin("Character Select", &active, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-                    if (ImGui::Button("Juggernaut", ImVec2(main_menu_width-10, choice_height)))
+
+                    auto& status_comp = get_array<CompMenuStatus>()[0];
+                        //auto& active_entity = status_comp.preview_entities[status_comp.active_character.value()];
+                    ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.5f, 0.5f));
+                    for (auto& [character_name, entity] : status_comp.preview_entities)
                     {
-                        auto unit_proto = std::make_shared<JuggernautProto>();
+                        if (ImGui::Selectable(character_name.c_str(), &status_comp.button_status[character_name], 0, ImVec2(main_menu_width-10, choice_height)))
+                        {
+                            for (auto& [other_character_name, select_status] : status_comp.button_status)
+                            {
+                                if (other_character_name != character_name)
+                                {
+                                    select_status = false;
+                                }
+                            }
+                        }
+                    }
+                    ImGui::PopStyleVar();
+
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2,0.55,0.3,1.0));
+                    if (ImGui::Button("Start Game", ImVec2(main_menu_width-10, choice_height)))
+                    {
+                        auto unit_proto = status_comp.character_protos[status_comp.active_character.value()];
                         auto& char_type_components = get_array<CompCharacterType>();
                         if (char_type_components.size())
                         {
@@ -103,32 +125,8 @@ public:
                         _interface->load_level("TestLevel");
                         menu_state = MainMenuState::None;
                     }
-                    if (ImGui::Button("Tusk", ImVec2(main_menu_width-10, choice_height)))
-                    {
-                        auto unit_proto = std::make_shared<TuskProto>();
-                        auto& char_type_components = get_array<CompCharacterType>();
-                        if (char_type_components.size())
-                        {
-                            char_type_components[0].type_proto = unit_proto;
-                        }
-                        _interface->unload_level("MainMenuLevel");
-                        _interface->load_level("BaseLevel");
-                        _interface->load_level("TestLevel");
-                        menu_state = MainMenuState::None;
-                    }
-                    if (ImGui::Button("Crystal Maiden", ImVec2(main_menu_width-10, choice_height)))
-                    {
-                        auto unit_proto = std::make_shared<CrystalMaidenProto>();
-                        auto& char_type_components = get_array<CompCharacterType>();
-                        if (char_type_components.size())
-                        {
-                            char_type_components[0].type_proto = unit_proto;
-                        }
-                        _interface->unload_level("MainMenuLevel");
-                        _interface->load_level("BaseLevel");
-                        _interface->load_level("TestLevel");
-                        menu_state = MainMenuState::None;
-                    }
+                    ImGui::PopStyleColor(1);
+
                     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2,0.1,0.3,1.0));
                     if (ImGui::Button("Back", ImVec2(main_menu_width-10, choice_height)))
                     {
@@ -167,7 +165,6 @@ public:
 
     EntityRef light_ref;
     EntityRef light_ref2;
-    EntityRef jugg;
 
     LevelMainMenu():
         Level("MainMenuLevel")
@@ -176,19 +173,62 @@ public:
 
     virtual void update(double dt) override
     {
-        auto& camera = get_array<CompCamera>()[0];
-        camera.graphics_camera.set_position(jugg.cmp<CompPosition>()->pos*glm::vec3(1,1,0) + glm::vec3(10,-1,2));
-        camera.graphics_camera.set_look_target(jugg.cmp<CompPosition>()->pos*glm::vec3(1,1,0) + glm::vec3(0,0,2));
-        light_ref.cmp<CompPointLight>()->light.location.x = camera.graphics_camera.get_position().x;
-        light_ref.cmp<CompPointLight>()->light.intensity = 0.2;
+        auto& status_comp = get_array<CompMenuStatus>()[0];
+        status_comp.active_character = std::nullopt;
+        for (auto& [char_name, button_status] : status_comp.button_status)
+        {
+            if (button_status)
+            {
+                status_comp.active_character = char_name;
+            }
+        }
+        for (auto& [character_name, entity] : status_comp.preview_entities)
+        {
+            entity.cmp<CompStaticMesh>()->set_visibility(false);
+        }
+        if (status_comp.active_character)
+        {
+            auto& active_entity = status_comp.preview_entities[status_comp.active_character.value()];
+            for (auto& [character_name, entity] : status_comp.preview_entities)
+            {
+                if (character_name == status_comp.active_character.value())
+                {
+                    entity.cmp<CompStaticMesh>()->set_visibility(true);
+                }
+                else
+                {
+                    entity.cmp<CompStaticMesh>()->set_visibility(false);
+                }
+            }
 
-        light_ref2.cmp<CompPointLight>()->light.location.x = camera.graphics_camera.get_position().x-5;
-        light_ref2.cmp<CompPointLight>()->light.intensity = 0.05;
-        light_ref2.cmp<CompPointLight>()->light.color = glm::vec4(0.6,0.6,1.0,1.0);
+            auto& camera = get_array<CompCamera>()[0];
+            camera.graphics_camera.set_position(active_entity.cmp<CompPosition>()->pos*glm::vec3(1,1,0) + glm::vec3(10,-1,2));
+            camera.graphics_camera.set_look_target(active_entity.cmp<CompPosition>()->pos*glm::vec3(1,1,0) + glm::vec3(0,0,2));
+            light_ref.cmp<CompPointLight>()->light.location.x = camera.graphics_camera.get_position().x;
+            light_ref.cmp<CompPointLight>()->light.intensity = 0.02;
+
+            light_ref2.cmp<CompPointLight>()->light.location.x = camera.graphics_camera.get_position().x-5;
+            light_ref2.cmp<CompPointLight>()->light.intensity = 0.001;
+            light_ref2.cmp<CompPointLight>()->light.color = glm::vec4(0.6,0.6,1.0,1.0);
+
+            auto move_dir = active_entity.cmp<CompSkeletalMesh>()->walk_direction;
+            move_dir = glm::normalize(move_dir);
+            auto move_angle = atan2(move_dir.y, move_dir.x);
+            active_entity.cmp<CompPosition>()->rot = glm::rotate(float(move_angle + 3.14159f/2), glm::vec3(0.0f,0.0f,1.0f));
+            auto& selected_objects = get_array<CompSelectedObjects>();
+            for (auto& comp_selected_objects : selected_objects)
+            {
+                comp_selected_objects.selected_objects.resize(1);
+                comp_selected_objects.selected_objects[0] = active_entity;
+            }
+        }
     }
 
     virtual void level_init() override
     {
+
+        auto& hud_control = get_array<CompHudControl>()[0];
+        hud_control.hud_enabled = false;
         LightEntityProto light_proto(glm::vec3(10, 10, 10));
         light_ref = _interface->add_entity_from_proto(&light_proto);
 
@@ -199,23 +239,24 @@ public:
         auto tusk_proto = std::make_shared<TuskProto>();
         auto cm_proto = std::make_shared<CrystalMaidenProto>();
         _interface->add_system<SysMainMenu>();
-        jugg = _interface->add_entity_from_proto(jugg_proto.get());
-        jugg.cmp<CompTeam>()->team = 1;
-        //auto tusk = _interface->add_entity_from_proto(tusk_proto.get());
-        //auto cm = _interface->add_entity_from_proto(cm_proto.get());
-        jugg.cmp<CompPosition>()->pos = glm::vec3(0);
-        jugg.cmp<CompSkeletalMesh>()->walking = true;
-        jugg.cmp<CompSkeletalMesh>()->walk_direction = glm::vec3(1,0,0);
-        auto move_dir = jugg.cmp<CompSkeletalMesh>()->walk_direction;
-        move_dir = glm::normalize(move_dir);
-        auto move_angle = atan2(move_dir.y, move_dir.x);
-        jugg.cmp<CompPosition>()->rot = glm::rotate(float(move_angle + 3.14159f/2), glm::vec3(0.0f,0.0f,1.0f));
-        auto& selected_objects = get_array<CompSelectedObjects>();
-        for (auto& comp_selected_objects : selected_objects)
+
+        auto& status_comp = get_array<CompMenuStatus>()[0];
+        status_comp.character_protos["Juggernaut"] = jugg_proto;
+        status_comp.character_protos["Tusk"] = tusk_proto;
+        status_comp.character_protos["Crystal Maiden"] = cm_proto;
+
+        for (auto& [char_name, proto] : status_comp.character_protos)
         {
-            comp_selected_objects.selected_objects.resize(1);
-            comp_selected_objects.selected_objects[0] = jugg;
+            auto ent = _interface->add_entity_from_proto(proto.get());
+            status_comp.preview_entities[char_name] = ent;
+            status_comp.button_status[char_name] = false;
+            status_comp.character_protos[char_name] = proto;
+            ent.cmp<CompTeam>()->team = 1;
+            ent.cmp<CompPosition>()->pos = glm::vec3(0);
+            ent.cmp<CompSkeletalMesh>()->walking = true;
+            ent.cmp<CompSkeletalMesh>()->walk_direction = glm::vec3(1,0,0);
         }
+
         auto& camera = get_array<CompCamera>()[0];
         camera.graphics_camera.set_position(glm::vec3(10,10,10));
         camera.graphics_camera.set_look_target(glm::vec3(0));

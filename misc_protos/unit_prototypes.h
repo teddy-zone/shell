@@ -41,7 +41,7 @@ struct UnitProto : public ActorProto
         ActorProto(in_pos, extension_types),
         monkey_mesh(std::make_shared<bgfx::Mesh>())
     {
-        monkey_mesh->load_obj("suzanne.obj" );
+        monkey_mesh->load_obj("suzanne.obj" , true);
         std::vector<CompType> unit_components = {{
                     uint32_t(type_id<CompPhysics>), 
                     uint32_t(type_id<CompBounds>),
@@ -304,7 +304,7 @@ struct EnemyUnitProto : public UnitProto
         UnitProto(in_pos, extension_types),
         monkey_mesh(std::make_shared<bgfx::Mesh>())
     {
-        monkey_mesh->load_obj("skull.obj" );
+        monkey_mesh->load_obj("skull.obj" , true);
         std::vector<CompType> unit_components = {{
             uint32_t(type_id<CompBasicEnemyAI>),           
         }};
@@ -341,7 +341,7 @@ struct EnemyUnitProto2 : public UnitProto
         UnitProto(in_pos, extension_types),
         monkey_mesh(std::make_shared<bgfx::Mesh>())
     {
-        monkey_mesh->load_obj("skull.obj" );
+        monkey_mesh->load_obj("skull.obj" , true);
         std::vector<CompType> unit_components = {{
             uint32_t(type_id<CompBasicEnemyAI>),           
         }};
