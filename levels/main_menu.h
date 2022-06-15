@@ -202,8 +202,8 @@ public:
             }
 
             auto& camera = get_array<CompCamera>()[0];
-            camera.graphics_camera.set_position(active_entity.cmp<CompPosition>()->pos*glm::vec3(1,1,0) + glm::vec3(10,-1,2));
-            camera.graphics_camera.set_look_target(active_entity.cmp<CompPosition>()->pos*glm::vec3(1,1,0) + glm::vec3(0,0,2));
+            camera.graphics_camera.set_position(active_entity.cmp<CompPosition>()->pos*glm::vec3(1,0,0) + glm::vec3(10,-1,2));
+            camera.graphics_camera.set_look_target(active_entity.cmp<CompPosition>()->pos*glm::vec3(1,0,0) + glm::vec3(0,0,2));
             light_ref.cmp<CompPointLight>()->light.location.x = camera.graphics_camera.get_position().x;
             light_ref.cmp<CompPointLight>()->light.intensity = 0.02;
 

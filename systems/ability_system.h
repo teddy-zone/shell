@@ -203,9 +203,9 @@ public:
                             const float cast_point_done_fraction = caster_component.state_time/ability->cast_point;
                             if (auto* static_mesh_component = caster_component.sibling<CompStaticMesh>())
                             {
-                                static_mesh_component->mesh.get_mesh()->set_solid_color(
-                                    glm::vec4(ability->cast_color*cast_point_done_fraction + default_color*(1 - cast_point_done_fraction), 1.0)
-                                );
+                                //static_mesh_component->mesh.get_mesh()->set_solid_color(
+                                //    glm::vec4(ability->cast_color*cast_point_done_fraction + default_color*(1 - cast_point_done_fraction), 1.0)
+                                //);
                             }
                             nav_comp->stop();
                             if (auto* mana_comp = caster_component.sibling<CompMana>())
@@ -246,9 +246,9 @@ public:
                             const float cast_point_done_fraction = caster_component.state_time/ability->backswing;
                             if (auto* static_mesh_component = caster_component.sibling<CompStaticMesh>())
                             {
-                                static_mesh_component->mesh.get_mesh()->set_solid_color(
-                                    glm::vec4(ability->cast_color*(1 - cast_point_done_fraction) + default_color*(cast_point_done_fraction), 1.0)
-                                );
+                                //static_mesh_component->mesh.get_mesh()->set_solid_color(
+                                //    glm::vec4(ability->cast_color*(1 - cast_point_done_fraction) + default_color*(cast_point_done_fraction), 1.0)
+                                //);
                             }
                             // if state_time >= backswing of ability
                             // set state to None
@@ -267,9 +267,9 @@ public:
                         {
                             if (auto* static_mesh_component = caster_component.sibling<CompStaticMesh>())
                             {
-                                static_mesh_component->mesh.get_mesh()->set_solid_color(
-                                    glm::vec4(default_color, 1.0)
-                                );
+                                //static_mesh_component->mesh.get_mesh()->set_solid_color(
+                                //    glm::vec4(default_color, 1.0)
+                                //);
                             }
                         }
                         break;
