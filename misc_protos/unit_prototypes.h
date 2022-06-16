@@ -75,7 +75,7 @@ struct UnitProto : public ActorProto
     {
         std::shared_ptr<bgfx::Mesh> monkey_mesh = std::make_shared<bgfx::Mesh>();
         monkey_mesh->load_obj("sphere.obj" , true);
-        monkey_mesh->set_solid_color(glm::vec4(0,0,1,1));
+        monkey_mesh->set_solid_color(glm::vec4(0.9,0.9,1,1));
         entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 1);
         entity.cmp<CompDecal>()->decal.type = 5;
         entity.cmp<CompDecal>()->decal.radius = 1.0;
@@ -335,10 +335,14 @@ struct EnemyUnitProto : public UnitProto
     {
         UnitProto::init(entity, iface);
 
+        std::shared_ptr<bgfx::Mesh> sphere_mesh = std::make_shared<bgfx::Mesh>();
+        sphere_mesh->load_obj("sphere.obj" , true);
+        sphere_mesh->set_solid_color(glm::vec4(0.9,0.1,0.05,1));
+
         entity.cmp<CompPosition>()->scale = glm::vec3(1.2, 1.2, 1.2);
         entity.cmp<CompPhysics>()->has_collision = false;
         entity.cmp<CompPhysics>()->has_gravity = false;
-        entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
+        entity.cmp<CompStaticMesh>()->mesh.set_mesh(sphere_mesh);
 
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompBasicEnemyAI>()->vision_range = 15;
@@ -372,10 +376,14 @@ struct EnemyUnitProto2 : public UnitProto
     {
         UnitProto::init(entity, iface);
 
-        entity.cmp<CompPosition>()->scale = glm::vec3(1.2, 1.2, 1.2);
+        std::shared_ptr<bgfx::Mesh> sphere_mesh = std::make_shared<bgfx::Mesh>();
+        sphere_mesh->load_obj("sphere.obj" , true);
+        sphere_mesh->set_solid_color(glm::vec4(0.9,0.1,0.05,1));
+
+        //entity.cmp<CompPosition>()->scale = glm::vec3(1.2, 1.2, 1.2);
         entity.cmp<CompPhysics>()->has_collision = false;
         entity.cmp<CompPhysics>()->has_gravity = false;
-        entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
+        entity.cmp<CompStaticMesh>()->mesh.set_mesh(sphere_mesh);
 
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompBasicEnemyAI>()->vision_range = 15;
