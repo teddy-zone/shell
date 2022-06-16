@@ -36,12 +36,9 @@
 struct UnitProto : public ActorProto
 {
 
-    std::shared_ptr<bgfx::Mesh> monkey_mesh;
     UnitProto(const glm::vec3& in_pos, const std::vector<CompType>& extension_types={}):
-        ActorProto(in_pos, extension_types),
-        monkey_mesh(std::make_shared<bgfx::Mesh>())
+        ActorProto(in_pos, extension_types)
     {
-        monkey_mesh->load_obj("suzanne.obj" );
         std::vector<CompType> unit_components = {{
                     uint32_t(type_id<CompPhysics>), 
                     uint32_t(type_id<CompBounds>),
@@ -69,13 +66,19 @@ struct UnitProto : public ActorProto
                     uint32_t(type_id<CompAbilityMod>),
                     uint32_t(type_id<CompAttachment>),
                     uint32_t(type_id<CompSkeletalMesh>),
+                    uint32_t(type_id<CompDecal>),
             }};
         append_components(unit_components);
     }
 
     virtual void init(EntityRef entity, SystemInterface* iface) 
     {
+        std::shared_ptr<bgfx::Mesh> monkey_mesh = std::make_shared<bgfx::Mesh>();
+        monkey_mesh->load_obj("sphere.obj" , true);
+        monkey_mesh->set_solid_color(glm::vec4(0.9,0.9,1,1));
         entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 1);
+        entity.cmp<CompDecal>()->decal.type = 5;
+        entity.cmp<CompDecal>()->decal.radius = 1.0;
         entity.cmp<CompPhysics>()->has_collision = false;
         entity.cmp<CompPhysics>()->has_gravity = false;
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
@@ -91,6 +94,7 @@ struct UnitProto : public ActorProto
         entity.cmp<CompStaticMesh>()->mesh.set_material(box_mat);
         entity.cmp<CompStaticMesh>()->mesh.set_id(entity.get_id());
         entity.cmp<CompPosition>()->pos = glm::vec3(20,20,45);
+        entity.cmp<CompPosition>()->scale = glm::vec3(0.25);
         entity.cmp<CompHealth>()->health_percentage = 100;
         entity.cmp<CompMana>()->mana_percentage = 100;
         entity.cmp<CompStat>()->set_stat(Stat::MaxHealth, 200);
@@ -107,7 +111,14 @@ struct UnitProto : public ActorProto
         entity.cmp<CompBounty>()->exp_bounty = 300;
 
         legs_init(entity, iface);
-
+        auto skeleton_visual = iface->add_entity_with_components(std::vector<uint32_t>{uint32_t(type_id<CompLineObject>)});
+        auto line_mesh = std::make_shared<bgfx::Mesh>();
+        auto* mesh = skeleton_visual.cmp<CompLineObject>();
+        mesh->mesh.strip = false;
+        mesh->mesh.set_mesh(line_mesh);
+        entity.cmp<CompSkeletalMesh>()->skeleton_lines = skeleton_visual;
+        skeleton_visual.cmp<CompLineObject>()->visible = false;
+        //mesh->mesh.set_id(100);
 /*
         JumpAbilityProto speed_boost_proto;
         auto test_ability = iface->add_entity_from_proto(&speed_boost_proto);
@@ -240,6 +251,10 @@ struct JuggernautProto : public UnitProto
     virtual void init(EntityRef entity, SystemInterface* iface) override
     {
         UnitProto::init(entity, iface);
+        auto monkey_meshs = std::make_shared<bgfx::Mesh>();
+        monkey_meshs->load_obj("sphere.obj" );
+        monkey_meshs->set_solid_color(glm::vec4(0.8,0.7,0.1,1));
+        entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_meshs);
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
@@ -262,6 +277,11 @@ struct CrystalMaidenProto : public UnitProto
     virtual void init(EntityRef entity, SystemInterface* iface) override
     {
         UnitProto::init(entity, iface);
+        auto monkey_meshs = std::make_shared<bgfx::Mesh>();
+        monkey_meshs->load_obj("sphere.obj" );
+        monkey_meshs->set_solid_color(glm::vec4(0.3,0.3,0.9,1));
+        entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_meshs);
+
         entity.cmp<CompTeam>()->team = 2;
         auto ranged_attack_proto = std::make_shared<AttackAbilityProto>(entity);
         entity.cmp<CompAttacker>()->attack_ability = iface->add_entity_from_proto(ranged_attack_proto.get());
@@ -304,7 +324,7 @@ struct EnemyUnitProto : public UnitProto
         UnitProto(in_pos, extension_types),
         monkey_mesh(std::make_shared<bgfx::Mesh>())
     {
-        monkey_mesh->load_obj("skull.obj" );
+        monkey_mesh->load_obj("skull.obj" , true);
         std::vector<CompType> unit_components = {{
             uint32_t(type_id<CompBasicEnemyAI>),           
         }};
@@ -315,10 +335,14 @@ struct EnemyUnitProto : public UnitProto
     {
         UnitProto::init(entity, iface);
 
+        std::shared_ptr<bgfx::Mesh> sphere_mesh = std::make_shared<bgfx::Mesh>();
+        sphere_mesh->load_obj("sphere.obj" , true);
+        sphere_mesh->set_solid_color(glm::vec4(0.9,0.1,0.05,1));
+
         entity.cmp<CompPosition>()->scale = glm::vec3(1.2, 1.2, 1.2);
         entity.cmp<CompPhysics>()->has_collision = false;
         entity.cmp<CompPhysics>()->has_gravity = false;
-        entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
+        entity.cmp<CompStaticMesh>()->mesh.set_mesh(sphere_mesh);
 
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompBasicEnemyAI>()->vision_range = 15;
@@ -341,7 +365,7 @@ struct EnemyUnitProto2 : public UnitProto
         UnitProto(in_pos, extension_types),
         monkey_mesh(std::make_shared<bgfx::Mesh>())
     {
-        monkey_mesh->load_obj("skull.obj" );
+        monkey_mesh->load_obj("skull.obj" , true);
         std::vector<CompType> unit_components = {{
             uint32_t(type_id<CompBasicEnemyAI>),           
         }};
@@ -352,10 +376,14 @@ struct EnemyUnitProto2 : public UnitProto
     {
         UnitProto::init(entity, iface);
 
-        entity.cmp<CompPosition>()->scale = glm::vec3(1.2, 1.2, 1.2);
+        std::shared_ptr<bgfx::Mesh> sphere_mesh = std::make_shared<bgfx::Mesh>();
+        sphere_mesh->load_obj("sphere.obj" , true);
+        sphere_mesh->set_solid_color(glm::vec4(0.9,0.1,0.05,1));
+
+        //entity.cmp<CompPosition>()->scale = glm::vec3(1.2, 1.2, 1.2);
         entity.cmp<CompPhysics>()->has_collision = false;
         entity.cmp<CompPhysics>()->has_gravity = false;
-        entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
+        entity.cmp<CompStaticMesh>()->mesh.set_mesh(sphere_mesh);
 
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompBasicEnemyAI>()->vision_range = 15;

@@ -25,6 +25,7 @@
 #include "ice_shards.h"
 #include "character_type_component.h"
 #include "skeletal_mesh_component.h"
+#include "hud_control_component.h"
 
 class BaseLevel : public Level
 {
@@ -37,6 +38,8 @@ public:
     virtual void level_init() override
     {
 
+        auto& hud_control = get_array<CompHudControl>()[0];
+        hud_control.hud_enabled = true;
 
         auto cube_mesh = std::make_shared<bgfx::Mesh>();
         cube_mesh->load_obj("cube.obj");
@@ -104,6 +107,9 @@ public:
             //auto skeleton_entity = c->add_entity_from_proto(skeleton_proto.get());
             //skeleton_entity.cmp<CompAttachment>()->attached_entities.push_back(player);
         }
+        auto& camera = get_array<CompCamera>()[0];
+        camera.graphics_camera.set_position(glm::vec3(50.0f, 50, 50));
+        camera.graphics_camera.set_look_target(glm::vec3(38,38,25));
 
     }
 

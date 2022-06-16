@@ -4,6 +4,7 @@
 #include "status_manager.h"
 #include "keystate_component.h"
 #include "mana_component.h"
+#include "hud_control_component.h"
 
 class SysMainPlayerHud : public GuiSystem
 {
@@ -17,25 +18,29 @@ public:
 
     virtual void update_gui(double dt) override
     {
+        auto& hud_control = get_array<CompHudControl>()[0];
         auto& selected_entities = get_array<CompSelectedObjects>();
-        if (selected_entities.size())
+        if (hud_control.hud_enabled)
         {
-            int my_team = 0;
-            if (selected_entities[0].selected_objects.size())
+            if (selected_entities.size())
             {
-                auto selected_entity = selected_entities[0].selected_objects[0];
-                if (selected_entity.is_valid())
+                int my_team = 0;
+                if (selected_entities[0].selected_objects.size())
                 {
-                    if (auto* team_comp = selected_entity.cmp<CompTeam>())
+                    auto selected_entity = selected_entities[0].selected_objects[0];
+                    if (selected_entity.is_valid())
                     {
-                        my_team = team_comp->team;
+                        if (auto* team_comp = selected_entity.cmp<CompTeam>())
+                        {
+                            my_team = team_comp->team;
+                        }
+                        update_statuses(selected_entity);
+                        update_abilities_and_health(selected_entity);
+                        update_inventory(selected_entity);
                     }
-                    update_statuses(selected_entity);
-                    update_abilities_and_health(selected_entity);
-                    update_inventory(selected_entity);
                 }
+                update_health_bars(my_team);
             }
-            update_health_bars(my_team);
         }
         update_fps_display();
     }
