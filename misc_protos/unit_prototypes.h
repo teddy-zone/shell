@@ -253,7 +253,7 @@ struct JuggernautProto : public UnitProto
         UnitProto::init(entity, iface);
         auto monkey_meshs = std::make_shared<bgfx::Mesh>();
         monkey_meshs->load_obj("sphere.obj" );
-        monkey_meshs->set_solid_color(glm::vec4(0.8,0.7,0.1,1));
+        monkey_meshs->set_solid_color_by_hex(0xFFBA08);
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_meshs);
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
@@ -337,7 +337,7 @@ struct EnemyUnitProto : public UnitProto
 
         std::shared_ptr<bgfx::Mesh> sphere_mesh = std::make_shared<bgfx::Mesh>();
         sphere_mesh->load_obj("sphere.obj" , true);
-        sphere_mesh->set_solid_color(glm::vec4(0.9,0.1,0.05,1));
+        sphere_mesh->set_solid_color_by_hex(0xD00000);
 
         entity.cmp<CompPosition>()->scale = glm::vec3(1.2, 1.2, 1.2);
         entity.cmp<CompPhysics>()->has_collision = false;

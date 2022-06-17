@@ -108,13 +108,16 @@ public:
 
         auto landscape_mesh = std::make_shared<bgfx::Mesh>();
         landscape_mesh->load_obj("basic_level.obj", true);
-        landscape_mesh->set_solid_color(glm::vec3(0.2,0.4,0.05)); 
+        landscape_mesh->set_solid_color_by_hex(0x46835D);
+        //landscape_mesh->set_solid_color_by_hex(0xD00000);
+        //landscape_mesh->set_solid_color(glm::vec3(0,1,0));
         auto* lmesh = player2.cmp<CompStaticMesh>();
         lmesh->mesh.set_mesh(landscape_mesh);
-        lmesh->mesh.set_id(1);
+        lmesh->mesh.set_id(-1);
         player2.cmp<CompVoice>()->sounds["music"] = music_sound;
         lmesh->mesh.set_material(box_mat);
         player2.set_name("LevelMesh" + std::to_string(player2.get_id()));
+
 
         
         //lmesh->mesh.set_scale(glm::vec3(5, 5, 1.0));
@@ -126,6 +129,31 @@ public:
         bounds->set_bounds(lmesh->mesh.get_mesh()->_bmax - lmesh->mesh.get_mesh()->_bmin);
         bounds->insert_size = 5.0;
         pos->pos = glm::vec3(1,1,1);
+
+        EntityRef ground = c->add_entity_with_components({ uint32_t(type_id<CompPhysics>),
+                    uint32_t(type_id<CompPosition>),
+                    uint32_t(type_id<CompStaticMesh>),
+                    uint32_t(type_id<CompBounds>),
+            });
+        bounds = ground.cmp<CompBounds>();
+        pos = ground.cmp<CompPosition>();
+
+        auto ground_mesh = std::make_shared<bgfx::Mesh>();
+        ground_mesh->load_obj("ground.obj", true);
+        ground_mesh->set_solid_color_by_hex(0x664900);
+        //landscape_mesh->set_solid_color_by_hex(0xD00000);
+        //landscape_mesh->set_solid_color(glm::vec3(0,1,0));
+        lmesh = ground.cmp<CompStaticMesh>();
+        lmesh->mesh.set_mesh(ground_mesh);
+        lmesh->mesh.set_id(-1);
+        ground.set_name("Ground" + std::to_string(ground.get_id()));
+        auto ground_tri_oct_comp = octree::vector_to_octree(lmesh->mesh.get_mesh()->_saved_vertices, lmesh->mesh.get_mesh()->_bmin, lmesh->mesh.get_mesh()->_bmax);
+        lmesh->tri_octree = ground_tri_oct_comp;
+        bounds->is_static = true;
+        bounds->set_bounds(lmesh->mesh.get_mesh()->_bmax - lmesh->mesh.get_mesh()->_bmin);
+        bounds->insert_size = 5.0;
+        pos->pos = glm::vec3(1,1,8);
+
         
         for (int i = 0; i < 0; ++i)
         {
