@@ -98,7 +98,7 @@ public:
         lmesh->mesh.set_material(box_mat);
         
         //lmesh->mesh.set_scale(glm::vec3(5, 5, 1.0));
-        auto tri_oct_comp = octree::vector_to_octree(lmesh->mesh.get_mesh()->_saved_vertices, lmesh->mesh.get_mesh()->_bmin, lmesh->mesh.get_mesh()->_bmax);
+        auto tri_oct_comp = octree::vector_to_octree(lmesh->mesh.get_mesh()->_octree_vertices, lmesh->mesh.get_mesh()->_bmin, lmesh->mesh.get_mesh()->_bmax);
         lmesh->tri_octree = tri_oct_comp;
 
         bounds->is_static = true;

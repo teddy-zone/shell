@@ -37,6 +37,8 @@ struct DashProjectileProto : public EntityProto
                     uint32_t(type_id<CompAttachment>),
                     uint32_t(type_id<CompHasOwner>),
                     uint32_t(type_id<CompTeam>),
+                    uint32_t(type_id<CompStaticMesh>),
+                    uint32_t(type_id<CompOnCast>),
             }};
         append_components(unit_components);
     }
@@ -47,6 +49,24 @@ struct DashProjectileProto : public EntityProto
         entity.cmp<CompProjectile>()->constant_height = 1.0;
         entity.cmp<CompLifetime>()->lifetime = 1.2;
         entity.cmp<CompPhysics>()->has_collision = false;
+
+        auto dash_mesh = std::make_shared<bgfx::Mesh>();
+        dash_mesh->load_obj("dash.obj");
+        entity.cmp<CompStaticMesh>()->mesh.set_mesh(dash_mesh);
+        entity.cmp<CompStaticMesh>()->mesh.get_mesh()->set_solid_color(glm::vec4(1, 1, 1, 1));
+
+        entity.cmp<CompOnCast>()->on_cast_callbacks.push_back(
+            [](SystemInterface* iface,
+                EntityRef caster,
+                std::optional<glm::vec3> ground_target,
+                std::optional<EntityRef> unit_target,
+                std::optional<EntityRef> instance_entity)
+            {
+                if (instance_entity)
+                {
+                    
+                }
+            });
     }
 };
 
@@ -78,6 +98,7 @@ public:
         entity.cmp<CompAbility>()->ground_targeted = true;
         entity.cmp<CompAbility>()->ability_name = "Dash";
         entity.cmp<CompAbility>()->radius = 5;
+        entity.cmp<CompAbility>()->animation = "dash";
         entity.cmp<CompOnCast>()->on_cast_callbacks.push_back(
             [status_entity](SystemInterface* iface, EntityRef caster, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
             {
@@ -92,6 +113,11 @@ public:
                 if (instance_entity)
                 {
                     instance_entity.value().cmp<CompAttachment>()->attached_entities.push_back(caster);
+
+                    auto* instance_pos = instance_entity.value().cmp<CompPosition>();
+                    auto move_dir = glm::normalize(ground_target.value() - caster.cmp<CompPosition>()->pos);
+                    auto move_angle = atan2(move_dir.y, move_dir.x);
+                    instance_pos->rot = glm::rotate(float(move_angle + 3.14159f), glm::vec3(0.0f, 0.0f, 1.0f));
                 }
             }
         );

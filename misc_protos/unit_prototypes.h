@@ -29,6 +29,7 @@
 #include "cask.h"
 #include "ice_shards.h"
 #include "skeletal_mesh_component.h"
+#include "skeletal_animation_system.h"
 #include "basic_enemy_ai_component.h"
 #include "materials/box_mat/VertexShader.glsl.h"
 #include "materials/box_mat/FragmentShader.glsl.h"
@@ -65,7 +66,7 @@ struct UnitProto : public ActorProto
                     uint32_t(type_id<CompVisionAffected>),
                     uint32_t(type_id<CompAbilityMod>),
                     uint32_t(type_id<CompAttachment>),
-                    uint32_t(type_id<CompSkeletalMesh>),
+                    uint32_t(type_id<CompSkeletalMeshNew>),
                     uint32_t(type_id<CompDecal>),
             }};
         append_components(unit_components);
@@ -116,8 +117,32 @@ struct UnitProto : public ActorProto
         auto* mesh = skeleton_visual.cmp<CompLineObject>();
         mesh->mesh.strip = false;
         mesh->mesh.set_mesh(line_mesh);
-        entity.cmp<CompSkeletalMesh>()->skeleton_lines = skeleton_visual;
-        skeleton_visual.cmp<CompLineObject>()->visible = false;
+        entity.cmp<CompSkeletalMeshNew>()->mesh = skeleton_visual;
+        entity.cmp<CompSkeletalMeshNew>()->animations["walk"] = 
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+            {
+                walk_two_leg_animation(skeleton, dt, iface, 15.0, 0.8, 0.3);
+            }
+        ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["idle"] = 
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+            {
+                idle_two_leg_animation(skeleton, dt, iface, 10.0);
+            }
+        ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["default_cast_point"] = 
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+            {
+                cast_point_two_leg_animation(skeleton, dt, iface, 10.0);
+            }
+        ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["dash"] =
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+        {
+            dash_animation(skeleton, dt, iface, 10.0);
+        }
+        ;
+        //skeleton_visual.cmp<CompLineObject>()->visible = false;
         //mesh->mesh.set_id(100);
 /*
         JumpAbilityProto speed_boost_proto;
@@ -311,7 +336,6 @@ struct TuskProto : public UnitProto
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompHasOwner>()->owner = entity;
         entity.set_name("Tusk" + std::to_string(entity.get_id()));
-        entity.cmp<CompSkeletalMesh>()->leg_color = glm::vec3(0.02,0.02, 1.0);
     }
 };
 

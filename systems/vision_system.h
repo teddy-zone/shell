@@ -63,7 +63,7 @@ public:
             }
             if (auto* eye_pos_comp = eye.sibling<CompPosition>())
             {
-                if (eye_team == my_team)
+                if (eye_team == my_team && 0)
                 {
                     constexpr float PI = 3.1415926;
                     const int num_evenly_spaced_rays = 50;

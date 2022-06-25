@@ -93,7 +93,7 @@ struct AttackSlashProto : public ActorProto
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(sphere_mesh);
         entity.cmp<CompStaticMesh>()->mesh.get_mesh()->set_solid_color(glm::vec4(1,0,0,1));
         entity.cmp<CompPosition>()->scale = glm::vec3(0.2,0.2,0.2);
-        entity.cmp<CompLifetime>()->lifetime = 0.4;
+        entity.cmp<CompLifetime>()->lifetime = 0.3;
     }
 };
 

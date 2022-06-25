@@ -26,7 +26,7 @@ public:
                 {
                     if (nav_comp)
                     {
-                        nav_comp->stop();
+                        nav_comp->stop(_interface->get_current_game_time());
                     }
                     continue;
                 }
@@ -110,7 +110,7 @@ public:
                 {
                     if (nav_comp)
                     {
-                        nav_comp->stop();
+                        nav_comp->stop(_interface->get_current_game_time());
                     }
                     command_component.command_queue.pop_back();
                     command_component.new_command = true;

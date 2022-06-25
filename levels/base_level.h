@@ -102,6 +102,8 @@ public:
                 comp_selected_objects.selected_objects.resize(1);
                 comp_selected_objects.selected_objects[0] = player;
             }
+            player.cmp<CompSkeletalMeshNew>()->current_animation = "idle";
+            player.cmp<CompSkeletalMeshNew>()->facing_vector = glm::vec3(1,0,0);
 
             //auto skeleton_proto = std::make_shared<SkeletonProto>();
             //auto skeleton_entity = c->add_entity_from_proto(skeleton_proto.get());

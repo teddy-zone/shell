@@ -60,11 +60,11 @@ public:
         auto c = _interface;
 
 
-        LightEntityProto light_proto(glm::vec3(10,200,50));
+        LightEntityProto light_proto(glm::vec3(100,100,60));
         auto light_entity = c->add_entity_from_proto(&light_proto);
 
-        LightEntityProto light_proto2(glm::vec3(150, 10, 50));
-        auto light_entity2 = c->add_entity_from_proto(&light_proto2);
+        //LightEntityProto light_proto2(glm::vec3(150, 10, 50));
+        //auto light_entity2 = c->add_entity_from_proto(&light_proto2);
 
         ShopProto shop_proto(glm::vec3(1,1,40));
         auto shopkeeper = c->add_entity_from_proto(static_cast<EntityProto*>(&shop_proto));
@@ -121,7 +121,7 @@ public:
 
         
         //lmesh->mesh.set_scale(glm::vec3(5, 5, 1.0));
-        auto tri_oct_comp = octree::vector_to_octree(lmesh->mesh.get_mesh()->_saved_vertices, lmesh->mesh.get_mesh()->_bmin, lmesh->mesh.get_mesh()->_bmax);
+        auto tri_oct_comp = octree::vector_to_octree(lmesh->mesh.get_mesh()->_octree_vertices, lmesh->mesh.get_mesh()->_bmin, lmesh->mesh.get_mesh()->_bmax);
         lmesh->tri_octree = tri_oct_comp;
 
         bounds->is_static = true;
@@ -147,7 +147,7 @@ public:
         lmesh->mesh.set_mesh(ground_mesh);
         lmesh->mesh.set_id(-1);
         ground.set_name("Ground" + std::to_string(ground.get_id()));
-        auto ground_tri_oct_comp = octree::vector_to_octree(lmesh->mesh.get_mesh()->_saved_vertices, lmesh->mesh.get_mesh()->_bmin, lmesh->mesh.get_mesh()->_bmax);
+        auto ground_tri_oct_comp = octree::vector_to_octree(lmesh->mesh.get_mesh()->_octree_vertices, lmesh->mesh.get_mesh()->_bmin, lmesh->mesh.get_mesh()->_bmax);
         lmesh->tri_octree = ground_tri_oct_comp;
         bounds->is_static = true;
         bounds->set_bounds(lmesh->mesh.get_mesh()->_bmax - lmesh->mesh.get_mesh()->_bmin);
