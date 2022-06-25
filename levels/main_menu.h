@@ -211,7 +211,7 @@ public:
             light_ref2.cmp<CompPointLight>()->light.intensity = 0.001;
             light_ref2.cmp<CompPointLight>()->light.color = glm::vec4(0.6,0.6,1.0,1.0);
 
-            auto move_dir = active_entity.cmp<CompSkeletalMesh>()->walk_direction;
+            auto move_dir = active_entity.cmp<CompSkeletalMeshNew>()->facing_vector;
             move_dir = glm::normalize(move_dir);
             auto move_angle = atan2(move_dir.y, move_dir.x);
             active_entity.cmp<CompPosition>()->rot = glm::rotate(float(move_angle + 3.14159f/2), glm::vec3(0.0f,0.0f,1.0f));
@@ -252,9 +252,9 @@ public:
             status_comp.button_status[char_name] = false;
             status_comp.character_protos[char_name] = proto;
             ent.cmp<CompTeam>()->team = 1;
-            ent.cmp<CompPosition>()->pos = glm::vec3(0);
-            ent.cmp<CompSkeletalMesh>()->walking = true;
-            ent.cmp<CompSkeletalMesh>()->walk_direction = glm::vec3(1,0,0);
+            ent.cmp<CompPosition>()->pos = glm::vec3(10);
+            ent.cmp<CompSkeletalMeshNew>()->current_animation = "idle";
+            ent.cmp<CompSkeletalMeshNew>()->facing_vector = glm::vec3(1,0,0);
         }
 
         auto& camera = get_array<CompCamera>()[0];

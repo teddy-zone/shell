@@ -55,6 +55,7 @@ struct CompAbility : public Component
     int max_level;
     int mana_cost;
     std::string ability_name;
+    std::optional<std::string> animation = "default_cast_point";
     TargetDecalType target_decal_type;
     float radius;
     float angle;
