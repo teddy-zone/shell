@@ -142,6 +142,12 @@ struct UnitProto : public ActorProto
             dash_animation(skeleton, dt, iface, 10.0);
         }
         ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["sleep"] =
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+        {
+            sleep_two_leg_animation(skeleton, dt, iface, 2.0);
+        }
+        ;
         //skeleton_visual.cmp<CompLineObject>()->visible = false;
         //mesh->mesh.set_id(100);
 /*

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <random>
 #include "level.h"
 #include "gui_system.h"
 #include "widget_component.h"
@@ -202,14 +203,19 @@ public:
             }
 
             auto& camera = get_array<CompCamera>()[0];
-            camera.graphics_camera.set_position(active_entity.cmp<CompPosition>()->pos*glm::vec3(1,0,0) + glm::vec3(10,-1,2));
-            camera.graphics_camera.set_look_target(active_entity.cmp<CompPosition>()->pos*glm::vec3(1,0,0) + glm::vec3(0,0,2));
-            light_ref.cmp<CompPointLight>()->light.location.x = camera.graphics_camera.get_position().x;
-            light_ref.cmp<CompPointLight>()->light.intensity = 0.02;
+            camera.graphics_camera.set_position(active_entity.cmp<CompPosition>()->pos*glm::vec3(1,1,0) - glm::vec3(10,-1,-2));
+            camera.graphics_camera.set_position(active_entity.cmp<CompPosition>()->pos*glm::vec3(1,1,0) - glm::vec3(4,-1,-0.5));
+            camera.graphics_camera.set_look_target(active_entity.cmp<CompPosition>()->pos*glm::vec3(1,1,0) + glm::vec3(0,0,2));
 
-            light_ref2.cmp<CompPointLight>()->light.location.x = camera.graphics_camera.get_position().x-5;
-            light_ref2.cmp<CompPointLight>()->light.intensity = 0.001;
-            light_ref2.cmp<CompPointLight>()->light.color = glm::vec4(0.6,0.6,1.0,1.0);
+            light_ref.cmp<CompPointLight>()->light.location = glm::vec4(active_entity.cmp<CompPosition>()->pos + glm::vec3(0,5,5), 0);//camera.graphics_camera.get_position().x;
+            light_ref.cmp<CompPointLight>()->light.location.z = 0.1;
+            float phase = std::rand()*2.0*3.14159/RAND_MAX;
+            light_ref.cmp<CompPointLight>()->light.intensity = 0.0015 + 0.0005*sin(_interface->get_current_game_time()*2.0 + 0.01*phase) + 0.0001*sin(_interface->get_current_game_time()*5.0 + 0.1*phase);
+            light_ref.cmp<CompPointLight>()->light.color = glm::vec4(1.0,0.5,0.2,1.0);
+
+            light_ref2.cmp<CompPointLight>()->light.location = glm::vec4(glm::vec3(5,5,5), 0);
+            light_ref2.cmp<CompPointLight>()->light.intensity = 0.0015;
+            light_ref2.cmp<CompPointLight>()->light.color = glm::vec4(0.2,0.2,1.0,1.0);
 
             auto move_dir = active_entity.cmp<CompSkeletalMeshNew>()->facing_vector;
             move_dir = glm::normalize(move_dir);
@@ -226,6 +232,11 @@ public:
 
     virtual void level_init() override
     {
+        Sound music_sound;
+        music_sound.path = "sounds\\main_theme.wav";
+        music_sound.loop = true;
+        music_sound.trigger = true;
+        music_sound.range = 100;
 
         auto& hud_control = get_array<CompHudControl>()[0];
         hud_control.hud_enabled = false;
@@ -253,12 +264,68 @@ public:
             status_comp.character_protos[char_name] = proto;
             ent.cmp<CompTeam>()->team = 1;
             ent.cmp<CompPosition>()->pos = glm::vec3(10);
-            ent.cmp<CompSkeletalMeshNew>()->current_animation = "idle";
-            ent.cmp<CompSkeletalMeshNew>()->facing_vector = glm::vec3(1,0,0);
+            ent.cmp<CompSkeletalMeshNew>()->set_animation("sleep", _interface->get_current_game_time());
+            ent.cmp<CompSkeletalMeshNew>()->facing_vector = glm::normalize(glm::vec3(1,-1,0));
         }
 
         auto& camera = get_array<CompCamera>()[0];
         camera.graphics_camera.set_position(glm::vec3(10,10,10));
         camera.graphics_camera.set_look_target(glm::vec3(0));
+
+        EntityRef ground = _interface->add_entity_with_components({ uint32_t(type_id<CompPhysics>),
+                    uint32_t(type_id<CompPosition>),
+                    uint32_t(type_id<CompStaticMesh>),
+                    uint32_t(type_id<CompBounds>),
+                    uint32_t(type_id<CompVoice>),
+                    uint32_t(type_id<CompPickupee>)
+            });
+        auto* bounds = ground.cmp<CompBounds>();
+        auto* pos = ground.cmp<CompPosition>();
+
+        auto landscape_mesh = std::make_shared<bgfx::Mesh>();
+        landscape_mesh->load_obj("menu_land.obj", true);
+        landscape_mesh->set_solid_color_by_hex(0x46835D);
+        auto* lmesh = ground.cmp<CompStaticMesh>();
+        lmesh->mesh.set_mesh(landscape_mesh);
+        lmesh->mesh.set_id(-1);
+        ground.cmp<CompVoice>()->sounds["music"] = music_sound;
+        ground.set_name("LevelMesh" + std::to_string(ground.get_id()));
+        
+        //lmesh->mesh.set_scale(glm::vec3(5, 5, 1.0));
+        auto tri_oct_comp = octree::vector_to_octree(lmesh->mesh.get_mesh()->_octree_vertices, lmesh->mesh.get_mesh()->_bmin, lmesh->mesh.get_mesh()->_bmax);
+        lmesh->tri_octree = tri_oct_comp;
+
+        bounds->is_static = true;
+
+        bounds->set_bounds(lmesh->mesh.get_mesh()->_bmax - lmesh->mesh.get_mesh()->_bmin);
+        bounds->insert_size = 5.0;
+        //pos->pos = glm::vec3(1,1,1);
+        //pos->scale = glm::vec3(50);
+        //pos->pos= glm::vec3(10,10,0);
+
+        EntityRef rocks = _interface->add_entity_with_components({ 
+                    uint32_t(type_id<CompPosition>),
+                    uint32_t(type_id<CompStaticMesh>),
+                    uint32_t(type_id<CompBounds>),
+                    uint32_t(type_id<CompPhysics>),
+            });
+        auto* rock_pos = rocks.cmp<CompPosition>();
+        auto* rock_bounds = rocks.cmp<CompBounds>();
+        auto* rock_physics = rocks.cmp<CompPhysics>();
+        rock_bounds->is_static = true;
+        rock_physics->has_gravity = false;
+        rock_physics->has_collision = false;
+
+        auto rock_mesh = std::make_shared<bgfx::Mesh>();
+        rock_mesh->load_obj("menu_rocks.obj", true);
+        rock_mesh->set_solid_color_by_hex(0x3F88C5);
+        auto* rock_static_mesh = rocks.cmp<CompStaticMesh>();
+        rock_static_mesh->mesh.set_mesh(rock_mesh);
+        rock_static_mesh->mesh.set_id(10121);
+        rocks.set_name("MenuRocks" + std::to_string(rocks.get_id()));
+        rock_pos->pos = glm::vec3(10,9.0,0.2);
+
+        auto rock_tri_oct_comp = octree::vector_to_octree(rock_mesh->_octree_vertices, rock_mesh->_bmin, rock_mesh->_bmax);
+        //rock_static_mesh->tri_octree = tri_oct_comp;
     }
 };
