@@ -39,17 +39,20 @@ public:
     {
         if (first_update)
         {
+            ImGui::PushFont(CompWidget::fonts["default"]);
             current_window_pos = glm::vec2(CompWidget::window_width/2 - main_menu_width/2, CompWidget::window_height/2 - main_menu_height/2);
             first_update = false;
         }
-        anim_t += dt;
+        auto title_window_pos = glm::vec2(CompWidget::window_width/2 - main_menu_width/2, CompWidget::window_height/2 - main_menu_height/2 - 150);
         bool active = true;
+        anim_t += dt;
         ImGui::SetNextWindowPos(ImVec2(current_window_pos.x, current_window_pos.y));
         //ImGui::SetNextWindowSize(ImVec2(main_menu_width, main_menu_width));
         switch (menu_state)
         {
             case MainMenuState::Main:
                 {
+                    draw_title();
                     const auto end_pos = glm::vec2(CompWidget::window_width/2 - main_menu_width/2, CompWidget::window_height/2 - main_menu_height/2);
                     const float animation_length = 0.4;
                     if (anim_t < 0)
@@ -80,6 +83,7 @@ public:
                 break;
             case MainMenuState::CharacterSelect:
                 {
+                    draw_title();
                     auto end_pos = glm::vec2(CompWidget::window_width/2/2 - main_menu_width/2, CompWidget::window_height/2 - main_menu_height/2);
                     const float animation_length = 0.4;
                     if (anim_t < 0)
@@ -140,6 +144,7 @@ public:
                 break;
             case MainMenuState::Options:
                 {
+                    draw_title();
                     ImGui::Begin("Options", &active, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
                     if (ImGui::Button("Back"))
                     {
@@ -157,6 +162,18 @@ public:
                 }
                 break;
         }
+    }
+    void draw_title()
+    {
+        bool active = true;
+        auto title_window_pos = glm::vec2(CompWidget::window_width/2 - main_menu_width/2, CompWidget::window_height/2 - main_menu_height/2 - 150);
+        ImGui::SetNextWindowPos(ImVec2(title_window_pos.x, title_window_pos.y));
+        ImGui::SetNextWindowSize(ImVec2(350, 78));
+        ImGui::PushFont(CompWidget::fonts["swansea"]);
+        ImGui::Begin("Title", &active,  ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+        ImGui::Text("b l u t o");
+        ImGui::PopFont();
+        ImGui::End();
     }
 };
 
@@ -204,7 +221,7 @@ public:
 
             auto& camera = get_array<CompCamera>()[0];
             camera.graphics_camera.set_position(active_entity.cmp<CompPosition>()->pos*glm::vec3(1,1,0) - glm::vec3(10,-1,-2));
-            camera.graphics_camera.set_position(active_entity.cmp<CompPosition>()->pos*glm::vec3(1,1,0) - glm::vec3(4,-1,-0.5));
+            camera.graphics_camera.set_position(active_entity.cmp<CompPosition>()->pos*glm::vec3(1,1,0) - glm::vec3(15,-1,-0.5));
             camera.graphics_camera.set_look_target(active_entity.cmp<CompPosition>()->pos*glm::vec3(1,1,0) + glm::vec3(0,0,2));
 
             light_ref.cmp<CompPointLight>()->light.location = glm::vec4(active_entity.cmp<CompPosition>()->pos + glm::vec3(0,5,5), 0);//camera.graphics_camera.get_position().x;
@@ -252,9 +269,9 @@ public:
         _interface->add_system<SysMainMenu>();
 
         auto& status_comp = get_array<CompMenuStatus>()[0];
-        status_comp.character_protos["Juggernaut"] = jugg_proto;
-        status_comp.character_protos["Tusk"] = tusk_proto;
-        status_comp.character_protos["Crystal Maiden"] = cm_proto;
+        status_comp.character_protos["Geggle"] = jugg_proto;
+        status_comp.character_protos["Moodle"] = tusk_proto;
+        status_comp.character_protos["Bluto"] = cm_proto;
 
         for (auto& [char_name, proto] : status_comp.character_protos)
         {
@@ -284,7 +301,7 @@ public:
 
         auto landscape_mesh = std::make_shared<bgfx::Mesh>();
         landscape_mesh->load_obj("menu_land.obj", true);
-        landscape_mesh->set_solid_color_by_hex(0x46835D);
+        landscape_mesh->set_solid_color_by_hex(0x46835D*0.4);
         auto* lmesh = ground.cmp<CompStaticMesh>();
         lmesh->mesh.set_mesh(landscape_mesh);
         lmesh->mesh.set_id(-1);
@@ -328,4 +345,5 @@ public:
         auto rock_tri_oct_comp = octree::vector_to_octree(rock_mesh->_octree_vertices, rock_mesh->_bmin, rock_mesh->_bmax);
         //rock_static_mesh->tri_octree = tri_oct_comp;
     }
+
 };
