@@ -148,6 +148,12 @@ struct UnitProto : public ActorProto
             sleep_two_leg_animation(skeleton, dt, iface, 2.0);
         }
         ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["stunned"] = 
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+            {
+                stunned_animation(skeleton, dt, iface, 10.0);
+            }
+        ;
         //skeleton_visual.cmp<CompLineObject>()->visible = false;
         //mesh->mesh.set_id(100);
 /*
@@ -268,6 +274,7 @@ struct CommandIndicatorProto : public ActorProto
         entity.cmp<CompAnimation>()->end_time = 0.5;
         entity.cmp<CompAnimation>()->start_scale = glm::vec3(0.7);
         entity.cmp<CompAnimation>()->end_scale = glm::vec3(0.0);
+        entity.cmp<CompAnimation>()->scale_enabled = true;
     }
 };
 
@@ -369,7 +376,7 @@ struct EnemyUnitProto : public UnitProto
         sphere_mesh->load_obj("sphere.obj" , true);
         sphere_mesh->set_solid_color_by_hex(0xD00000);
 
-        entity.cmp<CompPosition>()->scale = glm::vec3(1.2, 1.2, 1.2);
+        //entity.cmp<CompPosition>()->scale = glm::vec3(1.2, 1.2, 1.2);
         entity.cmp<CompPhysics>()->has_collision = false;
         entity.cmp<CompPhysics>()->has_gravity = false;
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(sphere_mesh);
@@ -383,7 +390,7 @@ struct EnemyUnitProto : public UnitProto
         auto is_proto = std::make_shared<AbilityIceShardsProto>();
         entity.cmp<CompAbilitySet>()->abilities[1] = iface->add_entity_from_proto(is_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[1].cmp<CompAbility>()->level = 1;
-        entity.set_name("Enemy" + std::to_string(entity.get_id()));
+        entity.set_name("Enemy2");// +std::to_string(entity.get_id()));
     }
 };
 
@@ -424,6 +431,6 @@ struct EnemyUnitProto2 : public UnitProto
         auto is_proto = std::make_shared<AbilityIceShardsProto>();
         entity.cmp<CompAbilitySet>()->abilities[1] = iface->add_entity_from_proto(is_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[1].cmp<CompAbility>()->level = 1;
-        entity.set_name("Enemy" + std::to_string(entity.get_id()));
+        entity.set_name("Enemy2");// +std::to_string(entity.get_id()));
     }
 };

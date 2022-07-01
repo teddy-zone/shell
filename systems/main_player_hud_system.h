@@ -176,11 +176,11 @@ public:
             {
                 if (stat_comp->get_status_state(StatusState::Stunned))
                 {
-                    ImGui::Text("STUNNED");
+                    //ImGui::Text("STUNNED");
                 }
                 else
                 {
-                    ImGui::Text("NOT STUNNED");
+                    //ImGui::Text("NOT STUNNED");
                 }
             }
             ImGui::End();
