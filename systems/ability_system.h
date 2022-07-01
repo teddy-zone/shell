@@ -255,7 +255,7 @@ public:
                             const float cast_point_done_fraction = caster_component.state_time/ability->backswing;
                             if (auto* skeleton = caster_component.sibling<CompSkeletalMeshNew>())
                             {
-                                skeleton->current_animation = "idle";
+                                skeleton->set_animation("idle", _interface->get_current_game_time());
                                 
                             }
                             if (auto* static_mesh_component = caster_component.sibling<CompStaticMesh>())
@@ -281,7 +281,7 @@ public:
                         {
                             if (auto* skeleton = caster_component.sibling<CompSkeletalMeshNew>())
                             {
-                                skeleton->current_animation = "idle";
+                                //skeleton->set_animation("idle", _interface->get_current_game_time());
                             }
                             if (auto* static_mesh_component = caster_component.sibling<CompStaticMesh>())
                             {

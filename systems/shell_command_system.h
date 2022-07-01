@@ -19,14 +19,19 @@ public:
         for (auto& command_component : command_components)
         {
             auto* nav_comp = command_component.sibling<CompNav>();
+            auto* skeleton = command_component.sibling<CompSkeletalMeshNew>();
             auto* stat_component = command_component.sibling<CompStat>();
             if (stat_component)
             {
                 if (stat_component->get_status_state(StatusState::Stunned))
                 {
+                    if (skeleton)
+                    {
+                        skeleton->set_animation("stunned", _interface->get_current_game_time());
+                    }
                     if (nav_comp)
                     {
-                        nav_comp->stop(_interface->get_current_game_time());
+                        nav_comp->stop(_interface->get_current_game_time(), false);
                     }
                     continue;
                 }

@@ -25,12 +25,25 @@ public:
         {
             if (auto* proto_list_comp = spawn_sensor.sibling<CompSpawnProtoList>())
             {
+                std::vector<EntityRef> to_remove;
                 for (auto& spawned_entity : proto_list_comp->instantiated_entities)
                 {
                     if (!spawned_entity.is_valid())
-                    {
-                        proto_list_comp->instantiated_entities.erase(spawned_entity);
+                    {   
+                        to_remove.push_back(spawned_entity);
                     }
+                    auto spawned_children = spawned_entity.get_children();
+                    for (auto & child : spawned_children)
+                    {
+                        if (child.is_valid())
+                        {
+                            proto_list_comp->instantiated_entities.insert(child);
+                        }
+                    }
+                }
+                for (auto tor : to_remove)
+                {
+                    proto_list_comp->instantiated_entities.erase(tor);
                 }
                 if (proto_list_comp->has_spawned)
                 {
@@ -55,9 +68,20 @@ public:
                         {
                             if (!proto_list_comp->has_spawned)
                             {
+                                auto* spawn_anim = spawn_sensor.sibling<CompSpawnAnimation>();
                                 for (auto& proto : proto_list_comp->protos)
                                 {
-                                    auto new_entity = _interface->add_entity_from_proto(proto.get(), proto_list_comp->get_entity());
+                                    EntityRef new_entity;
+                                    if (!spawn_anim)
+                                    {
+                                        new_entity = _interface->add_entity_from_proto(proto.get(), proto_list_comp->get_entity());
+                                    }
+                                    else
+                                    {
+                                        spawn_anim->animation_proto->to_spawn = proto;
+                                        new_entity = _interface->add_entity_from_proto(spawn_anim->animation_proto.get());
+                                        new_entity.cmp<CompLifetime>()->lifetime = spawn_anim->duration;
+                                    }
                                     proto_list_comp = spawn_sensor.sibling<CompSpawnProtoList>();
                                     proto_list_comp->instantiated_entities.insert(new_entity);
                                     {
@@ -67,8 +91,12 @@ public:
                                             float az = 2*3.1415926*dist(generator);
                                             glm::vec3 offset(radius*cos(az), radius*sin(az), 0);
                                             new_pos_comp->pos = my_pos + offset;
+                                            auto& nav_mesh = get_array<CompNavMesh>()[0];
+                                            new_pos_comp->pos = nav_mesh.nav_mesh->get_closest_point_on_navmesh(new_pos_comp->pos) + glm::vec3(0,0,10);
+                                            std::cout << glm::to_string(new_pos_comp->pos) << "\n";
                                         }
                                     }
+                                    
                                 }
                                 proto_list_comp->has_spawned = true;
                             }
