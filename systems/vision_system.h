@@ -63,17 +63,39 @@ public:
             }
             if (auto* eye_pos_comp = eye.sibling<CompPosition>())
             {
-                if (eye_team == my_team && 0)
+                if (eye_team == my_team)
                 {
+                    glm::vec3 ray_origin = eye_pos_comp->pos;
+                    ray::Ray height_ray = ray::New(eye_pos_comp->pos + glm::vec3(0,0,10), glm::vec3(0,0,-1));
+                    auto height_ray_result = _interface->fire_ray(height_ray, ray::HitType::StaticOnly, 20);
+                    if (height_ray_result)
+                    {
+                        ray_origin.z = height_ray_result.value().hit_point.z + 2;
+                    }
                     constexpr float PI = 3.1415926;
-                    const int num_evenly_spaced_rays = 50;
+                    const int num_evenly_spaced_rays = eye.NumAngles;
                     const float angle_increment = PI*2/num_evenly_spaced_rays;
+                    int index = 0;
                     for (float current_angle = 0; current_angle < PI*2; current_angle += angle_increment)
                     {
                         glm::vec3 ray_dir(cos(current_angle), sin(current_angle), 0);
-                        ray::Ray vision_ray = ray::New(eye_pos_comp->pos, glm::normalize(ray_dir));
+                        ray::Ray vision_ray = ray::New(ray_origin, glm::normalize(ray_dir));
                         auto ray_result = _interface->fire_ray(vision_ray, ray::HitType::StaticOnly, eye.vision_range);
+                        if (ray_result)
+                        {
+                            eye.fow[index] = ray_result.value().t;
+                        }
+                        else
+                        {
+                            eye.fow[index] = eye.vision_range;
+                        }
+                        index++;
                     }
+                    eye.do_display = true;
+                }
+                else
+                {
+                    eye.do_display = false;
                 }
 
                 auto entities_in_range = _interface->data_within_sphere_selective(eye_pos_comp->pos, eye.vision_range, {uint32_t(type_id<CompVisionAffected>)}); 
