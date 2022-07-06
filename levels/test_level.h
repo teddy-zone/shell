@@ -62,6 +62,11 @@ public:
 
         LightEntityProto light_proto(glm::vec3(100,100,60));
         auto light_entity = c->add_entity_from_proto(&light_proto);
+        light_entity.cmp<CompPointLight>()->light.intensity = 0.15;
+
+        LightEntityProto light_proto2(glm::vec3(40, 40, 40));
+        auto light_entity2 = c->add_entity_from_proto(&light_proto2);
+        light_entity2.cmp<CompPointLight>()->light.intensity = 0.03;
 
         //LightEntityProto light_proto2(glm::vec3(150, 10, 50));
         //auto light_entity2 = c->add_entity_from_proto(&light_proto2);
@@ -107,8 +112,9 @@ public:
         auto* pos = player2.cmp<CompPosition>();
 
         auto landscape_mesh = std::make_shared<bgfx::Mesh>();
-        landscape_mesh->load_obj("basic_level.obj", true);
-        landscape_mesh->set_solid_color_by_hex(0x46835D);
+        landscape_mesh->load_obj("pool.obj", true);
+        //landscape_mesh->set_solid_color_by_hex(0x46835D);
+        
         //landscape_mesh->set_solid_color_by_hex(0xD00000);
         //landscape_mesh->set_solid_color(glm::vec3(0,1,0));
         auto* lmesh = player2.cmp<CompStaticMesh>();
@@ -130,6 +136,7 @@ public:
         bounds->insert_size = 5.0;
         pos->pos = glm::vec3(1,1,1);
 
+        /*
         EntityRef ground = c->add_entity_with_components({ uint32_t(type_id<CompPhysics>),
                     uint32_t(type_id<CompPosition>),
                     uint32_t(type_id<CompStaticMesh>),
@@ -153,6 +160,7 @@ public:
         bounds->set_bounds(lmesh->mesh.get_mesh()->_bmax - lmesh->mesh.get_mesh()->_bmin);
         bounds->insert_size = 5.0;
         pos->pos = glm::vec3(1,1,8);
+        */
 
         
         for (int i = 0; i < 0; ++i)
@@ -226,11 +234,11 @@ public:
         spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
 
         auto spawner2 = c->add_entity_from_proto(spawner_proto.get());
-        spawner2.cmp<CompPosition>()->pos = glm::vec3(50,50,7);
+        spawner2.cmp<CompPosition>()->pos = glm::vec3(50,50,15);
         spawner2.cmp<CompActuatorDetector>()->actuator = radial_actuator2;
-        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
-        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
-        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
+        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
 
         auto mod_proto = std::make_shared<AbilityModStationProto>(glm::vec3(0));
         auto mod_spawner_proto = std::make_shared<SpawnerProto>(glm::vec3(0));
