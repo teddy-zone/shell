@@ -39,7 +39,7 @@ public:
     {
         if (first_update)
         {
-            ImGui::PushFont(CompWidget::fonts["default"]);
+            //ImGui::PushFont(CompWidget::fonts["default"]);
             current_window_pos = glm::vec2(CompWidget::window_width/2 - main_menu_width/2, CompWidget::window_height/2 - main_menu_height/2);
             first_update = false;
         }

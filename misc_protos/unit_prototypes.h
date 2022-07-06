@@ -390,7 +390,7 @@ struct EnemyUnitProto : public UnitProto
         auto is_proto = std::make_shared<AbilityIceShardsProto>();
         entity.cmp<CompAbilitySet>()->abilities[1] = iface->add_entity_from_proto(is_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[1].cmp<CompAbility>()->level = 1;
-        entity.set_name("Enemy2");// +std::to_string(entity.get_id()));
+        entity.set_name("Enemy");// +std::to_string(entity.get_id()));
     }
 };
 
