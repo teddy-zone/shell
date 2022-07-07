@@ -154,6 +154,28 @@ struct UnitProto : public ActorProto
                 stunned_animation(skeleton, dt, iface, 10.0);
             }
         ;
+
+        for (int i = 0; i < 5; ++i)
+        {
+            Sound footstep_sound;
+            footstep_sound.path = "sounds/footsteps/concrete/concrete" + std::to_string(i+1) + ".wav";
+            footstep_sound.loop = false;
+            footstep_sound.trigger = false;
+            footstep_sound.range = 100;
+            footstep_sound.volume = 0.25;
+            entity.cmp<CompVoice>()->sounds["walk_concrete" + std::to_string(i+1)] = footstep_sound;
+        }
+
+        for (int i = 0; i < 5; ++i)
+        {
+            Sound footstep_sound;
+            footstep_sound.path = "sounds/footsteps/snow/snow" + std::to_string(i+1) + ".wav";
+            footstep_sound.loop = false;
+            footstep_sound.trigger = false;
+            footstep_sound.range = 100;
+            footstep_sound.volume = 0.25;
+            entity.cmp<CompVoice>()->sounds["walk_snow" + std::to_string(i+1)] = footstep_sound;
+        }
         //skeleton_visual.cmp<CompLineObject>()->visible = false;
         //mesh->mesh.set_id(100);
 /*
@@ -414,8 +436,8 @@ struct EnemyUnitProto2 : public UnitProto
         UnitProto::init(entity, iface);
 
         std::shared_ptr<bgfx::Mesh> sphere_mesh = std::make_shared<bgfx::Mesh>();
-        sphere_mesh->load_obj("sphere.obj" , true);
-        sphere_mesh->set_solid_color(glm::vec4(0.9,0.1,0.05,1));
+        sphere_mesh->load_obj("pyramid.obj" , true);
+        sphere_mesh->set_solid_color_by_hex(0xD00000);
 
         //entity.cmp<CompPosition>()->scale = glm::vec3(1.2, 1.2, 1.2);
         entity.cmp<CompPhysics>()->has_collision = false;
