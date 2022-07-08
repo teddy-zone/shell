@@ -176,6 +176,7 @@ struct UnitProto : public ActorProto
             footstep_sound.volume = 0.25;
             entity.cmp<CompVoice>()->sounds["walk_snow" + std::to_string(i+1)] = footstep_sound;
         }
+
         //skeleton_visual.cmp<CompLineObject>()->visible = false;
         //mesh->mesh.set_id(100);
 /*
