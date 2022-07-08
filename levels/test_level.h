@@ -238,7 +238,7 @@ public:
         spawner2.cmp<CompActuatorDetector>()->actuator = radial_actuator2;
         spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
         spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
-        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
 
         auto mod_proto = std::make_shared<AbilityModStationProto>(glm::vec3(0));
         auto mod_spawner_proto = std::make_shared<SpawnerProto>(glm::vec3(0));
