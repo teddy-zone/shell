@@ -8,8 +8,8 @@ struct CompSnowfall : public Component
 {
 
     CompSnowfall():
-        volume(glm::vec3(50,50,50)),
-        density(2.0)
+        volume(glm::vec3(30,30,40)),
+        density(0.008)
     {
 
     }

@@ -14,7 +14,7 @@ class SysFootsteps : public System
 public:
 
     SysFootsteps():
-        dist(1,5)
+        dist(1,4)
     {}
 
     virtual void update(double dt) override
@@ -32,7 +32,7 @@ public:
                     if (auto* voice = skeleton.sibling<CompVoice>())
                     {
                         auto rand_footstep = dist(gen);
-                        std::string sound = "walk_concrete" + std::to_string(rand_footstep);
+                        std::string sound = "walk_snow" + std::to_string(rand_footstep);
                         voice->sounds[sound].trigger = true;
                         auto footstep_entity = _interface->add_entity_from_proto(footstep_proto.get());
                         footstep_entity.cmp<CompPosition>()->pos = skeleton.get_joint(foot).pos + glm::vec3(0,0,1) + skeleton.offset;

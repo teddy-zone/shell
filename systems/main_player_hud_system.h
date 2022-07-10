@@ -290,9 +290,11 @@ public:
                                 if (ImGui::Button("+"))
                                 {
                                     ab->level++;
+                                    caster_comp->ability_level_mode = false;
                                 }
                                 ImGui::PopID();
 
+                                // Blink the levelup button if we're in level up mode
                                 if (caster_comp->ability_level_mode && 
                                     _interface->get_current_game_time() - last_level_up_blink > last_level_up_blink_period &&
                                     _interface->get_current_game_time() - last_level_up_blink < 2*last_level_up_blink_period)
