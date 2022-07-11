@@ -44,6 +44,19 @@ struct CompAbilitySet : public Component, public StatInterface
         return out_names;
     }
 
+    std::optional<std::string> get_ability_name(int index)
+    {
+        std::vector<std::string> out_names;
+        if (abilities[index].is_valid())
+        {
+            if (auto* ab = abilities[index].cmp<CompAbility>())
+            {
+                return ab->ability_name;
+            }
+        }
+        return std::nullopt;
+    }
+
     virtual StatPart get_stat(Stat stat) override
     {
         StatPart out_part;

@@ -301,7 +301,8 @@ public:
 
         auto landscape_mesh = std::make_shared<bgfx::Mesh>();
         landscape_mesh->load_obj("menu_land.obj", true);
-        landscape_mesh->set_solid_color_by_hex(0x46835D*0.4);
+        //landscape_mesh->set_solid_color_by_hex(0x46835D * 0.4);
+        landscape_mesh->set_solid_color(glm::vec4(0,0,0,1));
         auto* lmesh = ground.cmp<CompStaticMesh>();
         lmesh->mesh.set_mesh(landscape_mesh);
         lmesh->mesh.set_id(-1);
