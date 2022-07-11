@@ -263,12 +263,14 @@ public:
                 
                 ImGui::Columns(ability_count); 
                 int ability_num = 0;
+                const std::vector<std::string> button_slots{ "Q", "W", "E", "R" };
                 for (auto& ability : ab_set->abilities)
                 {
                     if (ability.is_valid())
                     {
                         CompAbility* ab = ability.cmp<CompAbility>();
                         //ImGui::ImageButton(0, ImVec2(widget_height - 100, widget_height - 100));
+                        ImGui::Text(button_slots[ability_num].c_str());
                         ImGui::Button(ab->ability_name.c_str());
                         ImGui::Text((std::string("Level: ") + std::to_string(ab->level)).c_str());
                         if (ab->current_cooldown)

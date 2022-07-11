@@ -455,6 +455,7 @@ public:
         {
             is_collapsed = false;
         }
+        const std::vector<std::string> button_slots{ "Q", "W", "E", "R" };
         switch (ability_set_comp->selection_state)
         {
             case AbilityDraftSelectionState::AbilitySelection:
@@ -472,18 +473,37 @@ public:
                 break;
             case AbilityDraftSelectionState::SlotSelection:
                 {
-                    int slot_num = 1;
+                    int slot_num = 0;
                     ImGui::Text("Choose Ability Slot:");
                     for (auto& ability : ability_set_comp->abilities)
                     {
-                        if (ImGui::Button(std::to_string(slot_num).c_str(), ImVec2(widget_width - 10, choice_height)))
+                        std::string button_text = button_slots[slot_num].c_str();
+                        if (ability_set_comp->abilities[slot_num].is_valid())
+                        {
+                            auto existing_text = std::string("Ability Currently In Slot: " + ability_set_comp->get_ability_name(slot_num).value());
+                            button_text = "";
+                            for (int i = 0; i < existing_text.size(); ++i) { button_text += " "; }
+                            button_text[existing_text.size() / 2] = button_slots[slot_num][0];
+                            button_text += "\n" + existing_text;
+
+                        }
+                        if (ImGui::Button(button_text.c_str(), ImVec2(widget_width - 10, choice_height)))
                         {
                             auto ability_entity = _interface->add_entity_from_proto(ability_set_comp->selected_ability.value().ability_proto.get());
                             ability_entity.cmp<CompAbility>()->max_level = 4;
                             ability = ability_entity;
                             ability_set_comp->drafts_available -= 1;
                         }
+                        
                         slot_num++;
+                        if (slot_num > 3)
+                        {
+                            break;
+                        }
+                    }
+                    if (ImGui::Button("Back"))
+                    {
+                        ability_set_comp->selection_state = AbilityDraftSelectionState::AbilitySelection;
                     }
                 }
                 break;
