@@ -101,6 +101,7 @@ public:
                     auto& status_comp = get_array<CompMenuStatus>()[0];
                         //auto& active_entity = status_comp.preview_entities[status_comp.active_character.value()];
                     ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.5f, 0.5f));
+
                     for (auto& [character_name, entity] : status_comp.preview_entities)
                     {
                         if (ImGui::Selectable(character_name.c_str(), &status_comp.button_status[character_name], 0, ImVec2(main_menu_width-10, choice_height)))
@@ -119,16 +120,23 @@ public:
                     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2,0.55,0.3,1.0));
                     if (ImGui::Button("Start Game", ImVec2(main_menu_width-10, choice_height)))
                     {
-                        auto unit_proto = status_comp.character_protos[status_comp.active_character.value()];
-                        auto& char_type_components = get_array<CompCharacterType>();
-                        if (char_type_components.size())
+                        if (status_comp.active_character)
                         {
-                            char_type_components[0].type_proto = unit_proto;
+                            auto unit_proto = status_comp.character_protos[status_comp.active_character.value()];
+                            auto& char_type_components = get_array<CompCharacterType>();
+                            if (char_type_components.size())
+                            {
+                                char_type_components[0].type_proto = unit_proto;
+                            }
+                            _interface->unload_level("MainMenuLevel");
+                            _interface->load_level("BaseLevel");
+                            _interface->load_level("TestLevel");
+                            menu_state = MainMenuState::None;
                         }
-                        _interface->unload_level("MainMenuLevel");
-                        _interface->load_level("BaseLevel");
-                        _interface->load_level("TestLevel");
-                        menu_state = MainMenuState::None;
+                        else
+                        {
+
+                        }
                     }
                     ImGui::PopStyleColor(1);
 

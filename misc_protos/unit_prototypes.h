@@ -110,6 +110,7 @@ struct UnitProto : public ActorProto
         entity.cmp<CompExperience>()->experience = 0;
         entity.cmp<CompBounty>()->money_bounty = 200;
         entity.cmp<CompBounty>()->exp_bounty = 300;
+        entity.cmp<CompBounds>()->bounds = glm::vec3(5);
 
         legs_init(entity, iface);
         auto skeleton_visual = iface->add_entity_with_components(std::vector<uint32_t>{uint32_t(type_id<CompLineObject>)});
@@ -173,7 +174,7 @@ struct UnitProto : public ActorProto
             footstep_sound.loop = false;
             footstep_sound.trigger = false;
             footstep_sound.range = 100;
-            footstep_sound.volume = 0.25;
+            footstep_sound.volume = 0.18;
             entity.cmp<CompVoice>()->sounds["walk_snow" + std::to_string(i+1)] = footstep_sound;
         }
 

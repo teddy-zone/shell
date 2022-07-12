@@ -17,4 +17,6 @@ struct CompSnowfall : public Component
     std::vector<glm::vec3> snow_positions;
     glm::vec3 volume;
     float density;
+    float meander_factor = 1.0;
+    float fall_velocity = 1.0;
 };

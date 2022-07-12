@@ -7,6 +7,7 @@
 #include "camera_component.h"
 #include "entity_prototype.h"
 #include "static_mesh_component.h"
+#include "weather_component.h"
 
 struct SnowfallEntityProto : public ActorProto
 {
@@ -33,19 +34,71 @@ struct SnowfallEntityProto : public ActorProto
     }
 };
 
+struct RainfallEntityProto : public ActorProto
+{
+
+    RainfallEntityProto(const std::vector<CompType>& extension_types = {}) :
+        ActorProto(glm::vec3(0), extension_types)
+    {
+        std::vector<CompType> unit_components = { {
+                    uint32_t(type_id<CompStaticMesh>),
+                    uint32_t(type_id<CompSnowfall>),
+            } };
+        append_components(unit_components);
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface)
+    {
+        std::shared_ptr<bgfx::Mesh> rain_mesh;
+        rain_mesh = std::make_shared<bgfx::Mesh>(true);
+        rain_mesh->load_obj("cube.obj", true);
+        entity.cmp<CompStaticMesh>()->mesh.set_mesh(rain_mesh);
+        entity.cmp<CompStaticMesh>()->mesh.get_mesh()->set_solid_color(glm::vec4(1.1, 1.1, 1.2, 1.0));
+        entity.cmp<CompPosition>()->scale = glm::vec3(0.01, 0.01, 0.5);
+        entity.cmp<CompPosition>()->pos = glm::vec3(0.00);
+        entity.cmp<CompSnowfall>()->density = 0.01;
+        entity.cmp<CompSnowfall>()->meander_factor = 0.00;
+        entity.cmp<CompSnowfall>()->fall_velocity = 18;
+    }
+};
+
+struct RainRippleProto : public ActorProto
+{
+
+    RainRippleProto(const std::vector<CompType>& extension_types = {}) :
+        ActorProto(glm::vec3(0), extension_types)
+    {
+        std::vector<CompType> unit_components = { {
+                    uint32_t(type_id<CompDecal>),
+                    uint32_t(type_id<CompLifetime>),
+            } };
+        append_components(unit_components);
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface)
+    {
+        entity.cmp<CompDecal>()->decal.type = 7;
+        entity.cmp<CompDecal>()->decal.radius = 0.5;
+        entity.cmp<CompLifetime>()->lifetime = 1.0;
+    }
+};
+
 class SysSnowfall : public System
 {
-    const float fall_vel = 1.0;
-    const float spawn_chances = 5.0;
-    const float spawn_probability = 0.25;
-    std::uniform_real_distribution<float> dist_roll;
     std::mt19937 gen;
     int added = 10;
+    const float ripple_rate = 10;
+    const glm::vec2 ripple_area;
+    std::uniform_real_distribution<float> x_dist;
+    std::uniform_real_distribution<float> y_dist;
+    std::uniform_real_distribution<float> ripple_spawn_roll;
 
 public:
 
     SysSnowfall():
-        dist_roll(0,1.0)
+        ripple_spawn_roll(0,1.0),
+        x_dist(0,40),
+        y_dist(0,40)
     {}
 
     virtual void init_update()
@@ -57,17 +110,48 @@ public:
         added -= 1;
         if (!added)
         {
-            _interface->add_entity_from_proto(std::make_shared<SnowfallEntityProto>().get());
+            auto snow_entity = _interface->add_entity_from_proto(std::make_shared<SnowfallEntityProto>().get());
+            snow_entity.set_name("Snow");
+            auto rain_entity = _interface->add_entity_from_proto(std::make_shared<RainfallEntityProto>().get());
+            rain_entity.set_name("Rain");
         }
         auto& snowfall_comps = get_array<CompSnowfall>();
         auto& camera = get_array<CompCamera>()[0].graphics_camera;
+        auto weather_comps = get_array<CompWeather>();
         for (auto& snowfall_comp : snowfall_comps)
         {
+            
+            if (weather_comps.size())
+            {
+                if (weather_comps[0].state == WeatherState::Rain)
+                {
+                    if (snowfall_comp.get_entity().get_name() == "Rain")
+                    {
+                        snowfall_comp.sibling<CompStaticMesh>()->visible = true;
+                    }
+                    else
+                    {
+                        snowfall_comp.sibling<CompStaticMesh>()->visible = false;
+                    }
+                    
+                }
+                if (weather_comps[0].state == WeatherState::Snow)
+                {
+                    if (snowfall_comp.get_entity().get_name() == "Snow")
+                    {
+                        snowfall_comp.sibling<CompStaticMesh>()->visible = true;
+                    }
+                    else
+                    {
+                        snowfall_comp.sibling<CompStaticMesh>()->visible = false;
+                    }
+                }
+            }
             glm::vec3 camera_offset = glm::mod(camera.get_position(), snowfall_comp.volume);
             glm::vec3 camera_pos = camera.get_position();
             for (auto& snow_pos : snowfall_comp.snow_positions)
             {
-                snow_pos -= glm::vec3(0,0,1)*dt*fall_vel;
+                snow_pos -= glm::vec3(0,0,1)*dt*snowfall_comp.fall_velocity;
                 if (snow_pos.z < 0)
                 {
                     snow_pos.z = snowfall_comp.volume.z;
@@ -99,8 +183,9 @@ public:
                     int base_x = int((camera_pos.x + 10 - snow_pos.x)/(snowfall_comp.volume.x));
                     int base_y = int((camera_pos.y + 10 - snow_pos.y)/(snowfall_comp.volume.y));
                     int base_z = int((camera_pos.z + 10 - snow_pos.z)/(snowfall_comp.volume.z));
-                    instance_offsets.push_back(snow_pos.x + base_x*snowfall_comp.volume.x + 0.2*cos(current_time*2 + 100*i));
-                    instance_offsets.push_back(snow_pos.y + base_y*snowfall_comp.volume.y + 0.2*sin(current_time*2 + 100*i));
+                    
+                    instance_offsets.push_back(snow_pos.x + base_x*snowfall_comp.volume.x + 0.2*cos(current_time*2 + 100*i)*snowfall_comp.meander_factor);
+                    instance_offsets.push_back(snow_pos.y + base_y*snowfall_comp.volume.y + 0.2*sin(current_time*2 + 100*i) * snowfall_comp.meander_factor);
                     instance_offsets.push_back(snow_pos.z + base_z*snowfall_comp.volume.z);
                     if (glm::length(glm::vec3(*(instance_offsets.end() - 3), *(instance_offsets.end() - 2), *(instance_offsets.end() - 1)) - camera_pos) < 10)
                     {
@@ -119,5 +204,22 @@ public:
         }
 
 
+        if (weather_comps.size())
+        {
+            if (weather_comps[0].state == WeatherState::Rain)
+            {
+                for (int i = 0; i < ripple_rate; ++i)
+                {
+                    float ripple_roll = ripple_spawn_roll(gen);
+                    if (ripple_roll < dt)
+                    {
+                        float x = x_dist(gen);
+                        float y = y_dist(gen);
+                        auto new_ripple = _interface->add_entity_from_proto(std::make_shared<RainRippleProto>().get());
+                        new_ripple.cmp<CompPosition>()->pos = camera.get_position() - glm::vec3(x, y, 0);
+                    }
+                }
+            }
+        }
     }
 };
