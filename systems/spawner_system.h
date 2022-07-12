@@ -92,7 +92,7 @@ public:
                                             glm::vec3 offset(radius*cos(az), radius*sin(az), 0);
                                             new_pos_comp->pos = my_pos + offset;
                                             auto& nav_mesh = get_array<CompNavMesh>()[0];
-                                            new_pos_comp->pos = nav_mesh.nav_mesh->get_closest_point_on_navmesh(new_pos_comp->pos) + glm::vec3(0,0,10);
+                                            new_pos_comp->pos = nav_mesh.nav_mesh->get_closest_point_on_navmesh(new_pos_comp->pos);// +glm::vec3(0, 0, 10);
                                             std::cout << glm::to_string(new_pos_comp->pos) << "\n";
                                         }
                                     }

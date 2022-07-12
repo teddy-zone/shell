@@ -125,7 +125,7 @@ public:
 
                         CommandIndicatorProto command_indicator_proto(result.value().hit_point);
                         auto a_move_indicator = _interface->add_entity_from_proto(&command_indicator_proto);
-                        a_move_indicator.cmp<CompStaticMesh>()->mesh.get_mesh()->set_solid_color(glm::vec3(1,0,0));
+                        a_move_indicator.cmp<CompStaticMesh>()->mesh.get_mesh()->set_solid_color(glm::vec3(1, 0, 0));
 
                         attacker_comp->attack_targeting = false;
                         auto* command_sys = player_comp->sibling<CompCommand>();
@@ -138,49 +138,50 @@ public:
                     auto& camera = get_array<CompCamera>()[0];
                     switch (caster_comp->state)
                     {
-                        case AbilityState::GroundTargeting:
-                            {
-                                caster_comp->state = AbilityState::None;
-                                auto click_ray = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
-                                    keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
-                                auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
-                                auto result = _interface->fire_ray(full_ray, ray::HitType::StaticOnly);
-                                if (result)
-                                {
-                                    AbilityCommand ability_command;
-                                    ability_command.ability_index = caster_comp->ability_index;
-                                    ability_command.ground_target = result.value().hit_point;
-                                    auto* command_sys = player_comp->sibling<CompCommand>();
-                                    command_sys->set_command(StopCommand());
-                                    command_sys->queue_command(ability_command);
-                                }
-                                keystate.cursor_mode = CursorMode::Select;
-                            }
-                            break;
-                        case AbilityState::UnitTargeting:
-                            {
-                                caster_comp->state = AbilityState::None;
-                                auto click_ray = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
-                                    keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
-                                auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
-                                auto result = _interface->fire_ray(full_ray, ray::HitType::DynamicOnly);
-                                if (result)
-                                {
-                                    AbilityCommand ability_command;
-                                    ability_command.ability_index = caster_comp->ability_index;
-                                    ability_command.entity_target = result.value().entity;
-                                    auto* command_sys = player_comp->sibling<CompCommand>();
-                                    command_sys->set_command(StopCommand());
-                                    command_sys->queue_command(ability_command);
-                                }
-                                keystate.cursor_mode = CursorMode::Select;
-                            }
-                            break;
-                        default:
-                            break;
+                    case AbilityState::GroundTargeting:
+                    {
+                        caster_comp->state = AbilityState::None;
+                        auto click_ray = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
+                            keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
+                        auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
+                        auto result = _interface->fire_ray(full_ray, ray::HitType::StaticOnly);
+                        if (result)
+                        {
+                            AbilityCommand ability_command;
+                            ability_command.ability_index = caster_comp->ability_index;
+                            ability_command.ground_target = result.value().hit_point;
+                            auto* command_sys = player_comp->sibling<CompCommand>();
+                            command_sys->set_command(StopCommand());
+                            command_sys->queue_command(ability_command);
+                        }
+                        keystate.cursor_mode = CursorMode::Select;
+                    }
+                    break;
+                    case AbilityState::UnitTargeting:
+                    {
+                        caster_comp->state = AbilityState::None;
+                        auto click_ray = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
+                            keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
+                        auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
+                        auto result = _interface->fire_ray(full_ray, ray::HitType::DynamicOnly);
+                        if (result)
+                        {
+                            AbilityCommand ability_command;
+                            ability_command.ability_index = caster_comp->ability_index;
+                            ability_command.entity_target = result.value().entity;
+                            auto* command_sys = player_comp->sibling<CompCommand>();
+                            command_sys->set_command(StopCommand());
+                            command_sys->queue_command(ability_command);
+                        }
+                        keystate.cursor_mode = CursorMode::Select;
+                    }
+                    break;
+                    default:
+                        break;
                     }
                 }
             }
+            // Right click
             if (keystate.push[1] && command_comp)
             {
                 auto& oct = get_array<CompBoundsOctree>()[0];
@@ -195,7 +196,7 @@ public:
                 {
                     auto nav_pointer_pos = nav_pointer_array[0].sibling<CompPosition>();
                 }
-                
+
                 auto click_dir = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
                     keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
                 /*
@@ -219,6 +220,7 @@ public:
                     auto* attackable_comp = result.value().entity.cmp<CompAttackable>();
                     if (attackable_comp && clicked_team != my_team)
                     {
+                        std::cout << "Attack clicked " << result.value().entity.get_name() << "\n";
                         AttackCommand attack_command;
                         attack_command.target = result.value().entity;
                         command_comp->set_command(attack_command);
@@ -233,6 +235,7 @@ public:
                     }
                     else
                     {
+                        std::cout << "Move clicked " << result.value().entity.get_name() << "\n";
                         CommandIndicatorProto command_indicator_proto(result.value().hit_point);
                         _interface->add_entity_from_proto(&command_indicator_proto);
                         //on_right_click(result->entity);
@@ -259,16 +262,16 @@ public:
             }
             std::vector<int> items_to_service;
             std::vector<int> abilities_to_service;
-            if (keystate.push[GLFW_KEY_Q]) {abilities_to_service.push_back(0);}
-            if (keystate.push[GLFW_KEY_W]) {abilities_to_service.push_back(1);}
-            if (keystate.push[GLFW_KEY_E]) {abilities_to_service.push_back(2);}
-            if (keystate.push[GLFW_KEY_R]) {abilities_to_service.push_back(3);}
-            if (keystate.push[GLFW_KEY_1]) {items_to_service.push_back(0);}
-            if (keystate.push[GLFW_KEY_2]) {items_to_service.push_back(1);}
-            if (keystate.push[GLFW_KEY_3]) {items_to_service.push_back(2);}
-            if (keystate.push[GLFW_KEY_4]) {items_to_service.push_back(3);}
-            if (keystate.push[GLFW_KEY_5]) {items_to_service.push_back(4);}
-            if (keystate.push[GLFW_KEY_6]) {items_to_service.push_back(5);}
+            if (keystate.push[GLFW_KEY_Q]) { abilities_to_service.push_back(0); }
+            if (keystate.push[GLFW_KEY_W]) { abilities_to_service.push_back(1); }
+            if (keystate.push[GLFW_KEY_E]) { abilities_to_service.push_back(2); }
+            if (keystate.push[GLFW_KEY_R]) { abilities_to_service.push_back(3); }
+            if (keystate.push[GLFW_KEY_1]) { items_to_service.push_back(0); }
+            if (keystate.push[GLFW_KEY_2]) { items_to_service.push_back(1); }
+            if (keystate.push[GLFW_KEY_3]) { items_to_service.push_back(2); }
+            if (keystate.push[GLFW_KEY_4]) { items_to_service.push_back(3); }
+            if (keystate.push[GLFW_KEY_5]) { items_to_service.push_back(4); }
+            if (keystate.push[GLFW_KEY_6]) { items_to_service.push_back(5); }
             if (caster_comp->ability_level_mode)
             {
                 for (auto ability_to_service : abilities_to_service)
@@ -286,8 +289,9 @@ public:
                     }
                 }
             }
-            else
+            else if (keystate.cursor_mode != CursorMode::Gameplay)
             {
+                // For abilities that have been pressed and if we're not in gameplay cursor mode
                 for (auto& ability_index : abilities_to_service)
                 {
                     auto* ability_set = player_comp->sibling<CompAbilitySet>();
@@ -338,40 +342,43 @@ public:
                     }
                 }
             }
-            for (auto& item_index : items_to_service)
+            if (keystate.cursor_mode != CursorMode::Gameplay)
             {
-                auto* inventory = player_comp->sibling<CompInventory>();
-                if (inventory)
+                for (auto& item_index : items_to_service)
                 {
-                    if (inventory->items[item_index].is_valid())
+                    auto* inventory = player_comp->sibling<CompInventory>();
+                    if (inventory)
                     {
-                        auto* ability = inventory->items[item_index].cmp<CompAbility>();
-                        if (ability)
+                        if (inventory->items[item_index].is_valid())
                         {
-                            if (!ability->ground_targeted && !ability->unit_targeted)
+                            auto* ability = inventory->items[item_index].cmp<CompAbility>();
+                            if (ability)
                             {
-                                auto* command_sys = player_comp->sibling<CompCommand>();
-                                StopCommand stop_command;
-                                command_sys->set_command(stop_command);
-                                AbilityCommand new_command;
-                                new_command.ability_index = item_index + 4;
-                                command_sys->queue_command(new_command);
-                            }
-                            else if (ability->ground_targeted)
-                            {
-                                caster_comp->state = AbilityState::GroundTargeting;
-                                caster_comp->ability_index = item_index + 4;
-                                keystate.cursor_mode = CursorMode::Gameplay;
-                                TargetingProto targeting_proto(glm::vec3(0), ability->target_decal_type);
-                                targeting_entity = _interface->add_entity_from_proto(&targeting_proto);
-                            }
-                            else if (ability->unit_targeted)
-                            {
-                                caster_comp->state = AbilityState::UnitTargeting;
-                                caster_comp->ability_index = item_index + 4;
-                                keystate.cursor_mode = CursorMode::Gameplay;
-                                TargetingProto targeting_proto(glm::vec3(0), ability->target_decal_type);
-                                targeting_entity = _interface->add_entity_from_proto(&targeting_proto);
+                                if (!ability->ground_targeted && !ability->unit_targeted)
+                                {
+                                    auto* command_sys = player_comp->sibling<CompCommand>();
+                                    StopCommand stop_command;
+                                    command_sys->set_command(stop_command);
+                                    AbilityCommand new_command;
+                                    new_command.ability_index = item_index + 4;
+                                    command_sys->queue_command(new_command);
+                                }
+                                else if (ability->ground_targeted)
+                                {
+                                    caster_comp->state = AbilityState::GroundTargeting;
+                                    caster_comp->ability_index = item_index + 4;
+                                    keystate.cursor_mode = CursorMode::Gameplay;
+                                    TargetingProto targeting_proto(glm::vec3(0), ability->target_decal_type);
+                                    targeting_entity = _interface->add_entity_from_proto(&targeting_proto);
+                                }
+                                else if (ability->unit_targeted)
+                                {
+                                    caster_comp->state = AbilityState::UnitTargeting;
+                                    caster_comp->ability_index = item_index + 4;
+                                    keystate.cursor_mode = CursorMode::Gameplay;
+                                    TargetingProto targeting_proto(glm::vec3(0), ability->target_decal_type);
+                                    targeting_entity = _interface->add_entity_from_proto(&targeting_proto);
+                                }
                             }
                         }
                     }
