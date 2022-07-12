@@ -83,22 +83,59 @@ struct RainRippleProto : public ActorProto
     }
 };
 
+struct CloudProto : public ActorProto
+{
+
+    CloudProto(const std::vector<CompType>& extension_types = {}) :
+        ActorProto(glm::vec3(0), extension_types)
+    {
+        std::vector<CompType> unit_components = { {
+                    uint32_t(type_id<CompDecal>),
+                    uint32_t(type_id<CompLifetime>),
+                    uint32_t(type_id<CompProjectile>),
+                    uint32_t(type_id<CompPhysics>),
+                    uint32_t(type_id<CompBounds>),
+            } };
+        append_components(unit_components);
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface)
+    {
+        entity.cmp<CompDecal>()->decal.type = 8;
+        entity.cmp<CompDecal>()->decal.radius = 20;
+        entity.cmp<CompLifetime>()->lifetime = 100;
+        entity.cmp<CompProjectile>()->direction = glm::normalize(glm::vec3(1, 0, 0));
+        entity.cmp<CompProjectile>()->speed = 5;
+        entity.cmp<CompPhysics>()->has_collision = false;
+        entity.cmp<CompPhysics>()->has_gravity = false;
+        entity.cmp<CompBounds>()->bounds = glm::vec3(1);
+    }
+};
+
 class SysSnowfall : public System
 {
     std::mt19937 gen;
     int added = 10;
     const float ripple_rate = 10;
+    const float cloud_rate = 0.05;
+    const int cloud_chances = 2;
     const glm::vec2 ripple_area;
     std::uniform_real_distribution<float> x_dist;
     std::uniform_real_distribution<float> y_dist;
+    std::uniform_real_distribution<float> x_dist_small;
+    std::uniform_real_distribution<float> y_dist_small;
     std::uniform_real_distribution<float> ripple_spawn_roll;
+    std::uniform_real_distribution<float> cloud_size;
 
 public:
 
     SysSnowfall():
         ripple_spawn_roll(0,1.0),
-        x_dist(0,40),
-        y_dist(0,40)
+        x_dist(0, 200),
+        y_dist(0, 200),
+        x_dist_small(5,25),
+        y_dist_small(5, 15),
+        cloud_size(5,18)
     {}
 
     virtual void init_update()
@@ -129,13 +166,12 @@ public:
                     {
                         snowfall_comp.sibling<CompStaticMesh>()->visible = true;
                     }
-                    else
+                    else 
                     {
                         snowfall_comp.sibling<CompStaticMesh>()->visible = false;
                     }
-                    
                 }
-                if (weather_comps[0].state == WeatherState::Snow)
+                else if (weather_comps[0].state == WeatherState::Snow)
                 {
                     if (snowfall_comp.get_entity().get_name() == "Snow")
                     {
@@ -145,6 +181,10 @@ public:
                     {
                         snowfall_comp.sibling<CompStaticMesh>()->visible = false;
                     }
+                }
+                else
+                {
+                    snowfall_comp.sibling<CompStaticMesh>()->visible = false;
                 }
             }
             glm::vec3 camera_offset = glm::mod(camera.get_position(), snowfall_comp.volume);
@@ -217,6 +257,26 @@ public:
                         float y = y_dist(gen);
                         auto new_ripple = _interface->add_entity_from_proto(std::make_shared<RainRippleProto>().get());
                         new_ripple.cmp<CompPosition>()->pos = camera.get_position() - glm::vec3(x, y, 0);
+                    }
+                }
+            }
+            else if (weather_comps[0].state == WeatherState::PartlyCloudy)
+            {
+                for (int i = 0; i < cloud_chances; ++i)
+                {
+                    float ripple_roll = ripple_spawn_roll(gen);
+                    if (ripple_roll < dt*cloud_rate)
+                    {
+                        float x = x_dist(gen);
+                        float y = y_dist(gen);
+                        for (int j = 0; j < 5; j++)
+                        {
+                            float x_offset = x_dist_small(gen);
+                            float y_offset = y_dist_small(gen);
+                            auto new_ripple = _interface->add_entity_from_proto(std::make_shared<CloudProto>().get());
+                            new_ripple.cmp<CompPosition>()->pos = glm::vec3(0, y, 0) + glm::vec3(x_offset, y_offset, 0);
+                            new_ripple.cmp<CompDecal>()->decal.radius = cloud_size(gen);
+                        }
                     }
                 }
             }

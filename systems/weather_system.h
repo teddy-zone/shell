@@ -63,6 +63,49 @@ public:
 						}
 					}
 				}
+				if (comp_weather.state == WeatherState::Dusk)
+				{
+					for (auto& sound : comp_weather.sibling<CompVoice>()->sounds)
+					{
+						sound.second.trigger = false;
+					}
+					if (auto* point_light = comp_weather.sibling<CompPointLight>())
+					{
+						point_light->light.visible = 1;
+						point_light->light.location = glm::vec4(2000, 2000, 2000, 1.0);
+						//point_light->light.location = glm::vec4(100, -500, 500,1.0);
+						point_light->light.color = glm::vec4(0xFD * 1.0 / 255, 0xFB * 1.0 / 255, 0xD3 * 1.0 / 255, 1.0);
+						point_light->light.intensity = 0.1;
+					}
+				}
+				else if (comp_weather.state == WeatherState::PartlyCloudy)
+				{
+					for (auto& sound : comp_weather.sibling<CompVoice>()->sounds)
+					{
+						if (sound.first == "cicada")
+						{
+							sound.second.trigger = true;
+						}
+						else
+						{
+							sound.second.trigger = false;
+						}
+					}
+					if (auto* point_light = comp_weather.sibling<CompPointLight>())
+					{
+						point_light->light.visible = 1;
+						point_light->light.location = glm::vec4(200, -50, 300, 1.0);
+						point_light->light.color = glm::vec4(1.1,1,1.05,1.0);
+						point_light->light.intensity = 20.0;
+					}
+				}
+				else
+				{
+					if (auto* point_light = comp_weather.sibling<CompPointLight>())
+					{
+						point_light->light.visible = false;
+					}
+				}
 			}
 			comp_weather.prev_state = comp_weather.state;
 		}

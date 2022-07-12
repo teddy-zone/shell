@@ -8,7 +8,9 @@ enum class WeatherState
 {
 	None,
 	Snow,
-	Rain
+	Rain,
+    PartlyCloudy,
+    Dusk
 };
 
 struct CompWeather : public Component
@@ -27,6 +29,7 @@ struct WeatherEntityProto : public EntityProto
                     uint32_t(type_id<CompWeather>),
                     uint32_t(type_id<CompPosition>),
                     uint32_t(type_id<CompVoice>),
+                    uint32_t(type_id<CompPointLight>),
             } };
         append_components(unit_components);
     }
@@ -52,6 +55,14 @@ struct WeatherEntityProto : public EntityProto
         rain_sound.volume = 0.95;
         entity.cmp<CompVoice>()->sounds["rain"] = rain_sound;
 
-        entity.cmp<CompWeather>()->state = WeatherState::Rain;
+        Sound cicada_sound;
+        cicada_sound.path = "sounds\\cicada.wav";
+        cicada_sound.loop = true;
+        cicada_sound.trigger = true;
+        cicada_sound.range = 100;
+        cicada_sound.volume = 0.75;
+        entity.cmp<CompVoice>()->sounds["cicada"] = cicada_sound;
+
+        entity.cmp<CompWeather>()->state = WeatherState::PartlyCloudy;
     }
 };

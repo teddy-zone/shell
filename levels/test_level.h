@@ -62,7 +62,7 @@ public:
 
         LightEntityProto light_proto(glm::vec3(100,100,60));
         auto light_entity = c->add_entity_from_proto(&light_proto);
-        light_entity.cmp<CompPointLight>()->light.intensity = 0.15;
+        light_entity.cmp<CompPointLight>()->light.intensity = 0.05;
 
         LightEntityProto light_proto2(glm::vec3(40, 40, 40));
         auto light_entity2 = c->add_entity_from_proto(&light_proto2);
