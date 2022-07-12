@@ -62,19 +62,43 @@ struct RainfallEntityProto : public ActorProto
     }
 };
 
+struct RainRippleProto : public ActorProto
+{
+
+    RainRippleProto(const std::vector<CompType>& extension_types = {}) :
+        ActorProto(glm::vec3(0), extension_types)
+    {
+        std::vector<CompType> unit_components = { {
+                    uint32_t(type_id<CompDecal>),
+                    uint32_t(type_id<CompLifetime>),
+            } };
+        append_components(unit_components);
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface)
+    {
+        entity.cmp<CompDecal>()->decal.type = 7;
+        entity.cmp<CompDecal>()->decal.radius = 0.5;
+        entity.cmp<CompLifetime>()->lifetime = 1.0;
+    }
+};
+
 class SysSnowfall : public System
 {
-    const float fall_vel = 1.0;
-    const float spawn_chances = 5.0;
-    const float spawn_probability = 0.25;
-    std::uniform_real_distribution<float> dist_roll;
     std::mt19937 gen;
     int added = 10;
+    const float ripple_rate = 10;
+    const glm::vec2 ripple_area;
+    std::uniform_real_distribution<float> x_dist;
+    std::uniform_real_distribution<float> y_dist;
+    std::uniform_real_distribution<float> ripple_spawn_roll;
 
 public:
 
     SysSnowfall():
-        dist_roll(0,1.0)
+        ripple_spawn_roll(0,1.0),
+        x_dist(0,40),
+        y_dist(0,40)
     {}
 
     virtual void init_update()
@@ -93,9 +117,10 @@ public:
         }
         auto& snowfall_comps = get_array<CompSnowfall>();
         auto& camera = get_array<CompCamera>()[0].graphics_camera;
+        auto weather_comps = get_array<CompWeather>();
         for (auto& snowfall_comp : snowfall_comps)
         {
-            auto weather_comps = get_array<CompWeather>();
+            
             if (weather_comps.size())
             {
                 if (weather_comps[0].state == WeatherState::Rain)
@@ -179,5 +204,22 @@ public:
         }
 
 
+        if (weather_comps.size())
+        {
+            if (weather_comps[0].state == WeatherState::Rain)
+            {
+                for (int i = 0; i < ripple_rate; ++i)
+                {
+                    float ripple_roll = ripple_spawn_roll(gen);
+                    if (ripple_roll < dt)
+                    {
+                        float x = x_dist(gen);
+                        float y = y_dist(gen);
+                        auto new_ripple = _interface->add_entity_from_proto(std::make_shared<RainRippleProto>().get());
+                        new_ripple.cmp<CompPosition>()->pos = camera.get_position() - glm::vec3(x, y, 0);
+                    }
+                }
+            }
+        }
     }
 };
