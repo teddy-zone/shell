@@ -89,10 +89,20 @@ public:
                     auto attackable_entities = _interface->data_within_sphere_selective(pos_comp->pos, 50, {uint32_t(type_id<CompAttackable>)});
                     EntityRef closest_entity;
                     float closest_distance = 1000000;
+                    int my_team = 0;
+                    if (auto* team_comp = pos_comp->sibling<CompTeam>())
+                    {
+                        my_team = team_comp->team;
+                    }
                     for (auto& ent : attackable_entities)
                     {
                         float dist = glm::length(pos_comp->pos - ent.cmp<CompPosition>()->pos);
-                        if (ent.get_id() != pos_comp->get_id() && dist < closest_distance)
+                        int entity_team = 0;
+                        if (auto* team_comp = ent.cmp<CompTeam>())
+                        {
+                            entity_team = team_comp->team;
+                        }
+                        if (ent.get_id() != pos_comp->get_id() && dist < closest_distance && my_team != entity_team)
                         {
                             closest_entity = ent;
                             closest_distance = dist;
