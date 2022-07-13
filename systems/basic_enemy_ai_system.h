@@ -1,11 +1,21 @@
 #pragma once
 
+#include <random>
+
 #include "system.h"
 #include "basic_enemy_ai_component.h"
 
 class SysBasicEnemyAI : public System
 {
+    std::uniform_real_distribution<float> wandering_distribution;
+    std::mt19937 wandering_generator;
+
 public:
+
+    SysBasicEnemyAI() :
+        wandering_distribution(0, 1)
+    {}
+
     virtual void update(double dt) override
     {
         auto& ai_components = get_array<CompBasicEnemyAI>();
@@ -135,6 +145,23 @@ public:
                                         ability_index++;
                                     }
                                 }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (auto* command_comp = ai_component.sibling<CompCommand>())
+                        {
+                            if (command_comp->command_queue.empty())
+                            {
+                                const static float max_wander_radius = 10;
+                                const float wander_radius = max_wander_radius * wandering_distribution(wandering_generator);
+                                const float wander_az = 2 * 3.14159 * wandering_distribution(wandering_generator);
+                                const glm::vec3 wander_offset(cos(wander_az) * wander_radius, sin(wander_az) * wander_radius, 0);
+                                AttackMoveCommand a_move_command;
+                                a_move_command.target = pos_comp->pos + wander_offset;
+
+                                command_comp->queue_command(a_move_command);
                             }
                         }
                     }

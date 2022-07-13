@@ -232,16 +232,53 @@ public:
         radial_actuator2.cmp<CompRadialSensor>()->component_filter = {uint32_t(type_id<CompPlayer>)};
 
         auto spawner_proto = std::make_shared<SpawnerProto>(glm::vec3(0));
-        auto spawner = c->add_entity_from_proto(spawner_proto.get());
-        spawner.cmp<CompPosition>()->pos = glm::vec3(125,125,15);
-        spawner.cmp<CompActuatorDetector>()->actuator = radial_actuator;
         auto enemy_proto = std::make_shared<EnemyUnitProto>(glm::vec3(0));
         auto enemy_proto2 = std::make_shared<EnemyUnitProto2>(glm::vec3(0));
-        //spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
-        auto enemy_spawn_anim_proto = std::make_shared<SpawnAnimationProto>(1.5,enemy_proto);
-        auto enemy_spawn_anim_proto2 = std::make_shared<SpawnAnimationProto>(1.5,enemy_proto2);
-        spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
-        spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+        auto enemy_spawn_anim_proto = std::make_shared<SpawnAnimationProto>(1.5, enemy_proto);
+        auto enemy_spawn_anim_proto2 = std::make_shared<SpawnAnimationProto>(1.5, enemy_proto2);
+
+        {
+            
+            auto spawner = c->add_entity_from_proto(spawner_proto.get());
+            spawner.cmp<CompPosition>()->pos = glm::vec3(125, 125, 15);
+            spawner.cmp<CompActuatorDetector>()->actuator = radial_actuator;
+            
+            //spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_proto);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+
+            auto mod_proto = std::make_shared<AbilityModStationProto>(glm::vec3(0));
+            auto mod_spawner_proto = std::make_shared<SpawnerProto>(glm::vec3(0));
+            auto mod_spawner = c->add_entity_from_proto(mod_spawner_proto.get());
+            mod_spawner.cmp<CompPosition>()->pos = glm::vec3(80, 80, 7);
+            mod_spawner.cmp<CompActuatorDetector>()->actuator = spawner;
+            mod_spawner.cmp<CompSpawnProtoList>()->protos.push_back(mod_proto);
+        }
+
+        // Random Spawner
+        {
+            auto timer_actuator_proto = std::make_shared<TimerActuatorProto>(glm::vec3(0));
+            auto timer_actuator = c->add_entity_from_proto(timer_actuator_proto.get());
+            timer_actuator.cmp<CompTimer>()->time_amount = 10;
+            timer_actuator.cmp<CompTimer>()->current_time = 10;
+
+            auto spawner_proto = std::make_shared<SpawnerProto>(glm::vec3(0));
+            auto spawner = c->add_entity_from_proto(spawner_proto.get());
+            spawner.cmp<CompPosition>()->pos = glm::vec3(100, 100, 15);
+            spawner.cmp<CompActuatorDetector>()->actuator = timer_actuator;
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+            spawner.cmp<CompSpawnProtoList>()->one_at_a_time = true;
+            spawner.cmp<CompSpawnProtoList>()->radius = 80;
+        }
 
         auto spawner2 = c->add_entity_from_proto(spawner_proto.get());
         spawner2.cmp<CompPosition>()->pos = glm::vec3(50,50,15);
@@ -250,12 +287,7 @@ public:
         spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
         spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
 
-        auto mod_proto = std::make_shared<AbilityModStationProto>(glm::vec3(0));
-        auto mod_spawner_proto = std::make_shared<SpawnerProto>(glm::vec3(0));
-        auto mod_spawner = c->add_entity_from_proto(mod_spawner_proto.get());
-        mod_spawner.cmp<CompPosition>()->pos = glm::vec3(125,125,7);
-        mod_spawner.cmp<CompActuatorDetector>()->actuator = spawner;
-        mod_spawner.cmp<CompSpawnProtoList>()->protos.push_back(mod_proto);
+        
 
         auto teleport_proto = std::make_shared<TeleportProto>(glm::vec3(1.0));
         auto teleport_spawner_proto = std::make_shared<SpawnerProto>(glm::vec3(0));

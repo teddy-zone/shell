@@ -69,7 +69,13 @@ public:
                             if (!proto_list_comp->has_spawned)
                             {
                                 auto* spawn_anim = spawn_sensor.sibling<CompSpawnAnimation>();
-                                for (auto& proto : proto_list_comp->protos)
+                                auto protos = proto_list_comp->protos;
+                                std::vector<int> to_remove;
+                                std::vector<EntityRef> added;
+                                bool one_at_a_time = proto_list_comp->one_at_a_time;
+                                float base_radius = proto_list_comp->radius;
+                                int proto_index = 0;
+                                for (auto& proto : protos)
                                 {
                                     EntityRef new_entity;
                                     if (!spawn_anim)
@@ -82,12 +88,11 @@ public:
                                         new_entity = _interface->add_entity_from_proto(spawn_anim->animation_proto.get());
                                         new_entity.cmp<CompLifetime>()->lifetime = spawn_anim->duration;
                                     }
-                                    proto_list_comp = spawn_sensor.sibling<CompSpawnProtoList>();
-                                    proto_list_comp->instantiated_entities.insert(new_entity);
+                                    added.push_back(new_entity);
                                     {
                                         if (auto* new_pos_comp = new_entity.cmp<CompPosition>())
                                         {
-                                            float radius = proto_list_comp->radius*dist(generator);
+                                            float radius = base_radius*dist(generator);
                                             float az = 2*3.1415926*dist(generator);
                                             glm::vec3 offset(radius*cos(az), radius*sin(az), 0);
                                             new_pos_comp->pos = my_pos + offset;
@@ -96,9 +101,40 @@ public:
                                             std::cout << glm::to_string(new_pos_comp->pos) << "\n";
                                         }
                                     }
-                                    
+                                    to_remove.push_back(proto_index);
+                                    if (one_at_a_time)
+                                    {
+                                        break;
+                                    }
+                                    proto_index++;
                                 }
-                                proto_list_comp->has_spawned = true;
+                                proto_list_comp = spawn_sensor.sibling<CompSpawnProtoList>();
+                                for (auto& added_entity : added)
+                                {
+                                    proto_list_comp->instantiated_entities.insert(added_entity);
+                                }
+
+                                // A terrible process for removing stuff from the proto list
+                                {
+                                    for (auto& tor : to_remove)
+                                    {
+                                        proto_list_comp->protos[tor] = nullptr;
+                                    }
+                                    for (int i = 0; i < proto_list_comp->protos.size(); ++i)
+                                    {
+                                        if (!proto_list_comp->protos[i])
+                                        {
+                                            proto_list_comp->protos[i] = proto_list_comp->protos.back();
+                                            proto_list_comp->protos.resize(proto_list_comp->protos.size() - 1);
+                                            i = i - 1;
+                                        }
+                                    }
+                                }
+
+                                if (proto_list_comp->protos.size() == 0)
+                                {
+                                    proto_list_comp->has_spawned = true;
+                                }
                             }
                         }
                     }

@@ -415,6 +415,14 @@ struct EnemyUnitProto : public UnitProto
         entity.cmp<CompAbilitySet>()->abilities[1] = iface->add_entity_from_proto(is_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[1].cmp<CompAbility>()->level = 1;
         entity.set_name("Enemy");// +std::to_string(entity.get_id()));
+
+        entity.cmp<CompStat>()->set_stat(Stat::MaxHealth, 100);
+        entity.cmp<CompStat>()->set_stat(Stat::MaxMana, 200);
+        entity.cmp<CompStat>()->set_stat(Stat::MagicResist, 0.25);
+        entity.cmp<CompStat>()->set_stat(Stat::Armor, 2);
+        entity.cmp<CompStat>()->set_stat(Stat::Movespeed, 150);
+        entity.cmp<CompStat>()->set_stat_mult(Stat::Lifesteal, 1);
+        entity.cmp<CompStat>()->set_stat(Stat::Lifesteal, 0);
     }
 };
 
