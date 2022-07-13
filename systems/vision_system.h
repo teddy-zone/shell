@@ -75,8 +75,9 @@ public:
                     constexpr float PI = 3.1415926;
                     const int num_evenly_spaced_rays = eye.NumAngles;
                     const float angle_increment = PI*2/num_evenly_spaced_rays;
-                    int index = 0;
-                    for (float current_angle = 0; current_angle < PI*2; current_angle += angle_increment)
+                    int index = eye.last_starting_index^1;
+                    eye.last_starting_index = index;
+                    for (float current_angle = index*angle_increment; current_angle < PI*2; current_angle += 2*angle_increment)
                     {
                         glm::vec3 ray_dir(cos(current_angle), sin(current_angle), 0);
                         ray::Ray vision_ray = ray::New(ray_origin, glm::normalize(ray_dir));
@@ -90,7 +91,7 @@ public:
                         {
                             eye.fow[index] = eye.vision_range;
                         }
-                        index++;
+                        index += 2;
                     }
                     eye.do_display = true;
                 }

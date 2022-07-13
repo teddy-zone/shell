@@ -15,6 +15,7 @@ struct CompSpawnProtoList : public Component
     std::unordered_set<EntityRef> instantiated_entities;
     float radius = 10;
     bool has_spawned = false;
+    bool one_at_a_time = false;
 };
 
 struct SpawnAnimationProto : public ActorProto 
@@ -98,5 +99,25 @@ struct RadialActuatorProto : public ActorProto
     virtual void init(EntityRef entity, SystemInterface* iface) 
     {
         
+    }
+};
+
+struct TimerActuatorProto : public ActorProto
+{
+    std::string _level_to_load;
+
+    TimerActuatorProto(const glm::vec3& in_pos, const std::vector<CompType>& extension_types = {}) :
+        ActorProto(in_pos, extension_types)
+    {
+        std::vector<CompType> unit_components = { {
+              uint32_t(type_id<CompActuator>),
+              uint32_t(type_id<CompTimer>),
+            } };
+        append_components(unit_components);
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface)
+    {
+
     }
 };
