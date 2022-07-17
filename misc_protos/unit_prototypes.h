@@ -32,6 +32,7 @@
 #include "skeletal_animation_system.h"
 #include "basic_enemy_ai_component.h"
 #include "fall.h"
+#include "camera_shake_component.h"
 #include "materials/box_mat/VertexShader.glsl.h"
 #include "materials/box_mat/FragmentShader.glsl.h"
 
@@ -69,6 +70,7 @@ struct UnitProto : public ActorProto
                     uint32_t(type_id<CompAttachment>),
                     uint32_t(type_id<CompSkeletalMeshNew>),
                     uint32_t(type_id<CompDecal>),
+                    uint32_t(type_id<CompCameraShake>),
             }};
         append_components(unit_components);
     }
@@ -112,6 +114,7 @@ struct UnitProto : public ActorProto
         entity.cmp<CompBounty>()->money_bounty = 200;
         entity.cmp<CompBounty>()->exp_bounty = 300;
         entity.cmp<CompBounds>()->bounds = glm::vec3(5);
+
 
         legs_init(entity, iface, 2.0, 0.6);
         auto skeleton_visual = iface->add_entity_with_components(std::vector<uint32_t>{uint32_t(type_id<CompLineObject>)});
@@ -159,7 +162,7 @@ struct UnitProto : public ActorProto
         entity.cmp<CompSkeletalMeshNew>()->animations["fall"] =
             [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
         {
-            fall_animation(skeleton, dt, iface, 10.0);
+            fall_animation(skeleton, dt, iface, 10.0, 10.0);
         }
         ;
         entity.cmp<CompSkeletalMeshNew>()->animations["getup"] =
@@ -523,13 +526,14 @@ struct HeavyEnemyUnit : public UnitProto
         entity.set_name("Enemy2");// +std::to_string(entity.get_id()));
 
         entity.cmp<CompSkeletalMeshNew>()->reset();
+        entity.cmp<CompCameraShake>()->shake_frequency = 1.0;
 
         legs_init(entity, iface, 5.0, 1.5);
 
         entity.cmp<CompSkeletalMeshNew>()->animations["walk"] =
             [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
         {
-            walk_two_leg_animation(skeleton, dt, iface, 5.0, 1.2, 0.6, 0.35);
+            walk_two_leg_animation(skeleton, dt, iface, 5.0, 1.2, 0.6, 0.35, 5.0);
         }
         ;
         

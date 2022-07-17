@@ -114,6 +114,15 @@ public:
                         attack_command.target = closest_entity;
                         command_component.set_command(attack_command);
                     }
+                    if (!nav_comp->commanded)
+                    {
+                        command_component.command_queue.pop_back();
+                        command_component.new_command = true;
+                    }
+                    else
+                    {
+                        command_component.new_command = false;
+                    }
                 } 
                 else
                 {

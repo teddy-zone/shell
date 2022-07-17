@@ -7,13 +7,15 @@
 
 class SysBasicEnemyAI : public System
 {
-    std::uniform_real_distribution<float> wandering_distribution;
+    std::normal_distribution<float> wandering_normal_distribution;
+    std::uniform_real_distribution<float> wandering_uniform_distribution;
     std::mt19937 wandering_generator;
 
 public:
 
     SysBasicEnemyAI() :
-        wandering_distribution(0, 1)
+        wandering_normal_distribution(0, 1),
+        wandering_uniform_distribution(0, 1)
     {}
 
     virtual void update(double dt) override
@@ -150,18 +152,24 @@ public:
                     }
                     else
                     {
+                        // Wander around if nothings happening
                         if (auto* command_comp = ai_component.sibling<CompCommand>())
                         {
-                            if (command_comp->command_queue.empty())
+                            if (auto* nav_comp = command_comp->sibling<CompNav>())
                             {
-                                const static float max_wander_radius = 10;
-                                const float wander_radius = max_wander_radius * wandering_distribution(wandering_generator);
-                                const float wander_az = 2 * 3.14159 * wandering_distribution(wandering_generator);
-                                const glm::vec3 wander_offset(cos(wander_az) * wander_radius, sin(wander_az) * wander_radius, 0);
-                                AttackMoveCommand a_move_command;
-                                a_move_command.target = pos_comp->pos + wander_offset;
+                                if (command_comp->command_queue.empty() && !nav_comp->path_computed)
+                                {
+                                    const static float max_wander_radius = 25;
+                                    const float wander_radius = max_wander_radius * wandering_normal_distribution(wandering_generator) + 20;
+                                    const float wander_az = 2 * 3.14159 * wandering_uniform_distribution(wandering_generator);
+                                    std::cout << "parameters: " << wander_radius << ", " << wander_az << "\n";
+                                    const glm::vec3 wander_offset(cos(wander_az) * wander_radius, sin(wander_az) * wander_radius, 0);
+                                    std::cout << "wander position: " << glm::to_string(wander_offset) << "\n";
+                                    AttackMoveCommand a_move_command;
+                                    a_move_command.target = pos_comp->pos + wander_offset;
 
-                                command_comp->queue_command(a_move_command);
+                                    command_comp->queue_command(a_move_command);
+                                }
                             }
                         }
                     }
