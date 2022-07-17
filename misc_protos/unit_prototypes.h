@@ -31,6 +31,7 @@
 #include "skeletal_mesh_component.h"
 #include "skeletal_animation_system.h"
 #include "basic_enemy_ai_component.h"
+#include "fall.h"
 #include "materials/box_mat/VertexShader.glsl.h"
 #include "materials/box_mat/FragmentShader.glsl.h"
 
@@ -112,7 +113,7 @@ struct UnitProto : public ActorProto
         entity.cmp<CompBounty>()->exp_bounty = 300;
         entity.cmp<CompBounds>()->bounds = glm::vec3(5);
 
-        legs_init(entity, iface);
+        legs_init(entity, iface, 2.0, 0.6);
         auto skeleton_visual = iface->add_entity_with_components(std::vector<uint32_t>{uint32_t(type_id<CompLineObject>)});
         auto line_mesh = std::make_shared<bgfx::Mesh>();
         auto* mesh = skeleton_visual.cmp<CompLineObject>();
@@ -154,6 +155,18 @@ struct UnitProto : public ActorProto
             {
                 stunned_animation(skeleton, dt, iface, 10.0);
             }
+        ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["fall"] =
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+        {
+            fall_animation(skeleton, dt, iface, 10.0);
+        }
+        ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["getup"] =
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+        {
+            get_up_animation(skeleton, dt, iface, 10.0);
+        }
         ;
 
         for (int i = 0; i < 5; ++i)
@@ -464,5 +477,61 @@ struct EnemyUnitProto2 : public UnitProto
         entity.cmp<CompAbilitySet>()->abilities[1] = iface->add_entity_from_proto(is_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[1].cmp<CompAbility>()->level = 1;
         entity.set_name("Enemy2");// +std::to_string(entity.get_id()));
+    }
+};
+
+struct HeavyEnemyUnit : public UnitProto
+{
+    std::shared_ptr<bgfx::Mesh> monkey_mesh;
+
+    HeavyEnemyUnit(const glm::vec3& in_pos, const std::vector<CompType>& extension_types = {}) :
+        UnitProto(in_pos, extension_types),
+        monkey_mesh(std::make_shared<bgfx::Mesh>())
+    {
+        monkey_mesh->load_obj("skull.obj", true);
+        std::vector<CompType> unit_components = { {
+            uint32_t(type_id<CompBasicEnemyAI>),
+        } };
+        append_components(unit_components);
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface) override
+    {
+        UnitProto::init(entity, iface);
+
+        std::shared_ptr<bgfx::Mesh> sphere_mesh = std::make_shared<bgfx::Mesh>();
+        sphere_mesh->load_obj("sphere.obj", true);
+        sphere_mesh->set_solid_color_by_hex(0x600000);
+
+        //entity.cmp<CompPosition>()->scale = glm::vec3(1.2, 1.2, 1.2);
+        entity.cmp<CompPhysics>()->has_collision = false;
+        entity.cmp<CompPhysics>()->has_gravity = false;
+        entity.cmp<CompStaticMesh>()->mesh.set_mesh(sphere_mesh);
+        entity.cmp<CompPosition>()->scale = glm::vec3(0.5, 0.5, 0.3);
+        entity.cmp<CompTeam>()->team = 2;
+        entity.cmp<CompBasicEnemyAI>()->vision_range = 15;
+        entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
+        auto cn_proto = std::make_shared<CaskAbilityProto>();
+        entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
+        entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->level = 1;
+        auto is_proto = std::make_shared<AbilityIceShardsProto>();
+        entity.cmp<CompAbilitySet>()->abilities[1] = iface->add_entity_from_proto(is_proto.get());
+        entity.cmp<CompAbilitySet>()->abilities[1].cmp<CompAbility>()->level = 1;
+        auto fall_proto = std::make_shared<FallAbilityProto>();
+        entity.cmp<CompAbilitySet>()->abilities[2] = iface->add_entity_from_proto(fall_proto.get());
+        entity.cmp<CompAbilitySet>()->abilities[2].cmp<CompAbility>()->level = 1;
+        entity.set_name("Enemy2");// +std::to_string(entity.get_id()));
+
+        entity.cmp<CompSkeletalMeshNew>()->reset();
+
+        legs_init(entity, iface, 5.0, 1.5);
+
+        entity.cmp<CompSkeletalMeshNew>()->animations["walk"] =
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+        {
+            walk_two_leg_animation(skeleton, dt, iface, 5.0, 1.2, 0.6, 0.35);
+        }
+        ;
+        
     }
 };

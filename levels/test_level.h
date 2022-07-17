@@ -234,8 +234,10 @@ public:
         auto spawner_proto = std::make_shared<SpawnerProto>(glm::vec3(0));
         auto enemy_proto = std::make_shared<EnemyUnitProto>(glm::vec3(0));
         auto enemy_proto2 = std::make_shared<EnemyUnitProto2>(glm::vec3(0));
+        auto enemy_proto3 = std::make_shared<HeavyEnemyUnit>(glm::vec3(0));
         auto enemy_spawn_anim_proto = std::make_shared<SpawnAnimationProto>(1.5, enemy_proto);
         auto enemy_spawn_anim_proto2 = std::make_shared<SpawnAnimationProto>(1.5, enemy_proto2);
+        auto enemy_spawn_anim_proto3 = std::make_shared<SpawnAnimationProto>(1.5, enemy_proto3);
 
         {
             
@@ -268,13 +270,19 @@ public:
             spawner.cmp<CompActuatorDetector>()->actuator = timer_actuator;
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
             spawner.cmp<CompSpawnProtoList>()->one_at_a_time = true;
             spawner.cmp<CompSpawnProtoList>()->radius = 80;
