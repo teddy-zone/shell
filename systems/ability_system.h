@@ -201,11 +201,19 @@ public:
                     case AbilityState::CastPoint:
                         {
                             const float cast_point_done_fraction = caster_component.state_time/ability->cast_point;
-                            nav_comp->stop(_interface->get_current_game_time());
+                            nav_comp->stop(_interface->get_current_game_time(), false);
+                            bool dynamic_complete = false;
                             if (auto* skeleton = caster_component.sibling<CompSkeletalMeshNew>())
                             {
-                                skeleton->current_animation = ability->animation;
-                                skeleton->t = cast_point_done_fraction;
+                                skeleton->set_animation(ability->animation.value(), _interface->get_current_game_time());
+                                if (!ability->dynamic_cast_point)
+                                {
+                                    skeleton->t = cast_point_done_fraction;
+                                }
+                                else
+                                {
+                                    dynamic_complete = skeleton->complete;
+                                }
                             }
                             if (auto* static_mesh_component = caster_component.sibling<CompStaticMesh>())
                             {
@@ -234,7 +242,8 @@ public:
                             // if state_time >= cast point of ability
                             // Activate ability!
                             // set state to backswing, state time to zero
-                            else if (caster_component.state_time >= ability->cast_point)
+                            else if ((caster_component.state_time >= ability->cast_point && !ability->dynamic_cast_point) ||
+                                     dynamic_complete)
                             {
                                 caster_component.state = AbilityState::Backswing;
                                 caster_component.state_time = 0.0;
@@ -253,23 +262,30 @@ public:
                     case AbilityState::Backswing:
                         {
                             const float cast_point_done_fraction = caster_component.state_time/ability->backswing;
+                            bool dynamic_complete = false;
                             if (auto* skeleton = caster_component.sibling<CompSkeletalMeshNew>())
                             {
-                                skeleton->set_animation("idle", _interface->get_current_game_time());
-                                
-                            }
-                            if (auto* static_mesh_component = caster_component.sibling<CompStaticMesh>())
-                            {
-                                //static_mesh_component->mesh.get_mesh()->set_solid_color(
-                                //    glm::vec4(ability->cast_color*(1 - cast_point_done_fraction) + default_color*(cast_point_done_fraction), 1.0)
-                                //);
+                                skeleton->set_animation(ability->backswing_animation.value(), _interface->get_current_game_time());
+                                if (!ability->dynamic_backswing)
+                                {
+                                    skeleton->t = cast_point_done_fraction;
+                                }
+                                else
+                                {
+                                    dynamic_complete = skeleton->complete;
+                                }
                             }
                             // if state_time >= backswing of ability
                             // set state to None
-                            if (caster_component.state_time >= ability->backswing)
+                            if ((caster_component.state_time >= ability->backswing && !ability->dynamic_backswing) ||
+                                dynamic_complete)
                             {
                                 caster_component.state = AbilityState::None;
                                 caster_component.state_time = 0.0;
+                                if (auto* skeleton = caster_component.sibling<CompSkeletalMeshNew>())
+                                {
+                                    skeleton->set_animation("idle", _interface->get_current_game_time());
+                                }
                             }
                             else
                             {

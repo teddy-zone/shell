@@ -60,7 +60,13 @@ public:
         } 
         auto player_pos = player_comp->sibling<CompPosition>()->pos;
         auto* command_comp = player_comp->sibling<CompCommand>();
+        auto* caster_comp_d = player_comp->sibling<CompCaster>();
+        if (caster_comp_d == nullptr)
+        {
+            std::cout << "Null caster comp" << "\n";
+        }
         auto* caster_comp = player_comp->sibling<CompCaster>();
+        
         auto* attacker_comp = player_comp->sibling<CompAttacker>();
         auto* physics_comp = player_comp->sibling<CompPhysics>();
         auto& graphics_comp = get_array<CompGraphics>()[0];

@@ -9,6 +9,7 @@
 #include "on_intersect_component.h"
 #include "crystal_nova.h"
 #include "cask.h"
+#include "fall.h"
 
 template <typename T>
 struct AbilityDraftDatabase
@@ -409,6 +410,11 @@ public:
         _abilities.abilities.back().name = "Dash";
         auto dash_proto = std::make_shared<DashAbilityProto>();
         _abilities.abilities.back().ability_proto = dash_proto;
+
+        _abilities.abilities.push_back(DraftableAbility());
+        _abilities.abilities.back().name = "Crush";
+        auto fall_proto = std::make_shared<FallAbilityProto>();
+        _abilities.abilities.back().ability_proto = fall_proto;
     }
 
     virtual void update_gui(double dt) override

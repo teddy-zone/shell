@@ -44,7 +44,10 @@ struct CompAbility : public Component
     float cooldown;
     std::optional<float> current_cooldown;
     float cast_point;
+    bool dynamic_cast_point = false;
+    bool dynamic_backswing = false;
     float cast_range;
+    std::optional<float> fixed_range;
     float backswing;
     bool ground_targeted;
     bool unit_targeted;
@@ -56,6 +59,7 @@ struct CompAbility : public Component
     int mana_cost;
     std::string ability_name;
     std::optional<std::string> animation = "default_cast_point";
+    std::optional<std::string> backswing_animation = "idle";
     TargetDecalType target_decal_type;
     float radius;
     float angle;
