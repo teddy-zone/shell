@@ -6,6 +6,11 @@
 #include "actuator_detector_component.h"
 #include "spawner_proto.h"
 
+struct CompSpawnController : public Component
+{
+    bool enable_spawning = true;
+};
+
 class SysSpawner : public System
 {
     std::uniform_real_distribution<float> dist;
@@ -20,6 +25,11 @@ public:
 
     virtual void update(double dt) override
     {
+        auto& spawn_controller = get_array<CompSpawnController>()[0];
+        if (!spawn_controller.enable_spawning)
+        {
+            return;
+        }
         auto& spawn_sensors = get_array<CompActuatorDetector>();
         for (auto& spawn_sensor : spawn_sensors)
         {

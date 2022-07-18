@@ -46,9 +46,14 @@ public:
         music_sound.trigger = true;
         music_sound.range = 100;
 
-        auto& player1 = get_array<CompPlayer>()[0];
-        player1.sibling<CompPosition>()->pos = glm::vec3(30,135,20);
-        get_array<CompCamera>()[0].set_look_target(player1.sibling<CompPosition>()->pos, true);
+        auto& player_array = get_array<CompPlayer>();
+
+        if (player_array.size())
+        {
+            auto& player1 = get_array<CompPlayer>()[0];
+            player1.sibling<CompPosition>()->pos = glm::vec3(30, 135, 20);
+            get_array<CompCamera>()[0].set_look_target(player1.sibling<CompPosition>()->pos, true);
+        }
 
         UnitProto unit_proto(glm::vec3(1.0));
 
@@ -58,7 +63,6 @@ public:
         monkey_mesh->load_obj("suzanne.obj" );
         auto box_mat = std::make_shared<bgfx::Material>();
         auto c = _interface;
-
 
         LightEntityProto light_proto(glm::vec3(100,100,60));
         auto light_entity = c->add_entity_from_proto(&light_proto);

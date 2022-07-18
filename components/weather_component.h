@@ -63,6 +63,6 @@ struct WeatherEntityProto : public EntityProto
         cicada_sound.volume = 0.55;
         entity.cmp<CompVoice>()->sounds["cicada"] = cicada_sound;
 
-        entity.cmp<CompWeather>()->state = WeatherState::PartlyCloudy;
+        entity.cmp<CompWeather>()->state = WeatherState::Snow;
     }
 };
