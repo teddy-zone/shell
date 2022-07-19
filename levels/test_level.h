@@ -29,6 +29,7 @@
 #include "spawner_proto.h"
 #include "ability_mod_station_proto.h"
 #include "ability_draft_station_proto.h"
+#include "spotlight_component.h"
 
 class TestLevel : public Level
 {
@@ -55,6 +56,35 @@ public:
             get_array<CompCamera>()[0].set_look_target(player1.sibling<CompPosition>()->pos, true);
         }
 
+        EntityRef noodle_stand = _interface->add_entity_with_components({ uint32_t(type_id<CompPhysics>),
+                    uint32_t(type_id<CompPosition>),
+                    uint32_t(type_id<CompStaticMesh>),
+                    uint32_t(type_id<CompBounds>),
+                    uint32_t(type_id<CompVoice>),
+                    uint32_t(type_id<CompSpotlight>),
+                    uint32_t(type_id<CompPickupee>)
+            });
+        auto noodle_stand_mesh = std::make_shared<bgfx::Mesh>();
+        noodle_stand_mesh->load_obj("noodle_shop.obj", false);
+        auto* noodle_mesh = noodle_stand.cmp<CompStaticMesh>();
+        noodle_mesh->mesh.set_mesh(noodle_stand_mesh);
+        noodle_mesh->mesh.set_id(-1);
+        noodle_stand.cmp<CompVoice>()->sounds["music"] = music_sound;
+        noodle_stand.set_name("NoodleStand");// +std::to_string(noodle_stand.get_id()));
+        noodle_stand.cmp<CompPosition>()->pos = glm::vec3(100, 100, 17.5);
+        noodle_stand.cmp<CompPosition>()->rot = glm::rotate(float(3.14159f/3), glm::vec3(0.0f,0.0f,1.0f));
+        noodle_stand.cmp<CompSpotlight>()->light.direction = glm::normalize(glm::vec4(0, -1, -0.1, 0.0));
+        noodle_stand.cmp<CompSpotlight>()->light.location = glm::vec4(-2, 0, 5, 1.0);
+        noodle_stand.cmp<CompSpotlight>()->light.intensity = 0.02;
+        noodle_stand.cmp<CompSpotlight>()->light.type = 0;
+        noodle_stand.cmp<CompSpotlight>()->light.size = glm::vec4(3.1415926/4, 3.14159/8, 0, 0);
+        noodle_stand.cmp<CompSpotlight>()->light.color = glm::vec4(1.0, 0.8, 0.2, 1.0);
+        //auto noodle_tri_oct_comp = octree::vector_to_octree(noodle_mesh->mesh.get_mesh()->_octree_vertices, noodle_mesh->mesh.get_mesh()->_bmin, noodle_mesh->mesh.get_mesh()->_bmax, noodle_stand.cmp<CompPosition>()->rot);
+        //noodle_mesh->tri_octree = noodle_tri_oct_comp;
+        auto temp_bounds = noodle_mesh->mesh.get_mesh()->_bmax - noodle_mesh->mesh.get_mesh()->_bmin;
+
+        noodle_stand.cmp<CompBounds>()->bounds = temp_bounds;
+        noodle_stand.cmp<CompBounds>()->is_static = true;
         UnitProto unit_proto(glm::vec3(1.0));
 
         auto cube_mesh = std::make_shared<bgfx::Mesh>();
@@ -81,6 +111,14 @@ public:
         auto light_entity4 = c->add_entity_from_proto(&light_proto4);
         light_entity4.cmp<CompPointLight>()->light.intensity = 0.01;
         light_entity4.cmp<CompPointLight>()->light.color = glm::vec4(0.2,0.8,0.0,1.0);
+
+        /*
+        SpotlightEntityProto light_proto5(glm::vec3(100, 100, 50));
+        auto light_entity5 = c->add_entity_from_proto(&light_proto5);
+        light_entity5.cmp<CompSpotlight>()->light.color = glm::vec4(1.0, 0.9, 0.7, 1.0);
+        light_entity5.cmp<CompSpotlight>()->light.visible = 1;
+        light_entity5.cmp<CompSpotlight>()->light.intensity = 1.0;
+        */
 
         //LightEntityProto light_proto2(glm::vec3(150, 10, 50));
         //auto light_entity2 = c->add_entity_from_proto(&light_proto2);
@@ -141,7 +179,7 @@ public:
 
         
         //lmesh->mesh.set_scale(glm::vec3(5, 5, 1.0));
-        auto tri_oct_comp = octree::vector_to_octree(lmesh->mesh.get_mesh()->_octree_vertices, lmesh->mesh.get_mesh()->_bmin, lmesh->mesh.get_mesh()->_bmax);
+        auto tri_oct_comp = octree::vector_to_octree(lmesh->mesh.get_mesh()->_octree_vertices, lmesh->mesh.get_mesh()->_bmin, lmesh->mesh.get_mesh()->_bmax, glm::mat3(1));
         lmesh->tri_octree = tri_oct_comp;
 
         bounds->is_static = true;
