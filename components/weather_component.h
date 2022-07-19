@@ -46,7 +46,6 @@ struct WeatherEntityProto : public EntityProto
         entity.cmp<CompVoice>()->sounds["wind"] = wind_sound;
         //entity.cmp<CompWeather>()->state = WeatherState::Rain;
 
-
         Sound rain_sound;
         rain_sound.path = "sounds\\rain.mp3";
         rain_sound.loop = true;
@@ -63,6 +62,6 @@ struct WeatherEntityProto : public EntityProto
         cicada_sound.volume = 0.55;
         entity.cmp<CompVoice>()->sounds["cicada"] = cicada_sound;
 
-        entity.cmp<CompWeather>()->state = WeatherState::Snow;
+        entity.cmp<CompWeather>()->state = WeatherState::Rain;
     }
 };

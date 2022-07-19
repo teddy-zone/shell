@@ -130,7 +130,7 @@ public:
                                 char_type_components[0].type_proto = unit_proto;
                             }
                             auto& spawn_controller = get_array<CompSpawnController>()[0];
-                            spawn_controller.enable_spawning = false;
+                            spawn_controller.enable_spawning = true;
                             _interface->unload_level("MainMenuLevel");
                             _interface->unload_level("TestLevel");
                             _interface->load_level("BaseLevel");
@@ -361,7 +361,7 @@ public:
         rocks.set_name("MenuRocks" + std::to_string(rocks.get_id()));
         rock_pos->pos = glm::vec3(10,9.0,0.2);
 
-        auto rock_tri_oct_comp = octree::vector_to_octree(rock_mesh->_octree_vertices, rock_mesh->_bmin, rock_mesh->_bmax);
+        auto rock_tri_oct_comp = octree::vector_to_octree(rock_mesh->_octree_vertices, rock_mesh->_bmin, rock_mesh->_bmax, glm::mat3(1));
         //rock_static_mesh->tri_octree = tri_oct_comp;
         auto& spawn_controller = get_array<CompSpawnController>()[0];
         spawn_controller.enable_spawning = false;
