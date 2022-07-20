@@ -251,7 +251,7 @@ public:
                 for (int i = 0; i < ripple_rate; ++i)
                 {
                     float ripple_roll = ripple_spawn_roll(gen);
-                    if (ripple_roll < dt)
+                    if (ripple_roll < 3*dt)
                     {
                         float x = x_dist(gen);
                         float y = y_dist(gen);

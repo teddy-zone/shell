@@ -28,14 +28,8 @@ public:
 		}
 		std::uniform_real_distribution<float> dist(0, 1.0);
 		std::normal_distribution<float> normal_dist(0, 1.0);
-		std::mt19937 gen;
-
-		float vertex_density_per_x = 1;
-		float vertex_density_per_y = 1;
-
+		std::mt19937 gen(int(_interface->get_current_game_time()*1000));
 		const float probability_of_circle = 0.1;
-		const float max_height = 10.0;
-		const float min_height = 1.0;
 
 		std::vector<glm::vec3> path;
 		std::vector<float> widths;
@@ -46,6 +40,7 @@ public:
 		float min_y = 0.0;
 		float max_x = 0.0;
 		float max_y = 0.0;
+
 		widths.push_back(generate_width(arclength, dist, gen));
 		for (int i = 1; i < proc_level.length; ++i)
 		{
@@ -65,8 +60,34 @@ public:
 			}
 		}
 
+		generate_mesh(mesh_component,
+			proc_level,
+			path,
+			widths,
+			max_x, max_y, min_x, min_y);
+
+	}
+
+	void generate_mesh(
+			CompStaticMesh* mesh_component,
+			CompProceduralLevel& proc_level,
+			std::vector<glm::vec3>& path,
+			std::vector<float> widths,
+			float max_x, 
+			float max_y,
+			float min_x,
+			float min_y
+		)
+	{
+		float vertex_density_per_x = 1;
+		float vertex_density_per_y = 1;
+
+		const float max_height = 30.0;
+		const float min_height = 20.0;
+
 		float x_res = (max_x - min_x) * vertex_density_per_x;
 		float y_res = (max_y - min_y) * vertex_density_per_y;
+
 		std::vector<float> vertices;
 		std::vector<float> octree_vertices;
 		std::vector<glm::vec3> full_vertices;
@@ -116,6 +137,7 @@ public:
 			}
 		}
 		vertices[2] = 0.0;
+		vertices.back() = 50;
 		for (int xi = 0; xi < x_res; ++xi)
 		{
 			for (int yi = 0; yi < y_res; ++yi)
@@ -151,7 +173,22 @@ public:
 		mesh_component->mesh.set_id(-1);
         auto tri_oct_comp = octree::vector_to_octree(mesh_component->mesh.get_mesh()->_octree_vertices, mesh_component->mesh.get_mesh()->_bmin, mesh_component->mesh.get_mesh()->_bmax, glm::mat3(1));
         mesh_component->tri_octree = tri_oct_comp;
-		level_bgfx_mesh->set_solid_color(glm::vec4(0, 1, 0, 1));
+		level_bgfx_mesh->set_solid_color(glm::vec4(0.5, 0.5, 0.7, 1));
+
+		proc_level.sibling<CompBounds>()->is_loaded = false;
+		proc_level.sibling<CompBounds>()->bounds = level_bgfx_mesh->_bmax - level_bgfx_mesh->_bmin;
+		proc_level.spawn_point = -mesh_component->mesh.get_mesh()->_bmin + glm::vec3(0,10,0);
+
+		
+		for (int i = 0; i < path.size(); ++i)
+		{
+			proc_level.path.push_back(path[i] - level_bgfx_mesh->_bmin);
+			proc_level.widths.push_back(widths[i]);
+		}
+
+		proc_level.floor_level = min_height;
+		proc_level.cliff_level = max_height;
+
 	}
 
 	float generate_width(float arclength, const std::uniform_real_distribution<float>& dist, std::mt19937& gen)
