@@ -45,7 +45,9 @@ public:
         music_sound.path = "sounds\\main_theme.wav";
         music_sound.loop = true;
         music_sound.trigger = true;
+        music_sound.volume_type = SoundVolumeType::Music;
         music_sound.range = 100;
+        music_sound.sound_name = "main_theme_test_level";
 
         auto& player_array = get_array<CompPlayer>();
 
