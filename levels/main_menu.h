@@ -6,6 +6,7 @@
 #include "widget_component.h"
 #include "hud_control_component.h"
 #include "main_menu_status_component.h"
+#include "volume_settings_component.h"
 #include "spawner_system.h"
 
 enum class MainMenuState
@@ -225,14 +226,25 @@ public:
             case MainMenuState::AudioOptions:
                 {
                     ImGui::Begin("Options", &active, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-
-                    //if (ImGui::SliderFloat("Master Volume"),)
+                    auto& volume_settings_array = get_array<CompVolumeSettings>();
+                    if (volume_settings_array.size())
                     {
+                        if (ImGui::SliderFloat("Master Volume", &volume_settings_array[0].master_volume, 0, 1.0))
+                        {
+                            volume_settings_array[0].do_update = true;
+                        }
+                        if (ImGui::SliderFloat("Sound FX Volume", &volume_settings_array[0].sound_fx_volume, 0, 1.0))
+                        {
+                            volume_settings_array[0].do_update = true;
+                        }
+                        if (ImGui::SliderFloat("Music Volume", &volume_settings_array[0].music_volume, 0, 1.0))
+                        {
+                            volume_settings_array[0].do_update = true;
+                        }
+                        if (ImGui::Button(""))
+                        {
 
-                    }
-                    if (ImGui::Button(""))
-                    {
-
+                        }
                     }
                     if (ImGui::Button("Back"))
                     {
@@ -372,7 +384,9 @@ public:
         music_sound.path = "sounds\\main_theme.wav";
         music_sound.loop = true;
         music_sound.trigger = true;
+        music_sound.volume_type = SoundVolumeType::Music;
         music_sound.range = 100;
+        music_sound.sound_name = "main_theme_menu";
 
         _interface->load_level("TestLevel");
 

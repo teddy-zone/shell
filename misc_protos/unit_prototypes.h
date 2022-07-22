@@ -180,6 +180,7 @@ struct UnitProto : public ActorProto
             footstep_sound.trigger = false;
             footstep_sound.range = 100;
             footstep_sound.volume = 0.25;
+            footstep_sound.sound_name = "walk_concrete" + std::to_string(i + 1);
             entity.cmp<CompVoice>()->sounds["walk_concrete" + std::to_string(i+1)] = footstep_sound;
         }
 
@@ -191,6 +192,7 @@ struct UnitProto : public ActorProto
             footstep_sound.trigger = false;
             footstep_sound.range = 100;
             footstep_sound.volume = 0.18;
+            footstep_sound.sound_name = "walk_snow" + std::to_string(i + 1);
             entity.cmp<CompVoice>()->sounds["walk_snow" + std::to_string(i+1)] = footstep_sound;
         }
 
