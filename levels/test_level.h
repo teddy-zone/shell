@@ -97,24 +97,28 @@ public:
         LightEntityProto light_proto(glm::vec3(100,100,60));
         auto light_entity = c->add_entity_from_proto(&light_proto);
         light_entity.cmp<CompPointLight>()->light.intensity = 0.05;
+        light_entity.set_name("Light1");
 
         LightEntityProto light_proto2(glm::vec3(40, 40, 40));
         auto light_entity2 = c->add_entity_from_proto(&light_proto2);
         light_entity2.cmp<CompPointLight>()->light.intensity = 0.03;
+        light_entity2.set_name("Light2");
 
         LightEntityProto light_proto3(glm::vec3(160, 160, 40));
         auto light_entity3 = c->add_entity_from_proto(&light_proto3);
         light_entity3.cmp<CompPointLight>()->light.intensity = 0.03;
         light_entity3.cmp<CompPointLight>()->light.color = glm::vec4(0.9,0.4,0.3,1.0);
+        light_entity3.set_name("Light3");
 
         LightEntityProto light_proto4(glm::vec3(106, 125, 25));
         auto light_entity4 = c->add_entity_from_proto(&light_proto4);
         light_entity4.cmp<CompPointLight>()->light.intensity = 0.01;
         light_entity4.cmp<CompPointLight>()->light.color = glm::vec4(0.2,0.8,0.0,1.0);
+        light_entity4.set_name("Light4");
 
         /*
         SpotlightEntityProto light_proto5(glm::vec3(100, 100, 50));
-        auto light_entity5 = c->add_entity_from_proto(&light_proto5);
+        auto light_entity5 = c->add_entity_from_proto(&light_proto5);3
         light_entity5.cmp<CompSpotlight>()->light.color = glm::vec4(1.0, 0.9, 0.7, 1.0);
         light_entity5.cmp<CompSpotlight>()->light.visible = 1;
         light_entity5.cmp<CompSpotlight>()->light.intensity = 1.0;
