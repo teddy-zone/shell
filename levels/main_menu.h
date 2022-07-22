@@ -13,7 +13,9 @@ enum class MainMenuState
     None,
     Main,
     Options,
-    CharacterSelect
+    CharacterSelect,
+    VideoOptions,
+    AudioOptions
 };
 
 class SysMainMenu : public GuiSystem
@@ -38,22 +40,24 @@ public:
 
     virtual void update_gui(double dt) override
     {
+        glm::vec2 center_pos = glm::vec2(CompWidget::window_width/2 - main_menu_width/2, CompWidget::window_height/2 - main_menu_height/2);
         if (first_update)
         {
-            //ImGui::PushFont(CompWidget::fonts["default"]);
-            current_window_pos = glm::vec2(CompWidget::window_width/2 - main_menu_width/2, CompWidget::window_height/2 - main_menu_height/2);
+            current_window_pos = center_pos;
             first_update = false;
         }
         auto title_window_pos = glm::vec2(CompWidget::window_width/2 - main_menu_width/2, CompWidget::window_height/2 - main_menu_height/2 - 150);
         bool active = true;
         anim_t += dt;
-        ImGui::SetNextWindowPos(ImVec2(current_window_pos.x, current_window_pos.y));
         //ImGui::SetNextWindowSize(ImVec2(main_menu_width, main_menu_width));
+        draw_title();
+        ImGui::SetNextWindowPos(ImVec2(current_window_pos.x, current_window_pos.y));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(main_menu_width, choice_height*3), ImVec2(main_menu_width+5, choice_height*8));
+        ImVec2 button_size(main_menu_width - 10, choice_height);
         switch (menu_state)
         {
             case MainMenuState::Main:
                 {
-                    draw_title();
                     const auto end_pos = glm::vec2(CompWidget::window_width/2 - main_menu_width/2, CompWidget::window_height/2 - main_menu_height/2);
                     const float animation_length = 0.4;
                     if (anim_t < 0)
@@ -84,7 +88,6 @@ public:
                 break;
             case MainMenuState::CharacterSelect:
                 {
-                    draw_title();
                     auto end_pos = glm::vec2(CompWidget::window_width/2/2 - main_menu_width/2, CompWidget::window_height/2 - main_menu_height/2);
                     const float animation_length = 0.4;
                     if (anim_t < 0)
@@ -105,7 +108,7 @@ public:
 
                     for (auto& [character_name, entity] : status_comp.preview_entities)
                     {
-                        if (ImGui::Selectable(character_name.c_str(), &status_comp.button_status[character_name], 0, ImVec2(main_menu_width-10, choice_height)))
+                        if (ImGui::Selectable(character_name.c_str(), &status_comp.button_status[character_name], 0, button_size))
                         {
                             for (auto& [other_character_name, select_status] : status_comp.button_status)
                             {
@@ -119,7 +122,7 @@ public:
                     ImGui::PopStyleVar();
 
                     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2,0.55,0.3,1.0));
-                    if (ImGui::Button("Start Game", ImVec2(main_menu_width-10, choice_height)))
+                    if (ImGui::Button("Start Game", button_size))
                     {
                         if (status_comp.active_character)
                         {
@@ -145,7 +148,7 @@ public:
                     ImGui::PopStyleColor(1);
 
                     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2,0.1,0.3,1.0));
-                    if (ImGui::Button("Back", ImVec2(main_menu_width-10, choice_height)))
+                    if (ImGui::Button("Back", button_size))
                     {
                         menu_state = MainMenuState::Main;
                         anim_t = -1.0;
@@ -156,11 +159,84 @@ public:
                 break;
             case MainMenuState::Options:
                 {
-                    draw_title();
                     ImGui::Begin("Options", &active, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-                    if (ImGui::Button("Back"))
+                    if (ImGui::Button("Video", button_size))
+                    {
+                        menu_state = MainMenuState::VideoOptions;
+                    }
+                    if (ImGui::Button("Audio", button_size))
+                    {
+                        menu_state = MainMenuState::AudioOptions;
+                    }
+                    if (ImGui::Button("Back", button_size))
                     {
                         menu_state = MainMenuState::Main;
+                    }
+                    ImGui::End();
+                }
+                break;
+            case MainMenuState::VideoOptions:
+                {
+                    auto& status_comp = get_array<CompMenuStatus>()[0];
+                    ImGui::Begin("Options", &active, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+                    if (ImGui::Button("Resolution", button_size))
+                    {
+                        status_comp.resolution_button_pressed ^= 1;
+                    }
+                    if (status_comp.resolution_button_pressed)
+                    {
+						auto& comp_graphics = get_array<CompGraphics>()[0];
+						int num_modes = -1;
+						const GLFWvidmode* modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &num_modes);
+
+						auto& status_comp = get_array<CompMenuStatus>()[0];
+							//auto& active_entity = status_comp.preview_entities[status_comp.active_character.value()];
+						ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.5f, 0.5f));
+
+                        std::set<std::pair<int, int>> done_modes;
+                        if (num_modes > 0)
+                        {
+                            for (int i = num_modes - 1; i >= 0; --i)
+                            {
+                                if (done_modes.find(std::make_pair(modes[i].width, modes[i].height)) == done_modes.end())
+                                {
+                                    if (ImGui::Button((std::to_string(modes[i].width) + "x" + std::to_string(modes[i].height)).c_str(),
+                                        ImVec2(button_size.x - 40, button_size.y - 15)))
+                                    {
+                                        comp_graphics.resolution_setting = glm::ivec2(modes[i].width, modes[i].height);
+                                    }
+                                }
+                                done_modes.insert(std::make_pair(modes[i].width, modes[i].height));
+                            }
+                        }
+						ImGui::PopStyleVar();
+                    }
+                    if (ImGui::Button("Windowed/Fullscreen", button_size))
+                    {
+
+                    }
+                    if (ImGui::Button("Back", button_size))
+                    {
+                        menu_state = MainMenuState::Options;
+                    }
+                    ImGui::End();
+                }
+                break;
+            case MainMenuState::AudioOptions:
+                {
+                    ImGui::Begin("Options", &active, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+
+                    //if (ImGui::SliderFloat("Master Volume"),)
+                    {
+
+                    }
+                    if (ImGui::Button(""))
+                    {
+
+                    }
+                    if (ImGui::Button("Back"))
+                    {
+                        menu_state = MainMenuState::Options;
                     }
                     ImGui::End();
                 }
