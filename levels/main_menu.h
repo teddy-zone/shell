@@ -83,6 +83,7 @@ public:
                     }
                     if (ImGui::Button("Quit", ImVec2(main_menu_width-10, choice_height)))
                     {
+                        _interface->quit_game();
                     }
                     ImGui::End();
                 }
