@@ -118,7 +118,7 @@ struct UnitProto : public ActorProto
         entity.cmp<CompBounds>()->bounds = glm::vec3(5);
 
         entity.cmp<CompDialog>()->dialog.push_back("Hello. How are you!?");
-        entity.cmp<CompDialog>()->active = true;
+        entity.cmp<CompDialog>()->active = false;
 
 
 
@@ -547,9 +547,157 @@ struct HeavyEnemyUnit : public UnitProto
         entity.cmp<CompSkeletalMeshNew>()->animations["walk"] =
             [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
         {
-            walk_two_leg_animation(skeleton, dt, iface, 5.0, 1.2, 0.6, 0.35, 5.0);
+            walk_two_leg_animation(skeleton, dt, iface, 5.0, 1.2, 1.5, 0.35, 5.0);
         }
         ;
         
     }
 };
+
+struct NPCProto : public ActorProto
+{
+
+    NPCProto(const glm::vec3& in_pos, const std::vector<CompType>& extension_types={}):
+        ActorProto(in_pos, extension_types)
+    {
+        std::vector<CompType> unit_components = {{
+                    uint32_t(type_id<CompPhysics>), 
+                    uint32_t(type_id<CompBounds>),
+                    uint32_t(type_id<CompStaticMesh>),
+                    uint32_t(type_id<CompNav>),
+                    uint32_t(type_id<CompCommand>),
+                    uint32_t(type_id<CompVoice>),
+                    uint32_t(type_id<CompVisionAffected>),
+                    uint32_t(type_id<CompSkeletalMeshNew>),
+                    uint32_t(type_id<CompDecal>),
+                    uint32_t(type_id<CompDialog>),
+                    uint32_t(type_id<CompInteractable>),
+            }};
+        append_components(unit_components);
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface) 
+    {
+        std::shared_ptr<bgfx::Mesh> monkey_mesh = std::make_shared<bgfx::Mesh>();
+        monkey_mesh->load_obj("sphere.obj" , true);
+        monkey_mesh->set_solid_color(glm::vec4(0.5,0.5,0.5,1));
+        entity.cmp<CompPosition>()->scale = glm::vec3(1, 1, 1);
+        entity.cmp<CompDecal>()->decal.type = 5;
+        entity.cmp<CompDecal>()->decal.radius = 1.0;
+        entity.cmp<CompPhysics>()->has_collision = false;
+        entity.cmp<CompPhysics>()->has_gravity = false;
+        entity.cmp<CompStaticMesh>()->mesh.set_mesh(monkey_mesh);
+
+        entity.cmp<CompStaticMesh>()->mesh.set_id(entity.get_id());
+        entity.cmp<CompPosition>()->scale = glm::vec3(0.25);
+        entity.cmp<CompBounds>()->bounds = glm::vec3(5);
+
+        entity.cmp<CompDialog>()->dialog.push_back("!!!?!!?");
+        entity.cmp<CompDialog>()->dialog.push_back("do my microscopic lensed light sensitive sensors deceive me?");
+        entity.cmp<CompDialog>()->dialog.push_back("haven't seen a bluto down here ways for, uh, i'd say 3 eras!");
+        entity.cmp<CompDialog>()->dialog.push_back("the blues sure coulda sent one that's not so shockingly ugly though");
+        entity.cmp<CompDialog>()->dialog.push_back("say, you pretty good at killing?");
+        entity.cmp<CompDialog>()->dialog.push_back("we've had a serious wave of these simple-headed red rellas taken over this area lately that could use some killing");
+        entity.cmp<CompDialog>()->dialog.push_back("i'd do it but I've just been so darn busy with my rock collection that I just can't seem to make the time");
+        entity.cmp<CompDialog>()->dialog.push_back("what?! you're not interested?");
+        entity.cmp<CompDialog>()->dialog.push_back("what if I told you thoses ding-dong red goons drop cold hard cash whenever you steal their last bit of previous red life?");
+        entity.cmp<CompDialog>()->dialog.push_back("i tell ya, i'd be rich from those hare brained dimbos if i wasn't so dang busy with my massive and impressive rock collection");
+        entity.cmp<CompDialog>()->dialog.push_back("speaking of which, i really must get back to it");
+
+        entity.cmp<CompDialog>()->active = false;
+        
+        entity.cmp<CompInteractable>()->interact_range = 8;
+        entity.cmp<CompInteractable>()->interaction_callback = [](SystemInterface* iface, EntityRef interactor, EntityRef interactee)
+			{
+				if (!interactee.cmp<CompDialog>()->active)
+				{
+					interactee.cmp<CompDialog>()->active = true;
+					interactee.cmp<CompDialog>()->current_dialog = true;
+					interactee.cmp<CompDialog>()->interactor = interactor;
+				}
+			};
+
+
+
+        legs_init(entity, iface, 2.0, 0.6);
+        auto skeleton_visual = iface->add_entity_with_components(std::vector<uint32_t>{uint32_t(type_id<CompLineObject>)});
+        auto line_mesh = std::make_shared<bgfx::Mesh>();
+        auto* mesh = skeleton_visual.cmp<CompLineObject>();
+        mesh->mesh.strip = false;
+        mesh->mesh.set_mesh(line_mesh);
+        entity.cmp<CompSkeletalMeshNew>()->mesh = skeleton_visual;
+        entity.cmp<CompSkeletalMeshNew>()->animations["walk"] = 
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+            {
+                walk_two_leg_animation(skeleton, dt, iface, 15.0, 0.8, 0.3);
+            }
+        ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["idle"] = 
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+            {
+                idle_two_leg_animation(skeleton, dt, iface, 10.0);
+            }
+        ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["default_cast_point"] = 
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+            {
+                cast_point_two_leg_animation(skeleton, dt, iface, 10.0);
+            }
+        ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["dash"] =
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+        {
+            dash_animation(skeleton, dt, iface, 10.0);
+        }
+        ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["sleep"] =
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+        {
+            sleep_two_leg_animation(skeleton, dt, iface, 2.0);
+        }
+        ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["stunned"] = 
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+            {
+                stunned_animation(skeleton, dt, iface, 10.0);
+            }
+        ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["fall"] =
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+        {
+            fall_animation(skeleton, dt, iface, 10.0, 10.0);
+        }
+        ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["getup"] =
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+        {
+            get_up_animation(skeleton, dt, iface, 10.0);
+        }
+        ;
+
+        for (int i = 0; i < 5; ++i)
+        {
+            Sound footstep_sound;
+            footstep_sound.path = "sounds/footsteps/concrete/concrete" + std::to_string(i+1) + ".wav";
+            footstep_sound.loop = false;
+            footstep_sound.trigger = false;
+            footstep_sound.range = 100;
+            footstep_sound.volume = 0.25;
+            footstep_sound.sound_name = "walk_concrete" + std::to_string(i + 1);
+            entity.cmp<CompVoice>()->sounds["walk_concrete" + std::to_string(i+1)] = footstep_sound;
+        }
+
+        for (int i = 0; i < 5; ++i)
+        {
+            Sound footstep_sound;
+            footstep_sound.path = "sounds/footsteps/snow/snow" + std::to_string(i+1) + ".wav";
+            footstep_sound.loop = false;
+            footstep_sound.trigger = false;
+            footstep_sound.range = 100;
+            footstep_sound.volume = 0.18;
+            footstep_sound.sound_name = "walk_snow" + std::to_string(i + 1);
+            entity.cmp<CompVoice>()->sounds["walk_snow" + std::to_string(i+1)] = footstep_sound;
+        }
+    }
+};
+

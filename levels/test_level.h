@@ -317,7 +317,7 @@ public:
         {
             auto timer_actuator_proto = std::make_shared<TimerActuatorProto>(glm::vec3(0));
             auto timer_actuator = c->add_entity_from_proto(timer_actuator_proto.get());
-            timer_actuator.cmp<CompTimer>()->time_amount = 10;
+            timer_actuator.cmp<CompTimer>()->time_amount = 1000;
             timer_actuator.cmp<CompTimer>()->current_time = 1;
 
             auto spawner_proto = std::make_shared<SpawnerProto>(glm::vec3(0));
@@ -369,6 +369,10 @@ public:
         auto start_draft_proto = std::make_shared<AbilityDraftStationProto>(glm::vec3(0));
         auto start_draft = c->add_entity_from_proto(start_draft_proto.get());
         start_draft.cmp<CompPosition>()->pos = glm::vec3(50, 125, 40);
+
+        auto npc_proto = std::make_shared<NPCProto>(glm::vec3(0));
+        auto npc_entity = c->add_entity_from_proto(npc_proto.get());
+        npc_entity.cmp<CompPosition>()->pos = glm::vec3(80, 80, 20);
     }
 
     virtual void update(double dt) override

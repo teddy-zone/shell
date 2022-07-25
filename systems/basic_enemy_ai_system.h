@@ -116,7 +116,6 @@ public:
                             AttackCommand attack_command;
                             attack_command.target = ai_component.target.value();
                             command_comp->set_command(attack_command);
-                            std::cout << "Attackkk!!!!l" << "\n";
                         }
                     }
                 }
@@ -366,7 +365,6 @@ public:
                     }
                     else
                     {
-                        std::cout << "wander!!!!l" << "\n";
 						if (ai_component.get_entity().get_name() == "HeavyEnemy")
 						{
 							fd << "\tWander" << "\n";
