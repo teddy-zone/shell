@@ -33,6 +33,7 @@
 #include "basic_enemy_ai_component.h"
 #include "fall.h"
 #include "camera_shake_component.h"
+#include "dialog_component.h"
 #include "materials/box_mat/VertexShader.glsl.h"
 #include "materials/box_mat/FragmentShader.glsl.h"
 
@@ -71,6 +72,7 @@ struct UnitProto : public ActorProto
                     uint32_t(type_id<CompSkeletalMeshNew>),
                     uint32_t(type_id<CompDecal>),
                     uint32_t(type_id<CompCameraShake>),
+                    uint32_t(type_id<CompDialog>),
             }};
         append_components(unit_components);
     }
@@ -114,6 +116,10 @@ struct UnitProto : public ActorProto
         entity.cmp<CompBounty>()->money_bounty = 200;
         entity.cmp<CompBounty>()->exp_bounty = 300;
         entity.cmp<CompBounds>()->bounds = glm::vec3(5);
+
+        entity.cmp<CompDialog>()->dialog.push_back("Hello. How are you!?");
+        entity.cmp<CompDialog>()->active = true;
+
 
 
         legs_init(entity, iface, 2.0, 0.6);
@@ -424,7 +430,8 @@ struct EnemyUnitProto : public UnitProto
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(sphere_mesh);
 
         entity.cmp<CompTeam>()->team = 2;
-        entity.cmp<CompBasicEnemyAI>()->vision_range = 15;
+        entity.cmp<CompBasicEnemyAI>()->vision_range = 25;
+
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
         auto cn_proto = std::make_shared<CrystalNovaAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
@@ -432,6 +439,7 @@ struct EnemyUnitProto : public UnitProto
         auto is_proto = std::make_shared<AbilityIceShardsProto>();
         entity.cmp<CompAbilitySet>()->abilities[1] = iface->add_entity_from_proto(is_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[1].cmp<CompAbility>()->level = 1;
+
         entity.set_name("Enemy");// +std::to_string(entity.get_id()));
 
         entity.cmp<CompStat>()->set_stat(Stat::MaxHealth, 100);
@@ -473,14 +481,16 @@ struct EnemyUnitProto2 : public UnitProto
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(sphere_mesh);
 
         entity.cmp<CompTeam>()->team = 2;
-        entity.cmp<CompBasicEnemyAI>()->vision_range = 15;
+        entity.cmp<CompBasicEnemyAI>()->vision_range = 25;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
+
         auto cn_proto = std::make_shared<CaskAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->level = 1;
         auto is_proto = std::make_shared<AbilityIceShardsProto>();
         entity.cmp<CompAbilitySet>()->abilities[1] = iface->add_entity_from_proto(is_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[1].cmp<CompAbility>()->level = 1;
+
         entity.set_name("Enemy2");// +std::to_string(entity.get_id()));
     }
 };
@@ -514,18 +524,20 @@ struct HeavyEnemyUnit : public UnitProto
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(sphere_mesh);
         entity.cmp<CompPosition>()->scale = glm::vec3(0.5, 0.5, 0.3);
         entity.cmp<CompTeam>()->team = 2;
-        entity.cmp<CompBasicEnemyAI>()->vision_range = 15;
+        entity.cmp<CompBasicEnemyAI>()->vision_range = 25;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
+        /*
         auto cn_proto = std::make_shared<CaskAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->level = 1;
         auto is_proto = std::make_shared<AbilityIceShardsProto>();
         entity.cmp<CompAbilitySet>()->abilities[1] = iface->add_entity_from_proto(is_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[1].cmp<CompAbility>()->level = 1;
+        */
         auto fall_proto = std::make_shared<FallAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[2] = iface->add_entity_from_proto(fall_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[2].cmp<CompAbility>()->level = 1;
-        entity.set_name("Enemy2");// +std::to_string(entity.get_id()));
+        entity.set_name("HeavyEnemy");// +std::to_string(entity.get_id()));
 
         entity.cmp<CompSkeletalMeshNew>()->reset();
         entity.cmp<CompCameraShake>()->shake_frequency = 1.0;

@@ -80,10 +80,10 @@ public:
                     int index = (eye.last_starting_index+1)%division;
                     eye.last_starting_index = index;
                     
-                    fd << "Starting eye rays\n";
+                    //fd << "Starting eye rays\n";
                     for (float current_angle = index*angle_increment; current_angle < PI*2*0.999; current_angle += division*angle_increment)
                     {
-                        fd << "\tEye ray " << index << ", " << current_angle << "\n";
+                        //fd << "\tEye ray " << index << ", " << current_angle << "\n";
                         glm::vec3 ray_dir(cos(current_angle), sin(current_angle), 0);
                         ray::Ray vision_ray = ray::New(ray_origin, glm::normalize(ray_dir));
                         auto ray_result = _interface->fire_ray(vision_ray, ray::HitType::StaticOnly, eye.vision_range);
@@ -98,7 +98,7 @@ public:
                         }
                         index += division;
                     }
-                    fd << "Ending eye_rays\n";
+                    //fd << "Ending eye_rays\n";
                     
                     eye.do_display = true;
                 }

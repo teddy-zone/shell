@@ -139,7 +139,7 @@ public:
                             _interface->unload_level("MainMenuLevel");
                             _interface->unload_level("TestLevel");
                             _interface->load_level("BaseLevel");
-                            _interface->load_level("ProcTestLevel");
+                            _interface->load_level("TestLevel");
                             menu_state = MainMenuState::None;
                         }
                         else
