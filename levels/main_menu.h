@@ -51,7 +51,11 @@ public:
         bool active = true;
         anim_t += dt;
         //ImGui::SetNextWindowSize(ImVec2(main_menu_width, main_menu_width));
-        draw_title();
+
+        if (menu_state != MainMenuState::None)
+        {
+            draw_title();
+        }
         ImGui::SetNextWindowPos(ImVec2(current_window_pos.x, current_window_pos.y));
         ImGui::SetNextWindowSizeConstraints(ImVec2(main_menu_width, choice_height*3), ImVec2(main_menu_width+5, choice_height*8));
         ImVec2 button_size(main_menu_width - 10, choice_height);
@@ -139,7 +143,7 @@ public:
                             _interface->unload_level("MainMenuLevel");
                             _interface->unload_level("TestLevel");
                             _interface->load_level("BaseLevel");
-                            _interface->load_level("ProcTestLevel");
+                            _interface->load_level("TestLevel");
                             menu_state = MainMenuState::None;
                         }
                         else

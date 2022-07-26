@@ -58,6 +58,7 @@ public:
             get_array<CompCamera>()[0].set_look_target(player1.sibling<CompPosition>()->pos, true);
         }
 
+        /*
         EntityRef noodle_stand = _interface->add_entity_with_components({ uint32_t(type_id<CompPhysics>),
                     uint32_t(type_id<CompPosition>),
                     uint32_t(type_id<CompStaticMesh>),
@@ -87,6 +88,7 @@ public:
 
         noodle_stand.cmp<CompBounds>()->bounds = temp_bounds;
         noodle_stand.cmp<CompBounds>()->is_static = true;
+        */
         UnitProto unit_proto(glm::vec3(1.0));
 
         auto cube_mesh = std::make_shared<bgfx::Mesh>();
@@ -100,6 +102,12 @@ public:
         auto light_entity = c->add_entity_from_proto(&light_proto);
         light_entity.cmp<CompPointLight>()->light.intensity = 0.05;
         light_entity.set_name("Light1");
+
+        LightEntityProto street_lamp_light_proto(glm::vec3(78,78,40));
+        auto street_lamp_entity = c->add_entity_from_proto(&street_lamp_light_proto);
+        street_lamp_entity.cmp<CompPointLight>()->light.intensity = 0.06;
+        street_lamp_entity.cmp<CompPointLight>()->light.color = glm::vec4(0.9,0.8,0.3,1.0);
+        street_lamp_entity.set_name("StreetLamp");
 
         LightEntityProto light_proto2(glm::vec3(40, 40, 40));
         auto light_entity2 = c->add_entity_from_proto(&light_proto2);
@@ -309,29 +317,31 @@ public:
         {
             auto timer_actuator_proto = std::make_shared<TimerActuatorProto>(glm::vec3(0));
             auto timer_actuator = c->add_entity_from_proto(timer_actuator_proto.get());
-            timer_actuator.cmp<CompTimer>()->time_amount = 10;
-            timer_actuator.cmp<CompTimer>()->current_time = 10;
+            timer_actuator.cmp<CompTimer>()->time_amount = 1000;
+            timer_actuator.cmp<CompTimer>()->current_time = 1;
 
             auto spawner_proto = std::make_shared<SpawnerProto>(glm::vec3(0));
             auto spawner = c->add_entity_from_proto(spawner_proto.get());
             spawner.cmp<CompPosition>()->pos = glm::vec3(100, 100, 15);
             spawner.cmp<CompActuatorDetector>()->actuator = timer_actuator;
-            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
-            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
-            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
-            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
-            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
-            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
-            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
-            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
-            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
-            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+
             spawner.cmp<CompSpawnProtoList>()->one_at_a_time = true;
             spawner.cmp<CompSpawnProtoList>()->radius = 80;
         }
@@ -359,6 +369,10 @@ public:
         auto start_draft_proto = std::make_shared<AbilityDraftStationProto>(glm::vec3(0));
         auto start_draft = c->add_entity_from_proto(start_draft_proto.get());
         start_draft.cmp<CompPosition>()->pos = glm::vec3(50, 125, 40);
+
+        auto npc_proto = std::make_shared<NPCProto>(glm::vec3(0));
+        auto npc_entity = c->add_entity_from_proto(npc_proto.get());
+        npc_entity.cmp<CompPosition>()->pos = glm::vec3(80, 80, 20);
     }
 
     virtual void update(double dt) override

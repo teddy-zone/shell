@@ -194,6 +194,7 @@ public:
                                 caster_comp->activate_ability(cmd->ability_index);
                                 caster_comp->unit_target = cmd->entity_target;
                                 caster_comp->ground_target = std::nullopt;
+                                nav_component->stop(_interface->get_current_game_time(), false);
                                 caster_comp->activated = true;
                             }
                         }

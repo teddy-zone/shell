@@ -27,7 +27,7 @@ public:
         {
             for (auto& foot : feet)
             {
-                if (!skeleton.get_joint(foot).prev_on_ground && skeleton.get_joint(foot).on_ground)
+                if (skeleton.get_joint(foot).trigger_footstep)
                 {
                     if (auto* voice = skeleton.sibling<CompVoice>())
                     {
@@ -37,7 +37,9 @@ public:
                         auto footstep_entity = _interface->add_entity_from_proto(footstep_proto.get());
                         footstep_entity.cmp<CompPosition>()->pos = skeleton.get_joint(foot).pos + glm::vec3(0,0,1) + skeleton.offset;
                         footstep_entity.cmp<CompDecal>()->decal.location = glm::vec4(skeleton.get_joint(foot).pos + skeleton.offset + glm::vec3(0,0,1), 1.0);
+
                     }
+                    skeleton.get_joint(foot).trigger_footstep = false;
                 }
             }
         }
