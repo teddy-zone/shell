@@ -3,6 +3,7 @@
 #include "system.h"
 #include "bounty_component.h"
 #include "respawn_component.h"
+#include "coin_proto.h"
 
 class SysDeath : public System
 {
@@ -22,6 +23,10 @@ public:
                         if (auto* wallet = health_comp.killer.value().cmp<CompWallet>())
                         {
                             wallet->balance += bounty_comp->money_bounty;
+                            auto coin_proto = std::make_shared<CoinProto>();
+                            auto coin_entity = _interface->add_entity_from_proto(coin_proto.get());
+                            coin_entity.cmp<CompAttachment>()->attached_entities.push_back(health_comp.killer.value());
+                            coin_entity.cmp<CompAttachment>()->position_offset = glm::vec3(0, 0, 5);
                         }
                         if (auto* exp = health_comp.killer.value().cmp<CompExperience>())
                         {

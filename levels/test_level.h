@@ -324,12 +324,12 @@ public:
             auto spawner = c->add_entity_from_proto(spawner_proto.get());
             spawner.cmp<CompPosition>()->pos = glm::vec3(100, 100, 15);
             spawner.cmp<CompActuatorDetector>()->actuator = timer_actuator;
-            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);

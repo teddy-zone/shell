@@ -46,7 +46,7 @@ struct DashProjectileProto : public EntityProto
     virtual void init(EntityRef entity, SystemInterface* iface) 
     {
         entity.cmp<CompProjectile>()->speed = 200;
-        entity.cmp<CompProjectile>()->constant_height = 1.0;
+        entity.cmp<CompProjectile>()->constant_height = 2.0;
         entity.cmp<CompLifetime>()->lifetime = 1.2;
         entity.cmp<CompPhysics>()->has_collision = false;
 
@@ -98,7 +98,7 @@ public:
         entity.cmp<CompAbility>()->ground_targeted = true;
         entity.cmp<CompAbility>()->ability_name = "Dash";
         entity.cmp<CompAbility>()->radius = 5;
-        entity.cmp<CompAbility>()->animation = "dash";
+        entity.cmp<CompAbility>()->animation = "idle";
         entity.cmp<CompOnCast>()->on_cast_callbacks.push_back(
             [status_entity](SystemInterface* iface, EntityRef caster, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
             {
