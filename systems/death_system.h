@@ -25,8 +25,14 @@ public:
                             wallet->balance += bounty_comp->money_bounty;
                             auto coin_proto = std::make_shared<CoinProto>();
                             auto coin_entity = _interface->add_entity_from_proto(coin_proto.get());
-                            coin_entity.cmp<CompAttachment>()->attached_entities.push_back(health_comp.killer.value());
-                            coin_entity.cmp<CompAttachment>()->position_offset = glm::vec3(0, 0, 5);
+                            EntityRef death_location_entity = _interface->add_entity_with_components({ uint32_t(type_id<CompPosition>), uint32_t(type_id<CompLifetime>)});
+                            death_location_entity.cmp<CompPosition>()->pos = health_comp.sibling<CompPosition>()->pos;
+                            death_location_entity.cmp<CompLifetime>()->lifetime = 2;
+                            std::cout << "DEATH: " << glm::to_string(death_location_entity.cmp<CompPosition>()->pos) << "\n";
+
+                            coin_entity.cmp<CompAttachment>()->attached_entities.push_back(death_location_entity);
+                            coin_entity.cmp<CompAttachment>()->type = AttachmentType::Attacher;
+                            coin_entity.cmp<CompAttachment>()->position_offset = glm::vec3(0, 0, 3);
                         }
                         if (auto* exp = health_comp.killer.value().cmp<CompExperience>())
                         {

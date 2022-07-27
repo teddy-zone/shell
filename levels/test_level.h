@@ -326,8 +326,8 @@ public:
             spawner.cmp<CompActuatorDetector>()->actuator = timer_actuator;
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
-            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
+            spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
             spawner.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);

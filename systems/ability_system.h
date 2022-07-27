@@ -301,7 +301,6 @@ public:
                             if (auto* skeleton = caster_component.sibling<CompSkeletalMeshNew>())
                             {
                                 //skeleton->set_animation("idle", _interface->get_current_game_time());
-                                skeleton->t = 0;
                             }
                             if (auto* static_mesh_component = caster_component.sibling<CompStaticMesh>())
                             {
