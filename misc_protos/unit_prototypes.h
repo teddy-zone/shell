@@ -375,7 +375,7 @@ struct CrystalMaidenProto : public UnitProto
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
         auto cn_proto = std::make_shared<CrystalNovaAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
-        entity.set_name("CrystalMaiden" + std::to_string(entity.get_id()));
+        entity.set_name("CrystalMaiden");// +std::to_string(entity.get_id()));
     }
 };
 

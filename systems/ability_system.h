@@ -268,7 +268,10 @@ public:
                                 skeleton->set_animation(ability->backswing_animation.value(), _interface->get_current_game_time());
                                 if (!ability->dynamic_backswing)
                                 {
-                                    skeleton->t = cast_point_done_fraction;
+                                    if (ability->backswing != 0)
+                                    {
+                                        skeleton->t = cast_point_done_fraction;
+                                    }
                                 }
                                 else
                                 {
