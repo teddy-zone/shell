@@ -59,7 +59,8 @@ public:
         }
 
         /*
-        EntityRef noodle_stand = _interface->add_entity_with_components({ uint32_t(type_id<CompPhysics>),
+        EntityRef noodle_stand = _interface->add_entity_with_components({ 
+                    uint32_t(type_id<CompPhysics>),
                     uint32_t(type_id<CompPosition>),
                     uint32_t(type_id<CompStaticMesh>),
                     uint32_t(type_id<CompBounds>),
