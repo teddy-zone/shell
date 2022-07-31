@@ -5,6 +5,7 @@
 #include "level.h"
 #include "procedural_level_component.h"
 #include "noodle_stand_proto.h"
+#include "rock_proto.h"
 
 class ProcTestLevel : public Level
 {
@@ -48,6 +49,12 @@ public:
         {
             if (proc_levels[0].generated)
             {
+				std::lognormal_distribution<float> rock_size_dist(0.2, 0.75);
+				std::normal_distribution<float> rock_placement_dist(0,10);
+				std::uniform_real_distribution<float> rock_placement_draw(0, 1.0);
+				std::uniform_int_distribution rock_selection(0, 2);
+				std::mt19937 gen(int(_interface->get_current_game_time()));
+				float rock_spawn_chance = 0.25;
                 auto& player1 = get_array<CompPlayer>()[0];
                 player1.sibling<CompPosition>()->pos = proc_levels[0].spawn_point;
                 get_array<CompCamera>()[0].set_look_target(player1.sibling<CompPosition>()->pos, true);
@@ -68,6 +75,33 @@ public:
 						noodle_stand_entity.cmp<CompPosition>()->pos.z = proc_levels[0].floor_level+1.0;
 						noodle_placed = true;
 					}
+
+                    float rock_draw = rock_placement_draw(gen);
+                    if (rock_draw < rock_spawn_chance)
+                    { 
+                        int rock_number = rock_selection(gen);
+                        auto rock_proto = std::make_shared<RockProto>(rock_number+1);
+                        auto rock_entity = _interface->add_entity_from_proto(rock_proto.get());
+                        auto rock_size = rock_size_dist(gen);
+                        auto location = rock_placement_dist(gen);
+                        rock_entity.cmp<CompPosition>()->scale = glm::vec3(rock_size);
+                        if (location > 0)
+                        {
+                            auto new_pos = bottom_loc + glm::vec3(location, 0, proc_levels[0].floor_level + 1.0);
+                            if (new_pos.x > 0 && new_pos.y > 0)
+                            {
+                                rock_entity.cmp<CompPosition>()->pos = new_pos;
+                            }
+                        }
+                        else if (location < 0)
+                        {
+                            auto new_pos = top_loc + glm::vec3(location, 0, proc_levels[0].floor_level + 1.0);
+                            if (new_pos.x > 0 && new_pos.y > 0)
+                            {
+                                rock_entity.cmp<CompPosition>()->pos = new_pos;
+                            }
+                        }
+                    }
 				}
 
 				auto nav_mesh_visual = _interface->add_entity_with_components(std::vector<uint32_t>{uint32_t(type_id<CompLineObject>)});
