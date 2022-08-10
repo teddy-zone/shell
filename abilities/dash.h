@@ -39,6 +39,7 @@ struct DashProjectileProto : public EntityProto
                     uint32_t(type_id<CompTeam>),
                     uint32_t(type_id<CompStaticMesh>),
                     uint32_t(type_id<CompOnCast>),
+                    uint32_t(type_id<CompLineObject>),
             }};
         append_components(unit_components);
     }
@@ -54,6 +55,57 @@ struct DashProjectileProto : public EntityProto
         dash_mesh->load_obj("dash.obj");
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(dash_mesh);
         entity.cmp<CompStaticMesh>()->mesh.get_mesh()->set_solid_color(glm::vec4(1, 1, 1, 1));
+
+        auto line_mesh = std::make_shared<bgfx::Mesh>();
+        line_mesh->set_solid_color(glm::vec3(0,0,0));
+        auto* mesh = entity.cmp<CompLineObject>();
+        mesh->mesh.strip = true;
+        mesh->mesh.set_mesh(line_mesh);
+        entity.cmp<CompProjectile>()->history_size = 40;
+        entity.cmp<CompProjectile>()->on_projectile_update_callback = [](EntityRef entity)
+			{
+                auto mesh = entity.cmp<CompLineObject>()->mesh.get_mesh();
+                auto history = entity.cmp<CompProjectile>()->history;
+                const int num_trails = 5;
+
+                std::vector<float> all_vertices;
+                std::vector<float> all_normals;
+                std::vector<float> all_colors;
+                std::vector<glm::vec2> offsets = { {0,0}, {1,1}, {-1, 1}, {-1, -1}, {1, -1} };
+                
+                for (int trail = 0; trail < num_trails; ++trail)
+                {
+                    std::vector<float> vertices(history.size() * 3);
+                    std::vector<float> normals(history.size() * 3);
+                    std::vector<float> colors(history.size() * 4);
+                    glm::vec3 perp_vec;
+                    for (int i = 0; i < history.size(); ++i)
+                    {
+                        if (i < history.size() - 1)
+                        {
+                            perp_vec = glm::normalize(glm::cross(history[i] - history[i + 1], glm::vec3(0, 0, 1)));
+                        }
+                        glm::vec3 offset = 0.5*(glm::vec3(0, 0, 1) * offsets[trail].x + perp_vec * offsets[trail].y);
+                        vertices[i * 3 + 0] = history[i].x + offset.x;
+                        vertices[i * 3 + 1] = history[i].y + offset.y;
+                        vertices[i * 3 + 2] = history[i].z + offset.z;
+                        normals[i * 3 + 0] = 0;
+                        normals[i * 3 + 1] = 0;
+                        normals[i * 3 + 2] = -1;
+                        colors[i * 4 + 0] = 2*(history.size() - i) * 1.0 / history.size();
+                        colors[i * 4 + 1] = 2*(history.size() - i) * 1.0 / history.size();
+                        colors[i * 4 + 2] = 2*1.0;// (history.size() - i) * 1.0 / history.size();
+                        colors[i * 4 + 3] = 1.0;
+                    }
+                    all_vertices.insert(all_vertices.end(), vertices.begin(), vertices.end());
+                    all_normals.insert(all_normals.end(), normals.begin(), normals.end());
+                    all_colors.insert(all_colors.end(), colors.begin(), colors.end());
+                }
+                mesh->set_vertices(all_vertices);
+                mesh->set_normals(all_normals);
+                mesh->set_vertex_colors(all_colors);
+                mesh->_saved_vertices = all_vertices;
+			};
 
         entity.cmp<CompOnCast>()->on_cast_callbacks.push_back(
             [](SystemInterface* iface,

@@ -15,6 +15,9 @@ struct CrystalNovaInstanceProto : public ActorProto
                     uint32_t(type_id<CompRadiusApplication>),
                     uint32_t(type_id<CompDecal>),
                     uint32_t(type_id<CompTeam>),
+                    uint32_t(type_id<CompLineObject>),
+                    uint32_t(type_id<CompOnCast>),
+                    uint32_t(type_id<CompAnimation>),
             }};
         append_components(unit_components);
     }
@@ -45,6 +48,24 @@ struct CrystalNovaInstanceProto : public ActorProto
         //entity.cmp<CompDecal>()->decal.radius = 5;
         entity.cmp<CompDecal>()->decal.type = 1;
         entity.set_name("crystal_nova");
+
+        entity.cmp<CompAnimation>()->scale_enabled = true;
+        entity.cmp<CompAnimation>()->start_scale = glm::vec3(1);
+        entity.cmp<CompAnimation>()->end_scale = glm::vec3(1,1,0.1);
+        entity.cmp<CompAnimation>()->start_time = 0.2;
+        entity.cmp<CompAnimation>()->end_time = 2.0;
+
+        entity.cmp<CompLineObject>()->mesh.absolute_position = false;
+
+        auto line_mesh = std::make_shared<bgfx::Mesh>();
+        line_mesh->set_solid_color(glm::vec3(0,0,0));
+        auto* mesh = entity.cmp<CompLineObject>();
+        mesh->mesh.strip = false;
+        mesh->mesh.set_mesh(line_mesh);
+
+        // Generate line particles
+
+
     }
 };
 
@@ -77,5 +98,54 @@ public:
         auto ab_inst = entity.cmp<CompAbilityInstance>();
         auto cn_proto = std::dynamic_pointer_cast<EntityProto>(crystal_nova_proto);
         ab_inst->proto = cn_proto;
+
+        entity.cmp<CompOnCast>()->on_cast_callbacks.push_back([](SystemInterface* iface, EntityRef caster, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
+            {
+                const float average_length = 1;
+				std::mt19937 gen;
+				std::uniform_real_distribution<float> dist;
+                std::normal_distribution<float> norm_dist(0.0, 1.0);
+                std::vector<float> vertices;
+                std::vector<float> normals;
+                std::vector<float> colors;
+                const int number_of_particles = 200;
+                const float radius = instance_entity.value().cmp<CompRadiusApplication>()->radius;
+                const glm::vec3 location = instance_entity.value().cmp<CompPosition>()->pos;
+                for (int i = 0; i < number_of_particles; ++i)
+                {
+                    const float element_radius = -std::abs(norm_dist(gen)*radius*0.05) + radius;
+                    const float element_azimuth = dist(gen) * 2*3.1415926;
+                    const float x = element_radius * cos(element_azimuth);// +location.x;
+                    const float y = element_radius * sin(element_azimuth);// +location.y;
+                    vertices.push_back(x);
+                    vertices.push_back(y);
+                    vertices.push_back(0);
+                    vertices.push_back(x);
+                    vertices.push_back(y);
+                    vertices.push_back(norm_dist(gen)*0.5 + average_length);
+                    normals.push_back(0);
+                    normals.push_back(0);
+                    normals.push_back(-1);
+                    normals.push_back(0);
+                    normals.push_back(0);
+                    normals.push_back(-1);
+                    colors.push_back(0.8);
+                    colors.push_back(0.8);
+                    colors.push_back(0.8);
+                    colors.push_back(1);
+                    colors.push_back(1.8);
+                    colors.push_back(1.8);
+                    colors.push_back(1.8);
+                    colors.push_back(1);
+                    std::cout << "X: " << x << "\n";
+                    std::cout << "Y: " << y << "\n";
+                }
+                std::cout << "LOC: " << glm::to_string(location) << "\n";
+                auto line_mesh = instance_entity.value().cmp<CompLineObject>()->mesh.get_mesh();
+                line_mesh->set_vertices(vertices);
+                line_mesh->set_normals(normals);
+                line_mesh->_saved_vertices = vertices;
+                line_mesh->set_vertex_colors(colors);
+            });
     }
 };
