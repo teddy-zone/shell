@@ -87,7 +87,9 @@ public:
                 auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
                 auto result = _interface->fire_ray(full_ray, ray::HitType::StaticOnly);
                 if (result)
-                targeting_entity.cmp<CompPosition>()->pos = result.value().hit_point;
+                {
+                    targeting_entity.cmp<CompPosition>()->pos = result.value().hit_point;
+                }
                 auto* ab = caster_comp->get_ability();
                 auto* decal = targeting_entity.cmp<CompDecal>();
                 decal->decal.radius = ab->radius;

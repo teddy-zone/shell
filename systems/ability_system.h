@@ -468,6 +468,31 @@ public:
                         {
                             other_team = team_comp->team;
                         }
+
+						if (auto* on_hit_comp = applicator.sibling<CompOnHit>())
+						{
+                            if (my_team == other_team && applicator.apply_to_same_team)
+                            {
+                                if (on_hit_comp->on_hit_callbacks.size())
+                                {
+                                    for (auto& cb : on_hit_comp->on_hit_callbacks)
+                                    {
+                                        cb(_interface, applicator.get_entity(), inside_entity);
+                                    }
+                                }
+                            }
+                            if (my_team != other_team && applicator.apply_to_other_teams)
+                            {
+                                if (on_hit_comp->on_hit_callbacks.size())
+                                {
+                                    for (auto& cb : on_hit_comp->on_hit_callbacks)
+                                    {
+                                        cb(_interface, applicator.get_entity(), inside_entity);
+                                    }
+                                }
+                            }
+						}
+
                         if (applicator.damage)
                         {
                             if (my_team == other_team)

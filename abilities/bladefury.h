@@ -25,6 +25,7 @@ struct BladefuryStatusProto : public EntityProto
 
 struct BladefuryInstanceProto : public EntityProto 
 {
+
     BladefuryInstanceProto(const std::vector<CompType>& extension_types={}):
         EntityProto(extension_types)
     {
@@ -35,8 +36,11 @@ struct BladefuryInstanceProto : public EntityProto
                     uint32_t(type_id<CompTeam>),
                     uint32_t(type_id<CompDecal>),
                     uint32_t(type_id<CompRadiusApplication>),
+                    uint32_t(type_id<CompLineObject>),
+                    uint32_t(type_id<CompAnimation>),
             }};
         append_components(unit_components);
+
     }
 
     virtual void init(EntityRef entity, SystemInterface* iface) 
@@ -45,11 +49,26 @@ struct BladefuryInstanceProto : public EntityProto
         entity.cmp<CompRadiusApplication>()->tick_time = 0.1;
         entity.cmp<CompDecal>()->decal.type = 3;
         entity.cmp<CompLifetime>()->lifetime = 5;
+
+        entity.cmp<CompLineObject>()->mesh.absolute_position = false;
+
+        auto line_mesh = std::make_shared<bgfx::Mesh>();
+        line_mesh->set_solid_color(glm::vec3(0,0,0));
+        auto* mesh = entity.cmp<CompLineObject>();
+        mesh->mesh.strip = false;
+        mesh->mesh.set_mesh(line_mesh);
+
+        entity.cmp<CompAnimation>()->spin_enabled = true;
+        entity.cmp<CompAnimation>()->spin_speed = 80.0;
+        entity.cmp<CompAnimation>()->spin_axis = glm::vec3(0, 0, 1);
     }
 };
 
 class BladefuryAbilityProto : public AbilityProto 
 {
+    std::vector<float> vertices;
+    std::vector<float> normals;
+    std::vector<float> colors;
 public:
     BladefuryAbilityProto(const std::vector<CompType>& extension_types={}):
         AbilityProto(TargetDecalType::None, extension_types)
@@ -59,6 +78,35 @@ public:
                     uint32_t(type_id<CompAbilityInstance>),
             }};
         append_components(unit_components);
+
+		const float average_length = 8.5;
+		std::mt19937 gen;
+		std::uniform_real_distribution<float> dist;
+		std::normal_distribution<float> norm_dist(0.0, 1.0);
+		const int number_of_lines = 15;
+        const int num_vertices_per_line = 4;
+        const float angle_per_vertex = 3.14159 / 15;
+		for (int i = 0; i < number_of_lines; ++i)
+		{
+            float inward_radius = std::abs(norm_dist(gen));
+			const float element_radius = -inward_radius + 1.0;
+			const float element_azimuth = dist(gen) * 2*3.1415926;
+            for (int j = 0; j < num_vertices_per_line; ++j)
+            {
+				const float x = element_radius * cos(element_azimuth + angle_per_vertex*j);// +location.x;
+				const float y = element_radius * sin(element_azimuth + angle_per_vertex*j);// +location.y;
+                vertices.push_back(x);
+                vertices.push_back(y);
+                vertices.push_back(-1.5);
+                normals.push_back(0);
+                normals.push_back(0);
+                normals.push_back(-1);
+                colors.push_back(0.8);
+                colors.push_back(1.5);
+                colors.push_back(0.8);
+                colors.push_back(1);
+            }
+		}
     }
 
     virtual void init(EntityRef entity, SystemInterface* iface) override
@@ -77,7 +125,7 @@ public:
         entity.cmp<CompAbility>()->radius = 7;
         entity.cmp<CompAbility>()->max_level = 4;
         entity.cmp<CompOnCast>()->on_cast_callbacks.push_back(
-            [status_entity](SystemInterface* iface, EntityRef caster, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
+            [*this, status_entity](SystemInterface* iface, EntityRef caster, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
             {
                 if (unit_target)
                 {
@@ -89,7 +137,19 @@ public:
                 }
                 if (instance_entity)
                 {
+                    std::vector<float> scaled_vertices(vertices.size());
+                    float radius = instance_entity.value().cmp<CompRadiusApplication>()->radius;
+                    for (int i = 0; i < vertices.size(); i += 3)
+                    {
+                        scaled_vertices[i] = vertices[i] * radius;
+                        scaled_vertices[i + 1] = vertices[i + 1] * radius;
+                        scaled_vertices[i + 2] = vertices[i + 2];
+                    }
                     caster.cmp<CompAttachment>()->attached_entities.push_back(instance_entity.value());
+					auto line_mesh = instance_entity.value().cmp<CompLineObject>()->mesh.get_mesh();
+                    line_mesh->set_vertices(scaled_vertices);
+                    line_mesh->set_normals(normals);
+                    line_mesh->set_vertex_colors(colors);
 
                 }
             }

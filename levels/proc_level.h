@@ -213,6 +213,16 @@ public:
                     //mesh->mesh.set_id(100);
                 }
 
+				auto start_mod_proto = std::make_shared<AbilityModStationProto>(glm::vec3(0));
+				auto start_mod = _interface->add_entity_from_proto(start_mod_proto.get());
+                start_mod.cmp<CompPosition>()->pos = proc_levels[0].path[3];
+                start_mod.cmp<CompPosition>()->pos.z = proc_levels[0].floor_level + 2;
+
+				auto start_draft_proto = std::make_shared<AbilityDraftStationProto>(glm::vec3(0));
+				auto start_draft = _interface->add_entity_from_proto(start_draft_proto.get());
+                start_draft.cmp<CompPosition>()->pos = proc_levels[0].path[3] + glm::vec3(7,0,0);
+                start_draft.cmp<CompPosition>()->pos.z = proc_levels[0].floor_level + 2;
+
                 int light_counter = 0;
                 for (auto& path_element : proc_levels[0].path)
                 {
