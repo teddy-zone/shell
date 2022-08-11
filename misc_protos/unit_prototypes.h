@@ -177,6 +177,12 @@ struct UnitProto : public ActorProto
             get_up_animation(skeleton, dt, iface, 10.0);
         }
         ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["knockup"] =
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+        {
+            knock_up_animation(skeleton, dt, iface, 10.0);
+        }
+        ;
 
         for (int i = 0; i < 5; ++i)
         {

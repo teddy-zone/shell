@@ -22,7 +22,8 @@ enum class StatusState
     Rooted,
     Silenced,
     Phased,
-    Disarmed
+    Disarmed,
+    KnockedUp
 };
 
 struct StatPart

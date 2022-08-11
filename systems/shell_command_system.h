@@ -23,7 +23,19 @@ public:
             auto* stat_component = command_component.sibling<CompStat>();
             if (stat_component)
             {
-                if (stat_component->get_status_state(StatusState::Stunned))
+                if (stat_component->get_status_state(StatusState::KnockedUp))
+                {
+                    if (skeleton)
+                    {
+                        skeleton->set_animation("knockup", _interface->get_current_game_time());
+                    }
+                    if (nav_comp)
+                    {
+                        nav_comp->stop(_interface->get_current_game_time(), false);
+                    }
+                    continue;
+                }
+                else if (stat_component->get_status_state(StatusState::Stunned))
                 {
                     if (skeleton)
                     {

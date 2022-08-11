@@ -2,6 +2,26 @@
 
 #include "ability_proto.h"
 
+struct CrystalNovaStatusProto : public EntityProto 
+{
+    CrystalNovaStatusProto(const std::vector<CompType>& extension_types={}):
+        EntityProto(extension_types)
+    {
+        std::vector<CompType> unit_components = {{
+                    uint32_t(type_id<CompStat>),
+                    uint32_t(type_id<CompStatus>),
+                    uint32_t(type_id<CompHasOwner>),
+            }};
+        append_components(unit_components);
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface) 
+    {
+        entity.cmp<CompStat>()->set_status_state(StatusState::KnockedUp, true);
+        entity.cmp<CompStatus>()->duration = 1;
+    }
+};
+
 struct CrystalNovaInstanceProto : public ActorProto
 {
 
@@ -18,6 +38,7 @@ struct CrystalNovaInstanceProto : public ActorProto
                     uint32_t(type_id<CompLineObject>),
                     uint32_t(type_id<CompOnCast>),
                     uint32_t(type_id<CompAnimation>),
+                    uint32_t(type_id<CompOnHit>),
             }};
         append_components(unit_components);
     }
@@ -63,6 +84,22 @@ struct CrystalNovaInstanceProto : public ActorProto
         mesh->mesh.strip = false;
         mesh->mesh.set_mesh(line_mesh);
 
+        
+        CrystalNovaStatusProto status_proto;
+        auto status_entity = iface->add_entity_from_proto(&status_proto);
+        entity.cmp<CompOnHit>()->on_hit_callbacks.push_back(
+            [status_entity](SystemInterface* iface, EntityRef projectile, EntityRef hittee)
+            {
+                if (hittee.is_valid())
+                {
+                    if (auto* status_manager = hittee.cmp<CompStatusManager>())
+                    {
+                        auto* status_comp = status_entity.cmp<CompStatus>();
+                        status_manager->apply_status(status_comp);
+                    }
+                }
+            });
+
         // Generate line particles
 
 
@@ -71,6 +108,9 @@ struct CrystalNovaInstanceProto : public ActorProto
 
 class CrystalNovaAbilityProto : public AbilityProto 
 {
+	std::vector<float> vertices;
+	std::vector<float> normals;
+	std::vector<float> colors;
 public:
     CrystalNovaAbilityProto(const std::vector<CompType>& extension_types={}):
         AbilityProto(TargetDecalType::None, extension_types)
@@ -80,11 +120,47 @@ public:
                     uint32_t(type_id<CompAbilityInstance>),
             }};
         append_components(unit_components);
+
+		const float average_length = 8.5;
+		std::mt19937 gen;
+		std::uniform_real_distribution<float> dist;
+		std::normal_distribution<float> norm_dist(0.0, 1.0);
+		const int number_of_particles = 200;
+		for (int i = 0; i < number_of_particles; ++i)
+		{
+            float inward_radius = std::abs(norm_dist(gen) * 0.08);
+			const float element_radius = -inward_radius + 1.0;
+			const float element_azimuth = dist(gen) * 2*3.1415926;
+			const float x = element_radius * cos(element_azimuth);// +location.x;
+			const float y = element_radius * sin(element_azimuth);// +location.y;
+			vertices.push_back(x);
+			vertices.push_back(y);
+			vertices.push_back(-2);
+			vertices.push_back(x);
+			vertices.push_back(y);
+			vertices.push_back((norm_dist(gen)*0.5 + average_length)*inward_radius);
+			normals.push_back(0);
+			normals.push_back(0);
+			normals.push_back(-1);
+			normals.push_back(0);
+			normals.push_back(0);
+			normals.push_back(-1);
+			colors.push_back(0.8);
+			colors.push_back(0.8);
+			colors.push_back(0.8);
+			colors.push_back(1);
+			colors.push_back(1.8);
+			colors.push_back(1.8);
+			colors.push_back(1.8);
+			colors.push_back(1);
+			std::cout << "X: " << x << "\n";
+			std::cout << "Y: " << y << "\n";
+		}
     }
 
     virtual void init(EntityRef entity, SystemInterface* iface) override
     {
-        entity.cmp<CompAbility>()->cast_point = 1.5;
+        entity.cmp<CompAbility>()->cast_point = 0.5;
         entity.cmp<CompAbility>()->backswing = 0.5;
         entity.cmp<CompAbility>()->ground_targeted = true;
         entity.cmp<CompAbility>()->unit_targeted = false;
@@ -99,50 +175,18 @@ public:
         auto cn_proto = std::dynamic_pointer_cast<EntityProto>(crystal_nova_proto);
         ab_inst->proto = cn_proto;
 
-        entity.cmp<CompOnCast>()->on_cast_callbacks.push_back([](SystemInterface* iface, EntityRef caster, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
+        entity.cmp<CompOnCast>()->on_cast_callbacks.push_back([*this](SystemInterface* iface, EntityRef caster, std::optional<glm::vec3> ground_target, std::optional<EntityRef> unit_target, std::optional<EntityRef> instance_entity)
             {
-                const float average_length = 1;
-				std::mt19937 gen;
-				std::uniform_real_distribution<float> dist;
-                std::normal_distribution<float> norm_dist(0.0, 1.0);
-                std::vector<float> vertices;
-                std::vector<float> normals;
-                std::vector<float> colors;
-                const int number_of_particles = 200;
-                const float radius = instance_entity.value().cmp<CompRadiusApplication>()->radius;
-                const glm::vec3 location = instance_entity.value().cmp<CompPosition>()->pos;
-                for (int i = 0; i < number_of_particles; ++i)
+                std::vector<float> scaled_vertices(vertices.size());
+                float radius = instance_entity.value().cmp<CompRadiusApplication>()->radius;
+                for (int i = 0; i < vertices.size(); i += 3)
                 {
-                    const float element_radius = -std::abs(norm_dist(gen)*radius*0.05) + radius;
-                    const float element_azimuth = dist(gen) * 2*3.1415926;
-                    const float x = element_radius * cos(element_azimuth);// +location.x;
-                    const float y = element_radius * sin(element_azimuth);// +location.y;
-                    vertices.push_back(x);
-                    vertices.push_back(y);
-                    vertices.push_back(0);
-                    vertices.push_back(x);
-                    vertices.push_back(y);
-                    vertices.push_back(norm_dist(gen)*0.5 + average_length);
-                    normals.push_back(0);
-                    normals.push_back(0);
-                    normals.push_back(-1);
-                    normals.push_back(0);
-                    normals.push_back(0);
-                    normals.push_back(-1);
-                    colors.push_back(0.8);
-                    colors.push_back(0.8);
-                    colors.push_back(0.8);
-                    colors.push_back(1);
-                    colors.push_back(1.8);
-                    colors.push_back(1.8);
-                    colors.push_back(1.8);
-                    colors.push_back(1);
-                    std::cout << "X: " << x << "\n";
-                    std::cout << "Y: " << y << "\n";
+                    scaled_vertices[i] = vertices[i] * radius;
+                    scaled_vertices[i + 1] = vertices[i + 1] * radius;
+                    scaled_vertices[i + 2] = vertices[i + 2];
                 }
-                std::cout << "LOC: " << glm::to_string(location) << "\n";
                 auto line_mesh = instance_entity.value().cmp<CompLineObject>()->mesh.get_mesh();
-                line_mesh->set_vertices(vertices);
+                line_mesh->set_vertices(scaled_vertices);
                 line_mesh->set_normals(normals);
                 line_mesh->_saved_vertices = vertices;
                 line_mesh->set_vertex_colors(colors);
