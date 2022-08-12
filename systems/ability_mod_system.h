@@ -18,8 +18,9 @@ struct AbilityDraftDatabase
     std::vector<T> abilities;
     std::uniform_int_distribution<int> distribution;
 
-    AbilityDraftDatabase():
-        distribution(0, 10000)
+    AbilityDraftDatabase(int seed = 0):
+        distribution(0, 10000),
+        gen(seed)
     {}
 
     std::optional<T> get_random_ability_mod(const std::set<std::string>& exclude_mods)
@@ -49,8 +50,9 @@ struct DraftDatabase
     std::map<std::string, std::vector<T>> abilities;
     std::uniform_int_distribution<int> distribution;
 
-    DraftDatabase():
-        distribution(0, 10000)
+    DraftDatabase(int seed = 0):
+        distribution(0, 10000),
+        gen(seed)
     {}
 
     std::optional<T> get_random_mod(const std::vector<std::string>& ability_set, const std::set<std::string>& exclude_mods)
@@ -66,7 +68,7 @@ struct DraftDatabase
         size_t num_abilities = valid_abilities.size();
         if (num_abilities > 0)
         {
-            auto rand_ability_num = distribution(gen) % num_abilities; 
+            auto rand_ability_num = distribution(gen) % (num_abilities); 
             //auto ability_mod_entry = *(std::advance(heroes.at(hero_name).abilities.begin(), rand_ability_num)).first;
             return get_random_ability_mod(valid_abilities[rand_ability_num], exclude_mods);
         }
@@ -102,6 +104,7 @@ public:
 
     virtual void init_update() override
     {
+        _mods.gen.seed(std::chrono::system_clock::now().time_since_epoch().count());
         _mods.abilities["Ice Shards"] = std::vector<AbilityMod>();
         _mods.abilities["Ice Shards"].push_back(AbilityMod());
         _mods.abilities["Ice Shards"].back().mod_name = "Add Ice Shards Damage";
@@ -278,6 +281,38 @@ public:
                 }
             };
 
+        _mods.abilities["HERO"].push_back(AbilityMod());
+        _mods.abilities["HERO"].back().mod_name = "+50 Maximum Health";
+        _mods.abilities["HERO"].back().ability_name = "HERO";
+        _mods.abilities["HERO"].back().mod_function = [](EntityRef entity)
+            {
+				if (auto* stat_comp = entity.cmp<CompStat>())
+				{
+                    stat_comp->set_stat(Stat::MaxHealth, stat_comp->get_stat(Stat::MaxHealth).addition + 50);
+                }
+            };
+
+        _mods.abilities["HERO"].push_back(AbilityMod());
+        _mods.abilities["HERO"].back().mod_name = "+20 Move Speed";
+        _mods.abilities["HERO"].back().ability_name = "HERO";
+        _mods.abilities["HERO"].back().mod_function = [](EntityRef entity)
+            {
+				if (auto* stat_comp = entity.cmp<CompStat>())
+				{
+                    stat_comp->set_stat(Stat::Movespeed, stat_comp->get_stat(Stat::Movespeed).addition + 20);
+                }
+            };
+
+        _mods.abilities["HERO"].push_back(AbilityMod());
+        _mods.abilities["HERO"].back().mod_name = "+10 Attack Damage";
+        _mods.abilities["HERO"].back().ability_name = "HERO";
+        _mods.abilities["HERO"].back().mod_function = [](EntityRef entity)
+            {
+				if (auto* stat_comp = entity.cmp<CompStat>())
+				{
+                    stat_comp->set_stat(Stat::AttackDamage, stat_comp->get_stat(Stat::AttackDamage).addition + 10);
+                }
+            };
     }
 
     virtual void update_gui(double dt) override
@@ -342,6 +377,11 @@ public:
                         }
                     }
                 }
+                if (mod.ability_name == "HERO")
+                {
+                    mod.mod_function(ability_mod_comp->get_entity());
+                    ability_mod_comp->mods_available -= 1;
+                }
             }
         }
         ImGui::End();
@@ -377,11 +417,14 @@ public:
                             }
                         }
                     }
+					auto hero_mod = _mods.get_random_ability_mod("HERO", done_abilities);
+					ability_mod_comp.currently_available_mods.push_back(hero_mod.value());
                 }
             }
         }
     }
 };
+
 
 class SysAbilityDraft : public GuiSystem
 {
@@ -391,6 +434,7 @@ public:
 
     virtual void init_update() override
     {
+        _abilities.gen.seed(std::chrono::system_clock::now().time_since_epoch().count());
         _abilities.abilities.push_back(DraftableAbility());
         _abilities.abilities.back().name = "Jump";
         auto jump_proto = std::make_shared<JumpAbilityProto>();
@@ -497,6 +541,7 @@ public:
                         {
                             auto ability_entity = _interface->add_entity_from_proto(ability_set_comp->selected_ability.value().ability_proto.get());
                             ability_entity.cmp<CompAbility>()->max_level = 4;
+                            ability_entity.cmp<CompAbility>()->level = 1;
                             ability = ability_entity;
                             ability_set_comp->drafts_available -= 1;
                         }

@@ -108,7 +108,14 @@ struct CompAbilitySet : public Component, public StatInterface
 
     CompAbility* get_ability_component_by_index(int index)
     {
-        return abilities[index].cmp<CompAbility>();
+        if (abilities[index].is_valid())
+        {
+            if (auto* comp_ability = abilities[index].cmp<CompAbility>())
+            {
+                return comp_ability;
+            }
+        }
+        return nullptr;
     }
 
 };

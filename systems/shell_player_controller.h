@@ -91,9 +91,12 @@ public:
                     targeting_entity.cmp<CompPosition>()->pos = result.value().hit_point;
                 }
                 auto* ab = caster_comp->get_ability();
-                auto* decal = targeting_entity.cmp<CompDecal>();
-                decal->decal.radius = ab->radius;
-                decal->decal.location2 = glm::vec4(player_pos, 1.0);
+                if (ab)
+                {
+                    auto* decal = targeting_entity.cmp<CompDecal>();
+                    decal->decal.radius = ab->radius;
+                    decal->decal.location2 = glm::vec4(player_pos, 1.0);
+                }
             }
         }
 

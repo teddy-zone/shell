@@ -223,9 +223,33 @@ public:
                 start_draft.cmp<CompPosition>()->pos = proc_levels[0].path[3] + glm::vec3(7,0,0);
                 start_draft.cmp<CompPosition>()->pos.z = proc_levels[0].floor_level + 2;
 
+				auto spawner_proto = std::make_shared<SpawnerProto>(glm::vec3(0));
+				auto enemy_proto = std::make_shared<EnemyUnitProto>(glm::vec3(0));
+				auto enemy_proto2 = std::make_shared<EnemyUnitProto2>(glm::vec3(0));
+				auto enemy_proto3 = std::make_shared<HeavyEnemyUnit>(glm::vec3(0));
+				auto enemy_spawn_anim_proto = std::make_shared<SpawnAnimationProto>(1.5, enemy_proto);
+				auto enemy_spawn_anim_proto2 = std::make_shared<SpawnAnimationProto>(1.5, enemy_proto2);
+				auto enemy_spawn_anim_proto3 = std::make_shared<SpawnAnimationProto>(1.5, enemy_proto3);
+
                 int light_counter = 0;
                 for (auto& path_element : proc_levels[0].path)
                 {
+                    if (light_counter % 10 == 0 && light_counter > 9)
+                    {
+                        auto radial_actuator_proto = std::make_shared<RadialActuatorProto>(glm::vec3(0));
+                        auto radial_actuator2 = _interface->add_entity_from_proto(radial_actuator_proto.get());
+                        radial_actuator2.cmp<CompPosition>()->pos = path_element + glm::vec3(0,0,proc_levels[0].floor_level);
+                        radial_actuator2.cmp<CompRadialSensor>()->radius = proc_levels[0].widths[light_counter];
+                        radial_actuator2.cmp<CompRadialSensor>()->component_filter = { uint32_t(type_id<CompPlayer>) };
+
+                        auto spawner2 = _interface->add_entity_from_proto(spawner_proto.get());
+                        spawner2.cmp<CompPosition>()->pos = path_element + glm::vec3(0,0,proc_levels[0].floor_level);
+                        spawner2.cmp<CompActuatorDetector>()->actuator = radial_actuator2;
+                        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+                        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+                        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+                        spawner2.cmp<CompSpawnProtoList>()->radius = proc_levels[0].widths[light_counter]/2.0;
+                    }
 
                     light_counter++;
                 }

@@ -350,10 +350,12 @@ struct JuggernautProto : public UnitProto
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
-        //entity.cmp<CompStat>()->set_stat(Stat::HealthRegen, 10);
+        entity.cmp<CompStat>()->set_stat(Stat::MaxHealth, 600);
         //entity.cmp<CompStat>()->set_stat(Stat::ManaRegen, 10);
         auto bf_proto = std::make_shared<BladefuryAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(bf_proto.get());
+        entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->level = 1;
+        entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompHasOwner>()->owner = entity;
         entity.set_name("Juggernaut" + std::to_string(entity.get_id()));
     }
 };
@@ -379,8 +381,11 @@ struct CrystalMaidenProto : public UnitProto
         entity.cmp<CompAttacker>()->attack_ability = iface->add_entity_from_proto(ranged_attack_proto.get());
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 15;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
+        entity.cmp<CompStat>()->set_stat(Stat::MaxHealth, 500);
         auto cn_proto = std::make_shared<CrystalNovaAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
+        entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->level = 1;
+        entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompHasOwner>()->owner = entity;
         entity.set_name("CrystalMaiden");// +std::to_string(entity.get_id()));
     }
 };
@@ -401,7 +406,9 @@ struct TuskProto : public UnitProto
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->level = 1;
         auto cn_proto = std::make_shared<AbilityIceShardsProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
+        entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->level = 1;
         entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompHasOwner>()->owner = entity;
+        entity.cmp<CompStat>()->set_stat(Stat::MaxHealth, 700);
         entity.set_name("Tusk" + std::to_string(entity.get_id()));
     }
 };
@@ -442,6 +449,8 @@ struct EnemyUnitProto : public UnitProto
         auto cn_proto = std::make_shared<CrystalNovaAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->level = 1;
+        entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->cooldown = 10;
+        entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->radius = 3.5;
         auto is_proto = std::make_shared<AbilityIceShardsProto>();
         entity.cmp<CompAbilitySet>()->abilities[1] = iface->add_entity_from_proto(is_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[1].cmp<CompAbility>()->level = 1;
