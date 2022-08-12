@@ -200,6 +200,30 @@ public:
                 {
                     case AbilityState::CastPoint:
                         {
+							if (caster_component.state_time == 0.0)
+							{
+                                if (auto* cast_point_instance = ability->sibling<CompCastPointInstance>())
+                                {
+                                    if (ability->ground_targeted)
+                                    {
+                                        auto ground_target = caster_component.ground_target;
+                                        auto instance_entity = _interface->add_entity_from_proto(cast_point_instance->proto.get(), ability->get_entity());
+                                        cast_point_instance->instances.push_back(instance_entity);
+                                        if (auto* decal = instance_entity.cmp<CompDecal>())
+                                        {
+                                            decal->decal.radius = ability->radius;
+                                        }
+                                        if (auto* lifetime = instance_entity.cmp<CompLifetime>())
+                                        {
+                                            lifetime->lifetime = ability->cast_point;
+                                        }
+                                        if (auto* pos_comp = instance_entity.cmp<CompPosition>())
+                                        {
+                                            pos_comp->pos = ground_target.value();
+                                        }
+                                    }
+                                }
+                            }
                             const float cast_point_done_fraction = caster_component.state_time/ability->cast_point;
                             nav_comp->stop(_interface->get_current_game_time(), false);
                             bool dynamic_complete = false;
@@ -452,7 +476,7 @@ public:
                 if (auto* pos_comp = applicator.sibling<CompPosition>())
                 {
                     auto pos = pos_comp->pos;
-                    auto inside_entities = _interface->data_within_sphere_selective(pos, applicator.radius, {{uint32_t(type_id<CompHealth>)}});
+                    auto inside_entities = _interface->data_within_cylinder_selective(pos, applicator.radius, {{uint32_t(type_id<CompHealth>)}});
                     for (auto& inside_entity : inside_entities)
                     {
                         Team other_team = 0;

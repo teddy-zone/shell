@@ -246,7 +246,7 @@ public:
                         spawner2.cmp<CompPosition>()->pos = path_element + glm::vec3(0,0,proc_levels[0].floor_level);
                         spawner2.cmp<CompActuatorDetector>()->actuator = radial_actuator2;
                         spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
-                        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
+                        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
                         spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
                         spawner2.cmp<CompSpawnProtoList>()->radius = proc_levels[0].widths[light_counter]/2.0;
                     }
