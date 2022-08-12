@@ -59,7 +59,7 @@ struct BladefuryInstanceProto : public EntityProto
         mesh->mesh.set_mesh(line_mesh);
 
         entity.cmp<CompAnimation>()->spin_enabled = true;
-        entity.cmp<CompAnimation>()->spin_speed = 80.0;
+        entity.cmp<CompAnimation>()->spin_speed = 40.0;
         entity.cmp<CompAnimation>()->spin_axis = glm::vec3(0, 0, 1);
     }
 };
@@ -84,8 +84,8 @@ public:
 		std::uniform_real_distribution<float> dist;
 		std::normal_distribution<float> norm_dist(0.0, 1.0);
 		const int number_of_lines = 15;
-        const int num_vertices_per_line = 4;
-        const float angle_per_vertex = 3.14159 / 15;
+        const int num_vertices_per_line = 8;
+        const float angle_per_vertex = 3.14159 / 10;
 		for (int i = 0; i < number_of_lines; ++i)
 		{
             float inward_radius = std::abs(norm_dist(gen));

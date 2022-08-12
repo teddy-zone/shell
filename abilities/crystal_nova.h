@@ -18,7 +18,7 @@ struct CrystalNovaStatusProto : public EntityProto
     virtual void init(EntityRef entity, SystemInterface* iface) 
     {
         entity.cmp<CompStat>()->set_status_state(StatusState::KnockedUp, true);
-        entity.cmp<CompStatus>()->duration = 1;
+        entity.cmp<CompStatus>()->duration = 0.35;
     }
 };
 
@@ -166,7 +166,7 @@ public:
         entity.cmp<CompAbility>()->unit_targeted = false;
         entity.cmp<CompAbility>()->cooldown = 8;
         entity.cmp<CompAbility>()->cast_range = 100;
-        entity.cmp<CompAbility>()->radius = 5;
+        entity.cmp<CompAbility>()->radius = 4;
         entity.cmp<CompAbility>()->target_decal_type = TargetDecalType::Circle;
         entity.cmp<CompAbility>()->max_level = 4;
         entity.cmp<CompAbility>()->ability_name = "Crystal Nova";

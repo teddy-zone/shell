@@ -18,8 +18,9 @@ struct CaskStatusProto : public EntityProto
 
     virtual void init(EntityRef entity, SystemInterface* iface) 
     {
-        entity.cmp<CompStat>()->set_status_state(StatusState::Stunned, true);
-        entity.cmp<CompStatus>()->duration = 1;
+        //entity.cmp<CompStat>()->set_status_state(StatusState::Stunned, true);
+        entity.cmp<CompStat>()->set_stat_mult(Stat::Movespeed, 0.5);
+        entity.cmp<CompStatus>()->duration = 1.0;
     }
 };
 
@@ -37,6 +38,7 @@ struct CaskInstanceProto : public ActorProto
                     uint32_t(type_id<CompBounds>),
                     uint32_t(type_id<CompTeam>),
                     uint32_t(type_id<CompStaticMesh>),
+                    uint32_t(type_id<CompPointLight>),
             }};
         append_components(unit_components);
     }
@@ -56,9 +58,18 @@ struct CaskInstanceProto : public ActorProto
 
         auto sphere_mesh = std::make_shared<bgfx::Mesh>();
         sphere_mesh->load_obj("sphere.obj");
-        sphere_mesh->set_solid_color(glm::vec4(0.3,0.6,0.2,1.0));
+        sphere_mesh->set_solid_color(glm::vec4(6.3,6.6,6.2,1.0));
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(sphere_mesh);
         entity.cmp<CompPosition>()->scale = glm::vec3(0.1);
+        entity.cmp<CompPointLight>()->light.intensity = 0.0002;
+        entity.cmp<CompPointLight>()->absolute_positioning = false;
+        entity.cmp<CompPointLight>()->light.color = glm::vec4(0.8, 1.0, 0.7, 1.0);
+        DamageInstance cask_damage;
+        cask_damage.applier = entity;
+        cask_damage.damage = 80;
+        cask_damage.type = DamageType::Magical;
+        cask_damage.is_attack = false;
+        entity.cmp<CompOnHit>()->damage = cask_damage;
         entity.cmp<CompOnHit>()->on_hit_callbacks.push_back(
             [status_entity](SystemInterface* iface, EntityRef projectile, EntityRef hittee)
             {
