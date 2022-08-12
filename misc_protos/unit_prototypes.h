@@ -451,6 +451,7 @@ struct EnemyUnitProto : public UnitProto
         entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->level = 1;
         entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->cooldown = 10;
         entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->radius = 3.5;
+        entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->cast_point = 1.0;
         auto is_proto = std::make_shared<AbilityIceShardsProto>();
         entity.cmp<CompAbilitySet>()->abilities[1] = iface->add_entity_from_proto(is_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[1].cmp<CompAbility>()->level = 1;
@@ -502,6 +503,7 @@ struct EnemyUnitProto2 : public UnitProto
         auto cn_proto = std::make_shared<CaskAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->level = 1;
+        entity.cmp<CompAbilitySet>()->abilities[0].cmp<CompAbility>()->level = 1;
         auto is_proto = std::make_shared<AbilityIceShardsProto>();
         entity.cmp<CompAbilitySet>()->abilities[1] = iface->add_entity_from_proto(is_proto.get());
         entity.cmp<CompAbilitySet>()->abilities[1].cmp<CompAbility>()->level = 1;
@@ -541,6 +543,7 @@ struct HeavyEnemyUnit : public UnitProto
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompBasicEnemyAI>()->vision_range = 25;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
+        entity.cmp<CompBounds>()->set_bounds(glm::vec3(2, 2, 20));
         /*
         auto cn_proto = std::make_shared<CaskAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());

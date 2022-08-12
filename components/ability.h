@@ -101,6 +101,12 @@ struct CompAbilityInstance : public Component
     std::optional<CompOnDestruction> destruction_callback;
 };
 
+struct CompCastPointInstance : public Component
+{
+    std::shared_ptr<EntityProto> proto;
+    std::vector<EntityRef> instances;
+};
+
 struct TargetingProto : public ActorProto
 {
     TargetDecalType decal_type;

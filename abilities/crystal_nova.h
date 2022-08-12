@@ -106,6 +106,26 @@ struct CrystalNovaInstanceProto : public ActorProto
     }
 };
 
+class CrystalNovaCastPointInstanceProto : public ActorProto
+{
+public:
+    CrystalNovaCastPointInstanceProto(const std::vector<CompType>& extension_types = {}) :
+        ActorProto(glm::vec3(0), extension_types)
+    {
+        std::vector<CompType> unit_components = { {
+                    uint32_t(type_id<CompDecal>),
+                    uint32_t(type_id<CompLifetime>),
+            } };
+        append_components(unit_components);
+    }
+
+    virtual void init(EntityRef entity, SystemInterface* iface) override
+    {
+        entity.cmp<CompDecal>()->decal.type = 9;
+    }
+
+};
+
 class CrystalNovaAbilityProto : public AbilityProto 
 {
 	std::vector<float> vertices;
@@ -118,6 +138,7 @@ public:
         std::vector<CompType> unit_components = {{
                     uint32_t(type_id<CompOnCast>),
                     uint32_t(type_id<CompAbilityInstance>),
+                    uint32_t(type_id<CompCastPointInstance>),
             }};
         append_components(unit_components);
 
@@ -126,6 +147,7 @@ public:
 		std::uniform_real_distribution<float> dist;
 		std::normal_distribution<float> norm_dist(0.0, 1.0);
 		const int number_of_particles = 200;
+        
 		for (int i = 0; i < number_of_particles; ++i)
 		{
             float inward_radius = std::abs(norm_dist(gen) * 0.08);
@@ -160,6 +182,8 @@ public:
 
     virtual void init(EntityRef entity, SystemInterface* iface) override
     {
+        entity.cmp<CompCastPointInstance>()->proto = std::make_shared<CrystalNovaCastPointInstanceProto>();
+
         entity.cmp<CompAbility>()->cast_point = 0.5;
         entity.cmp<CompAbility>()->backswing = 0.5;
         entity.cmp<CompAbility>()->ground_targeted = true;
