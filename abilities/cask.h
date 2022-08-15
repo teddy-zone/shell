@@ -92,7 +92,12 @@ struct CaskInstanceProto : public ActorProto
                         auto cast_candidates = iface->data_within_sphere_selective(me.cmp<CompPosition>()->pos, 10, {uint32_t(type_id<CompStat>)});
                         for (auto& candidate : cast_candidates)
                         {
-                            if (candidate.cmp<CompTeam>()->team == me.cmp<CompTeam>()->team || 
+                            int candidate_team = 0;
+                            if (auto* candidate_team_comp = candidate.cmp<CompTeam>())
+                            {
+                                candidate_team = candidate.cmp<CompTeam>()->team;
+                            }
+                            if (candidate_team == me.cmp<CompTeam>()->team || 
                                 candidate == me.cmp<CompProjectile>()->homing_target.value())
                             {
                                 continue;

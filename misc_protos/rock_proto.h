@@ -12,6 +12,11 @@
 #include "caster_component.h"
 #include "shop_inventory.h"
 #include "point_light_component.h"
+#include "insect_system.h"
+
+static std::uniform_real_distribution<float> bug_spawn_dist(0,1.0);
+static std::mt19937 gen(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+static const float bug_spawn_chance = 0.1;
 
 struct RockProto : public ActorProto
 {
@@ -25,6 +30,10 @@ struct RockProto : public ActorProto
                     uint32_t(type_id<CompPhysics>),
                     uint32_t(type_id<CompStaticMesh>),
                     uint32_t(type_id<CompBounds>),
+                    uint32_t(type_id<CompAttackable>),
+                    uint32_t(type_id<CompHealth>),
+                    uint32_t(type_id<CompStat>),
+                    uint32_t(type_id<CompOnDestruction>),
             }};
         append_components(unit_components);
     }
@@ -42,6 +51,23 @@ struct RockProto : public ActorProto
 
         entity.cmp<CompBounds>()->bounds = temp_bounds;
         entity.cmp<CompBounds>()->is_static = true;
+        entity.cmp<CompHealth>()->visible_health_bar_only_if_damaged = true;
+        entity.cmp<CompStat>()->set_stat(Stat::MaxHealth, 20);
+
+        entity.cmp<CompOnDestruction>()->on_destruction_callbacks.push_back([&](SystemInterface* iface, EntityRef me)
+            {
+                float bug_spawn_draw = bug_spawn_dist(gen);
+                std::cout << "BUG?: " << bug_spawn_draw << "\n";
+                if (bug_spawn_draw < bug_spawn_chance)
+                {
+					auto pill_bug_proto = std::make_shared<PillBugProto>();
+					auto pill_bug_entity = iface->add_entity_from_proto(pill_bug_proto.get());
+                    pill_bug_entity.cmp<CompPosition>()->pos = me.cmp<CompPosition>()->pos;
+                    pill_bug_entity.cmp<InsectType>()->direction = glm::vec3(1, 0, 0);
+                    pill_bug_entity.cmp<InsectType>()->current_floor_level = -1.0;
+                }
+            }
+        );
     }
 };
 

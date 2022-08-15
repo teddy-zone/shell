@@ -30,6 +30,7 @@
 #include "ability_mod_station_proto.h"
 #include "ability_draft_station_proto.h"
 #include "spotlight_component.h"
+#include "net.h"
 
 class TestLevel : public Level
 {
@@ -158,6 +159,15 @@ public:
             vladmir_slot.item_entity = vladmir_entity;
             vladmir_entity.cmp<CompItem>()->name = "Vladmir's Offering";
             shopkeeper.cmp<CompShopInventory>()->slots.push_back(vladmir_slot);
+        }
+        {
+            ItemNetProto net_proto;
+            auto net_entity = c->add_entity_from_proto(&net_proto);
+            InventorySlot net_slot;
+            net_slot.cost = 300;
+            net_slot.item_entity = net_entity;
+            net_entity.cmp<CompItem>()->name = "Bug Net";
+            shopkeeper.cmp<CompShopInventory>()->slots.push_back(net_slot);
         }
         shopkeeper.cmp<CompInteractable>()->interaction_callback = [](SystemInterface* sys_interface, EntityRef interactor, EntityRef interactee)
             {
