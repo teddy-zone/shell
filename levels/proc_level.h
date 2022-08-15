@@ -6,6 +6,10 @@
 #include "procedural_level_component.h"
 #include "noodle_stand_proto.h"
 #include "rock_proto.h"
+#include "shop_proto.h"
+#include "net.h"
+#include "blink_dagger.h"
+#include "vladmirs_offering.h"
 
 class ProcTestLevel : public Level
 {
@@ -223,6 +227,48 @@ public:
                 start_draft.cmp<CompPosition>()->pos = proc_levels[0].path[3] + glm::vec3(7,0,0);
                 start_draft.cmp<CompPosition>()->pos.z = proc_levels[0].floor_level + 2;
 
+                {
+                    ShopProto shop_proto(glm::vec3(1, 1, 40));
+                    auto shopkeeper = _interface->add_entity_from_proto(static_cast<EntityProto*>(&shop_proto));
+                    shopkeeper.cmp<CompShopInventory>()->camera = &get_array<CompCamera>()[0].graphics_camera;
+                    {
+                        BlinkDaggerProto blink_dagger_proto;
+                        auto blink_dagger_entity = _interface->add_entity_from_proto(&blink_dagger_proto);
+                        InventorySlot blink_dagger_slot;
+                        blink_dagger_slot.cost = 2150;
+                        blink_dagger_slot.item_entity = blink_dagger_entity;
+                        blink_dagger_entity.cmp<CompItem>()->name = "Blink Dagger";
+                        shopkeeper.cmp<CompShopInventory>()->slots.push_back(blink_dagger_slot);
+                    }
+                    {
+                        VladmirProto vladmir_proto;
+                        auto vladmir_entity = _interface->add_entity_from_proto(&vladmir_proto);
+                        InventorySlot vladmir_slot;
+                        vladmir_slot.cost = 1500;
+                        vladmir_slot.item_entity = vladmir_entity;
+                        vladmir_entity.cmp<CompItem>()->name = "Vladmir's Offering";
+                        shopkeeper.cmp<CompShopInventory>()->slots.push_back(vladmir_slot);
+                    }
+                    {
+                        ItemNetProto net_proto;
+                        auto net_entity = _interface->add_entity_from_proto(&net_proto);
+                        InventorySlot net_slot;
+                        net_slot.cost = 300;
+                        net_slot.item_entity = net_entity;
+                        net_entity.cmp<CompItem>()->name = "Bug Net";
+                        shopkeeper.cmp<CompShopInventory>()->slots.push_back(net_slot);
+                    }
+                    shopkeeper.cmp<CompInteractable>()->interaction_callback = [](SystemInterface* sys_interface, EntityRef interactor, EntityRef interactee)
+                    {
+                        if (auto* inventory = interactee.cmp<CompShopInventory>())
+                        {
+                            inventory->visible = true;
+                        }
+                    };
+					shopkeeper.cmp<CompPosition>()->pos = proc_levels[0].path[3] + glm::vec3(-7,0,0);
+					shopkeeper.cmp<CompPosition>()->pos.z = proc_levels[0].floor_level + 2;
+                }
+
 				auto spawner_proto = std::make_shared<SpawnerProto>(glm::vec3(0));
 				auto enemy_proto = std::make_shared<EnemyUnitProto>(glm::vec3(0));
 				auto enemy_proto2 = std::make_shared<EnemyUnitProto2>(glm::vec3(0));
@@ -230,11 +276,19 @@ public:
 				auto enemy_spawn_anim_proto = std::make_shared<SpawnAnimationProto>(1.5, enemy_proto);
 				auto enemy_spawn_anim_proto2 = std::make_shared<SpawnAnimationProto>(1.5, enemy_proto2);
 				auto enemy_spawn_anim_proto3 = std::make_shared<SpawnAnimationProto>(1.5, enemy_proto3);
+                std::vector<std::shared_ptr<EntityProto>> enemy_protos = {
+                    enemy_proto,
+                    enemy_proto2,
+                    enemy_proto3
+                };
 
                 int light_counter = 0;
+                static std::uniform_int_distribution<int> type_selection_distribution(0, 2);
+                static std::uniform_int_distribution<int> count_distribution(1,3);
+                static std::mt19937 enemy_gen(std::chrono::high_resolution_clock::now().time_since_epoch().count());
                 for (auto& path_element : proc_levels[0].path)
                 {
-                    if (light_counter % 10 == 0 && light_counter > 9)
+                    if (light_counter % 10 == 0 && light_counter > 10)
                     {
                         auto radial_actuator_proto = std::make_shared<RadialActuatorProto>(glm::vec3(0));
                         auto radial_actuator2 = _interface->add_entity_from_proto(radial_actuator_proto.get());
@@ -245,9 +299,12 @@ public:
                         auto spawner2 = _interface->add_entity_from_proto(spawner_proto.get());
                         spawner2.cmp<CompPosition>()->pos = path_element + glm::vec3(0,0,proc_levels[0].floor_level);
                         spawner2.cmp<CompActuatorDetector>()->actuator = radial_actuator2;
-                        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto);
-                        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto3);
-                        spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_spawn_anim_proto2);
+                        int num_enemies = count_distribution(enemy_gen);
+                        for (int i = 0; i < num_enemies; ++i)
+                        {
+                            int enemy_selection = type_selection_distribution(gen);
+                            spawner2.cmp<CompSpawnProtoList>()->protos.push_back(enemy_protos[enemy_selection]);
+                        }
                         spawner2.cmp<CompSpawnProtoList>()->radius = proc_levels[0].widths[light_counter]/2.0;
                     }
 

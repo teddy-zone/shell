@@ -34,6 +34,7 @@
 #include "fall.h"
 #include "camera_shake_component.h"
 #include "dialog_component.h"
+#include "notification_component.h"
 #include "materials/box_mat/VertexShader.glsl.h"
 #include "materials/box_mat/FragmentShader.glsl.h"
 
@@ -73,6 +74,7 @@ struct UnitProto : public ActorProto
                     uint32_t(type_id<CompDecal>),
                     uint32_t(type_id<CompCameraShake>),
                     uint32_t(type_id<CompDialog>),
+                    uint32_t(type_id<CompNotification>),
             }};
         append_components(unit_components);
     }

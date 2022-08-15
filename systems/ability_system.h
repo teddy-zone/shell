@@ -220,6 +220,45 @@ public:
                                         if (auto* pos_comp = instance_entity.cmp<CompPosition>())
                                         {
                                             pos_comp->pos = ground_target.value();
+                                            if (auto* parent_pos_comp = caster_component.sibling<CompPosition>())
+                                            {
+                                                if (auto* anim_comp = instance_entity.cmp<CompAnimation>())
+                                                {
+                                                    if (glm::length(parent_pos_comp->facing_direction))
+                                                    {
+                                                        instance_entity.cmp<CompAnimation>()->spin_axis = -glm::normalize(glm::cross(parent_pos_comp->facing_direction, glm::vec3(0, 0, 1)));
+                                                    }
+                                                }
+                                                instance_entity.cmp<CompPosition>()->rot = parent_pos_comp->rot;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        auto instance_entity = _interface->add_entity_from_proto(cast_point_instance->proto.get(), ability->get_entity());
+                                        cast_point_instance->instances.push_back(instance_entity);
+                                        if (auto* decal = instance_entity.cmp<CompDecal>())
+                                        {
+                                            decal->decal.radius = ability->radius;
+                                        }
+                                        if (auto* lifetime = instance_entity.cmp<CompLifetime>())
+                                        {
+                                            lifetime->lifetime = ability->cast_point;
+                                        }
+                                        if (auto* pos_comp = instance_entity.cmp<CompPosition>())
+                                        {
+                                            if (auto* parent_pos_comp = caster_component.sibling<CompPosition>())
+                                            {
+                                                pos_comp->pos = parent_pos_comp->pos;
+                                                if (auto* anim_comp = instance_entity.cmp<CompAnimation>())
+                                                {
+                                                    if (glm::length(parent_pos_comp->facing_direction))
+                                                    {
+                                                        instance_entity.cmp<CompAnimation>()->spin_axis = -glm::normalize(glm::cross(parent_pos_comp->facing_direction, glm::vec3(0, 0, 1)));
+                                                    }
+                                                }
+                                                instance_entity.cmp<CompPosition>()->rot = parent_pos_comp->rot;
+                                            }
                                         }
                                     }
                                 }

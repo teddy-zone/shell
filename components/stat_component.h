@@ -11,6 +11,10 @@ class CompStat : public Component, public StatInterface
     std::map<Stat, StatPart> _parts; 
     std::map<StatusState, bool> _states; 
 public:
+    const std::map<Stat, StatPart>& get_stats() const
+    {
+        return _parts;
+    }
     virtual StatPart get_stat(Stat stat) override;
     virtual bool get_status_state(StatusState state) override;
     virtual void set_status_state(StatusState state, bool new_state) override

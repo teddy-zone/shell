@@ -10,7 +10,17 @@ StatPart CompStat::get_stat(Stat stat)
     StatPart out_part;
     if (_parts.count(stat))
     {
+        int num_charges = 1;
+        if (auto* item_comp = sibling<CompItem>())
+        {
+            if (item_comp->has_charges)
+            {
+                num_charges = item_comp->num_charges;
+            }
+        }
         out_part = _parts.at(stat);
+        out_part.addition = out_part.addition * num_charges;
+        out_part.multiplication = std::pow(out_part.multiplication,num_charges);
     }
     auto ability_set_comp = sibling<CompAbilitySet>();
     if (ability_set_comp)

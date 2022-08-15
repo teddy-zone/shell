@@ -114,7 +114,7 @@ public:
                         {
                             entity_team = team_comp->team;
                         }
-                        if (ent.get_id() != pos_comp->get_id() && dist < closest_distance && my_team != entity_team)
+                        if (ent.get_id() != pos_comp->get_id() && dist < closest_distance && my_team != entity_team && entity_team != 0)
                         {
                             closest_entity = ent;
                             closest_distance = dist;
@@ -249,6 +249,16 @@ public:
                     }
                     // else move to target
                 }
+            }
+            else 
+            {
+				if (caster_comp->state == AbilityState::None && !caster_comp->activated)
+				{
+					caster_comp->activate_ability(cmd->ability_index);
+                    caster_comp->ground_target = std::nullopt;
+					caster_comp->unit_target = std::nullopt;
+					caster_comp->activated = true;
+				}
             }
         }
         if (caster_comp->state == AbilityState::None)

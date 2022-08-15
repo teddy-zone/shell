@@ -26,6 +26,7 @@ struct CompHealth : public Component
     std::optional<EntityRef> killer;
     float health_percentage = 100.0;
     float filtered_health_percentage = 100.0;
+    bool visible_health_bar_only_if_damaged = false;
 
     void add_health(float health_amount)
     {

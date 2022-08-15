@@ -5,15 +5,20 @@
 #include "keystate_component.h"
 #include "mana_component.h"
 #include "hud_control_component.h"
+#include "notification_component.h"
 
 class SysMainPlayerHud : public GuiSystem
 {
 
 public:
 
+    const float notification_duration = 4.0;
     const int widget_margin = 10;
     const int ability_widget_height = 150;
     const float last_level_up_blink_period = 0.4;
+	const int status_width = 20;
+	const int status_widget_height = status_width + 30;
+
     float last_level_up_blink = 0;
 
     virtual void update_gui(double dt) override
@@ -37,6 +42,7 @@ public:
                         update_statuses(selected_entity);
                         update_abilities_and_health(selected_entity);
                         update_inventory(selected_entity);
+                        update_notifications(selected_entity);
                     }
                 }
                 update_health_bars(my_team);
@@ -88,11 +94,9 @@ public:
         {
             const int status_count = status_manager->statuses.size();
             bool active;
-            const int status_width = 20;
-            const int widget_height = status_width + 30;
             const int widget_width = status_width * status_count + 4*20;
-            ImGui::SetNextWindowPos(ImVec2(widget_margin, CompWidget::window_height - (2*widget_margin + widget_height + ability_widget_height)));
-            ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
+            ImGui::SetNextWindowPos(ImVec2(widget_margin, CompWidget::window_height - (2*widget_margin + status_widget_height + ability_widget_height)));
+            ImGui::SetNextWindowSize(ImVec2(widget_width, status_widget_height));
             ImGui::Begin("Statuses", &active, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
             for (auto& [application_id, application] : status_manager->statuses)
@@ -125,6 +129,10 @@ public:
         for (auto& health_component : health_components)
         {
             auto* comp_static_mesh = health_component.sibling<CompStaticMesh>();
+            if (health_component.health_percentage > 99 && health_component.visible_health_bar_only_if_damaged)
+            {
+                continue;
+            }
             if (comp_static_mesh->visible == false)
             {
                 continue;
@@ -351,13 +359,24 @@ public:
                 for (auto& item : inventory->items)
                 {
                     index++;
-                    ImGui::ImageButton(0, ImVec2(widget_height/2 - 30, widget_height/2 - 30));
+                    ImGui::ImageButton(0, ImVec2(widget_height/2 - 30, widget_height/2 - 50));
                     {
                         //ImGui::Text((std::string("CD: ") + std::to_string(ab->current_cooldown.value())).c_str());
                     }
                     if (item.is_valid())
                     {
-                        ImGui::Text(item.cmp<CompItem>()->name.c_str());
+                        if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+                        {
+                            auto item_tooltip = create_item_tooltip(item);
+                        }
+                        if (!item.cmp<CompItem>()->has_charges)
+                        {
+                            ImGui::Text(item.cmp<CompItem>()->name.c_str());
+                        }
+                        else
+                        {
+                            ImGui::Text((std::string("(" + std::to_string(item.cmp<CompItem>()->num_charges) + ") ") + item.cmp<CompItem>()->name).c_str());
+                        }
                     }
                     else
                     {
@@ -374,4 +393,54 @@ public:
         }
     }
 
+    std::string create_item_tooltip(EntityRef& in_item_entity)
+    {
+        ImGui::BeginTooltip();
+        if (auto* item_comp = in_item_entity.cmp<CompItem>())
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 255, 255));
+            ImGui::Text(item_comp->name.c_str());
+            ImGui::PopStyleColor();
+            if (auto* stat_comp = in_item_entity.cmp<CompStat>())
+            {
+                ImGui::Text("");
+                auto stats = stat_comp->get_stats();
+                for (const auto& stat : stats)
+                {
+                    std::string stat_text = stat_to_string(stat.first);
+                    stat_text += ": " + std::to_string(stat.second.addition);
+                    ImGui::Text(stat_text.c_str());
+                }
+            }
+        }
+        ImGui::EndTooltip();
+    }
+
+    void update_notifications(EntityRef& in_entity)
+    {
+        auto* notification_comp = in_entity.cmp<CompNotification>();
+        if (notification_comp)
+        {
+            if (notification_comp->notifications.size())
+            {
+                int notification_height = 25;
+                const int widget_height = notification_height * notification_comp->notifications.size() + 30;
+                const int widget_width = 200;
+                ImGui::SetNextWindowPos(ImVec2(widget_margin, CompWidget::window_height - (widget_margin + ability_widget_height) - (widget_margin + widget_height) - (status_widget_height + widget_margin)));
+                ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
+                bool popen;
+                ImGui::Begin("Notifications", &popen, ImGuiWindowFlags_NoResize);
+                for (auto& notification : notification_comp->notifications)
+                {
+                    ImGui::Text(notification.first.c_str());
+                    ImGui::Text("");
+                }
+                ImGui::End();
+				if (-notification_comp->notifications.front().second + _interface->get_current_game_time() > notification_duration)
+				{
+					notification_comp->notifications.pop_front();
+				}
+            }
+        }
+    }
 };
