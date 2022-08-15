@@ -149,6 +149,12 @@ struct UnitProto : public ActorProto
                 cast_point_two_leg_animation(skeleton, dt, iface, 10.0);
             }
         ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["default_backswing"] = 
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+            {
+                backswing_two_leg_animation(skeleton, dt, iface, 10.0);
+            }
+        ;
         entity.cmp<CompSkeletalMeshNew>()->animations["dash"] =
             [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
         {

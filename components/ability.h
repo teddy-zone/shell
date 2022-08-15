@@ -59,7 +59,7 @@ struct CompAbility : public Component
     int mana_cost;
     std::string ability_name;
     std::optional<std::string> animation = "default_cast_point";
-    std::optional<std::string> backswing_animation = "idle";
+    std::optional<std::string> backswing_animation = "default_backswing";
     TargetDecalType target_decal_type;
     float radius;
     float angle;
