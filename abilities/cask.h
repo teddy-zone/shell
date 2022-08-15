@@ -133,7 +133,7 @@ struct CaskAbilityProto : public AbilityProto
     virtual void init(EntityRef entity, SystemInterface* iface) 
     {
         entity.cmp<CompAbilityInstance>()->proto = std::make_shared<CaskInstanceProto>();
-        entity.cmp<CompAbility>()->cast_range = 50;
+        entity.cmp<CompAbility>()->cast_range = 8;
         entity.cmp<CompAbility>()->cast_point = 0.1;
         entity.cmp<CompAbility>()->backswing = 0.1;
         entity.cmp<CompAbility>()->cooldown = 6;
