@@ -448,6 +448,7 @@ struct EnemyUnitProto : public UnitProto
         //entity.cmp<CompPosition>()->scale = glm::vec3(1.2, 1.2, 1.2);
         entity.cmp<CompPhysics>()->has_collision = false;
         entity.cmp<CompPhysics>()->has_gravity = false;
+        entity.cmp<CompBounds>()->set_bounds(glm::vec3(10));
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(sphere_mesh);
 
         entity.cmp<CompTeam>()->team = 2;
@@ -503,6 +504,7 @@ struct EnemyUnitProto2 : public UnitProto
         entity.cmp<CompPhysics>()->has_collision = false;
         entity.cmp<CompPhysics>()->has_gravity = false;
         entity.cmp<CompStaticMesh>()->mesh.set_mesh(sphere_mesh);
+        entity.cmp<CompBounds>()->set_bounds(glm::vec3(10));
 
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompBasicEnemyAI>()->vision_range = 25;
@@ -542,6 +544,7 @@ struct HeavyEnemyUnit : public UnitProto
         std::shared_ptr<bgfx::Mesh> sphere_mesh = std::make_shared<bgfx::Mesh>();
         sphere_mesh->load_obj("sphere.obj", true);
         sphere_mesh->set_solid_color_by_hex(0x600000);
+        entity.cmp<CompBounds>()->set_bounds(glm::vec3(5));
 
         //entity.cmp<CompPosition>()->scale = glm::vec3(1.2, 1.2, 1.2);
         entity.cmp<CompPhysics>()->has_collision = false;
@@ -551,7 +554,7 @@ struct HeavyEnemyUnit : public UnitProto
         entity.cmp<CompTeam>()->team = 2;
         entity.cmp<CompBasicEnemyAI>()->vision_range = 25;
         entity.cmp<CompAttacker>()->attack_ability.cmp<CompAbility>()->cast_range = 3.0;
-        entity.cmp<CompBounds>()->set_bounds(glm::vec3(2, 2, 20));
+        entity.cmp<CompBounds>()->set_bounds(glm::vec3(5, 5, 20));
         /*
         auto cn_proto = std::make_shared<CaskAbilityProto>();
         entity.cmp<CompAbilitySet>()->abilities[0] = iface->add_entity_from_proto(cn_proto.get());
@@ -616,7 +619,6 @@ struct NPCProto : public ActorProto
 
         entity.cmp<CompStaticMesh>()->mesh.set_id(entity.get_id());
         entity.cmp<CompPosition>()->scale = glm::vec3(0.25);
-        entity.cmp<CompBounds>()->bounds = glm::vec3(5);
 
         entity.cmp<CompDialog>()->dialog.push_back("!!!?!!?");
         entity.cmp<CompDialog>()->dialog.push_back("do my microscopic lensed light sensitive sensors deceive me?");

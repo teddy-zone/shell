@@ -154,7 +154,7 @@ public:
         }
         auto& snowfall_comps = get_array<CompSnowfall>();
         auto& camera = get_array<CompCamera>()[0].graphics_camera;
-        auto weather_comps = get_array<CompWeather>();
+        auto& weather_comps = get_array<CompWeather>();
         for (auto& snowfall_comp : snowfall_comps)
         {
             
