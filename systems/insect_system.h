@@ -110,12 +110,14 @@ struct PillBugProto : public InsectProto
         entity.cmp<CompPhysics>()->has_gravity = false;
         entity.cmp<CompPhysics>()->has_collision = false;
 
+        /*
         Sound new_sound;
         new_sound.path = "sounds/fly.wav";
         new_sound.trigger = true;
         new_sound.range = 5;
         new_sound.loop = true;
         entity.cmp<CompVoice>()->sounds["fly"] = new_sound;
+        */
 
         auto cube_mesh = std::make_shared<bgfx::Mesh>();
         cube_mesh->load_obj("cube.obj");
@@ -153,6 +155,8 @@ struct FlyProto : public InsectProto
         new_sound.trigger = true;
         new_sound.range = 5;
         new_sound.loop = true;
+        new_sound.sound_name = "fly";
+        new_sound.volume = 0.2;
         entity.cmp<CompVoice>()->sounds["fly"] = new_sound;
 
         auto cube_mesh = std::make_shared<bgfx::Mesh>();

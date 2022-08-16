@@ -118,13 +118,39 @@ public:
             graphics_comp.set_cursor(CursorType::DefaultArrow);
         }
 
+        auto& camera = get_array<CompCamera>()[0];
+		auto hover_ray = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
+			keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
+		auto full_hover_ray = ray::New(camera.graphics_camera.get_position(), hover_ray);
+		auto hover_result = _interface->fire_ray(full_hover_ray, ray::HitType::DynamicOnly);
+        bool found_hover = false;
+        if (hover_result)
+        {
+			auto my_team = 0;
+			if (auto* my_teamp_comp = command_comp->sibling<CompTeam>())
+			{
+				my_team = my_teamp_comp->team;
+			}
+            if (auto* hover_team_comp = hover_result.value().entity.cmp<CompTeam>())
+            {
+                if (hover_team_comp->team != my_team)
+                {
+                    selected_unit_comps[0].hovered_object = hover_result.value().entity;
+                    found_hover = true;
+                }
+            }
+        }
+        if (!found_hover)
+        {
+            selected_unit_comps[0].hovered_object = EntityRef();
+        }
+
         {
             // Left click!
             if (keystate.push[0] && caster_comp)
             {
                 if (attacker_comp->attack_targeting)
                 {
-                    auto& camera = get_array<CompCamera>()[0];
                     auto click_ray = camera.graphics_camera.get_ray(keystate.mouse_pos_x * 1.0f / camera.graphics_camera._width,
                         keystate.mouse_pos_y * 1.0f / camera.graphics_camera._height);
                     auto full_ray = ray::New(camera.graphics_camera.get_position(), click_ray);
