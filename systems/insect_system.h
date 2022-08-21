@@ -254,7 +254,7 @@ public:
         {
             if (_interface->get_current_game_time() - last_spawn > spawn_delay)
             {
-                if (level_comps.size() && insect_comps.size() < 10)
+                if (level_comps.size() && insect_comps.size() < 10 && level_comps[0].path.size() )
                 {
 					auto fly_proto = std::make_shared<FlyProto>();
 					auto fly_entity = _interface->add_entity_from_proto(fly_proto.get());

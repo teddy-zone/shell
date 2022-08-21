@@ -5,6 +5,7 @@
 struct CompProceduralLevel : public Component
 {
 	bool generated;
+	bool stuff_placed = false;
 	int length;
 	float x_amplitude;
 	float y_amplitude;

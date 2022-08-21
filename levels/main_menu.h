@@ -32,10 +32,13 @@ public:
 
     MainMenuState menu_state = MainMenuState::Main;
 
+    SysMainMenu()
+    {
+        _type_name = "main_menu_system";
+    }
 
     virtual void update(double dt) override
     {
-
     }
 
 
@@ -144,6 +147,7 @@ public:
                             _interface->unload_level("TestLevel");
                             _interface->load_level("BaseLevel");
                             _interface->load_level("ProcTestLevel");
+                            _interface->delete_system("main_menu_system");
                             menu_state = MainMenuState::None;
                         }
                         else
@@ -320,7 +324,7 @@ public:
             entity.cmp<CompStaticMesh>()->set_visibility(false);
         }
 
-        auto ray_result = _interface->fire_ray(ray::New(player_pos + glm::vec3(0, 0, 10), glm::vec3(0, 0, -1)), ray::HitType::StaticOnly, 100);
+        //auto ray_result = _interface->fire_ray(ray::New(player_pos + glm::vec3(0, 0, 10), glm::vec3(0, 0, -1)), ray::HitType::StaticOnly, 100);
 
         if (status_comp.active_character)
         {
@@ -338,6 +342,7 @@ public:
             }
 
             auto& camera = get_array<CompCamera>()[0];
+            camera.mode = CameraMode::Free;
             camera.graphics_camera.set_position(player_pos + glm::vec3(10,-1,-2));
             camera.graphics_camera.set_position(player_pos + glm::vec3(15,-1,-0.5));
             camera.graphics_camera.set_look_target(player_pos + glm::vec3(0,0,2));

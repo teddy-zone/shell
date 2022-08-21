@@ -119,7 +119,7 @@ struct UnitProto : public ActorProto
         entity.cmp<CompBounty>()->exp_bounty = 300;
         entity.cmp<CompBounds>()->bounds = glm::vec3(5);
 
-        entity.cmp<CompDialog>()->dialog.push_back("Hello. How are you!?");
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("Hello. How are you!?"));
         entity.cmp<CompDialog>()->active = false;
 
 
@@ -189,6 +189,12 @@ struct UnitProto : public ActorProto
             [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
         {
             knock_up_animation(skeleton, dt, iface, 10.0);
+        }
+        ;
+        entity.cmp<CompSkeletalMeshNew>()->animations["stool_sit"] =
+            [](CompSkeletalMeshNew& skeleton, double dt, SystemInterface* iface)
+        {
+            stool_sit_animation(skeleton, dt, iface, 10.0);
         }
         ;
 
@@ -620,17 +626,17 @@ struct NPCProto : public ActorProto
         entity.cmp<CompStaticMesh>()->mesh.set_id(entity.get_id());
         entity.cmp<CompPosition>()->scale = glm::vec3(0.25);
 
-        entity.cmp<CompDialog>()->dialog.push_back("!!!?!!?");
-        entity.cmp<CompDialog>()->dialog.push_back("do my microscopic lensed light sensitive sensors deceive me?");
-        entity.cmp<CompDialog>()->dialog.push_back("haven't seen a bluto down here ways for, uh, i'd say 3 eras!");
-        entity.cmp<CompDialog>()->dialog.push_back("the blues sure coulda sent one that's not so shockingly ugly though");
-        entity.cmp<CompDialog>()->dialog.push_back("say, you pretty good at killing?");
-        entity.cmp<CompDialog>()->dialog.push_back("we've had a serious wave of these simple-headed red rellas taken over this area lately that could use some killing");
-        entity.cmp<CompDialog>()->dialog.push_back("i'd do it but I've just been so darn busy with my rock collection that I just can't seem to make the time");
-        entity.cmp<CompDialog>()->dialog.push_back("what?! you're not interested?");
-        entity.cmp<CompDialog>()->dialog.push_back("what if I told you thoses ding-dong red goons drop cold hard cash whenever you steal their last bit of previous red life?");
-        entity.cmp<CompDialog>()->dialog.push_back("i tell ya, i'd be rich from those hare brained dimbos if i wasn't so dang busy with my massive and impressive rock collection");
-        entity.cmp<CompDialog>()->dialog.push_back("speaking of which, i really must get back to it");
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("!!!?!!?"));
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("do my microscopic lensed light sensitive sensors deceive me?"));
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("haven't seen a bluto down here ways for, uh, i'd say 3 eras!"));
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("the blues sure coulda sent one that's not so shockingly ugly though"));
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("say, you pretty good at killing?"));
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("we've had a serious wave of these simple-headed red rellas taken over this area lately that could use some killing"));
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("i'd do it but I've just been so darn busy with my rock collection that I just can't seem to make the time"));
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("what?! you're not interested?"));
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("what if I told you thoses ding-dong red goons drop cold hard cash whenever you steal their last bit of previous red life?"));
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("i tell ya, i'd be rich from those hare brained dimbos if i wasn't so dang busy with my massive and impressive rock collection"));
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("speaking of which, i really must get back to it"));
 
         entity.cmp<CompDialog>()->active = false;
         

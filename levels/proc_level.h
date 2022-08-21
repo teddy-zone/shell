@@ -17,6 +17,7 @@ public:
     ProcTestLevel():
         Level("ProcTestLevel")
     {
+        std::cout << "LEVELLLLLLL : " << _level << "\n";
     }
 
     virtual void level_init() override
@@ -48,11 +49,11 @@ public:
         auto& proc_levels = get_array<CompProceduralLevel>();
 
 
-        static bool player_placed = false;
-        if (player_array.size() && !player_placed && proc_levels.size())
+        if (player_array.size() && !proc_levels[0].stuff_placed && proc_levels.size())
         {
             if (proc_levels[0].generated)
             {
+                proc_levels[0].stuff_placed = true;
                 /*
 				LightEntityProto light_proto2(glm::vec3(40, 40, 80));
 				auto light_entity2 = _interface->add_entity_from_proto(&light_proto2);
@@ -74,7 +75,6 @@ public:
                 auto& player1 = get_array<CompPlayer>()[0];
                 player1.sibling<CompPosition>()->pos = proc_levels[0].spawn_point;
                 get_array<CompCamera>()[0].set_look_target(player1.sibling<CompPosition>()->pos, true);
-                player_placed = true;
                 bool noodle_placed = false;
                 glm::vec3 noodle_shop_location;
                 for (auto& [yi, bottom_loc] : proc_levels[0].y_indexed_path_bottom_edges)

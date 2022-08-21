@@ -40,7 +40,8 @@ class SysAttachment : public System
                         {
                             if (auto* other_pos_comp = attached_entity.cmp<CompPosition>())
                             {
-                                my_pos_comp->pos = other_pos_comp->pos + attachment_component.position_offset;
+                                //my_pos_comp->pos = other_pos_comp->pos + attachment_component.position_offset;
+                                my_pos_comp->pos = other_pos_comp->relative_to_global(attachment_component.position_offset);
                             }
                         }
                         else
