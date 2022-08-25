@@ -65,9 +65,21 @@ struct NoodleStandProto : public ActorProto
         entity.cmp<CompBounds>()->bounds = temp_bounds;
         entity.cmp<CompBounds>()->is_static = true;
 
-        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("Test1"));
-        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("Test2"));
-        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("Test3"));
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("hi stranger."));
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("what'll it be?"));
+        //entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("Test3"));
+
+        auto shop_box = std::make_shared<DialogBoxCustom>();
+        shop_box->lambda = [iface](EntityRef speaker, EntityRef speakee, float& t, bool last_dialog, CompKeyState& keystate)
+        {
+            iface->get_array<CompCamera>()[0].mode = CameraMode::TopDown;
+            speakee.cmp<CompSkeletalMeshNew>()->set_animation("idle", iface->get_current_game_time());
+            iface->get_array<CompCamera>()[0].set_look_target(speakee.cmp<CompPosition>()->pos, true);
+            return true;
+        };
+        entity.cmp<CompDialog>()->dialog.push_back(shop_box);
+
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("thanks for stoppin by."));
 
         auto exit_box = std::make_shared<DialogBoxCustom>();
         exit_box->lambda = [iface](EntityRef speaker, EntityRef speakee, float& t, bool last_dialog, CompKeyState& keystate)
@@ -77,7 +89,6 @@ struct NoodleStandProto : public ActorProto
             iface->get_array<CompCamera>()[0].set_look_target(speakee.cmp<CompPosition>()->pos, true);
             return true;
         };
-
         entity.cmp<CompDialog>()->dialog.push_back(exit_box);
 
         auto coin_proto = std::make_shared<CoinProto>();

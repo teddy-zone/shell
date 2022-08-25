@@ -14,7 +14,7 @@ public:
 
     const float notification_duration = 4.0;
     const int widget_margin = 10;
-    const int ability_widget_height = 150;
+    const int ability_widget_height = 180;
     const float last_level_up_blink_period = 0.4;
 	const int status_width = 20;
 	const int status_widget_height = status_width + 30;
@@ -216,10 +216,10 @@ public:
 
                 bool active = true;
 
-                constexpr int health_bar_width = 200;
-                constexpr int health_bar_height = 20;
-                constexpr int mana_bar_width = 200;
-                constexpr int mana_bar_height = 15;
+                constexpr int health_bar_width = 300;
+                constexpr int health_bar_height = 30;
+                constexpr int mana_bar_width = 300;
+                constexpr int mana_bar_height = 22;
 
                 const int ability_width = 100;
                 const int widget_height = ability_widget_height;
@@ -232,6 +232,7 @@ public:
                 const ImVec2 p = ImGui::GetCursorScreenPos();
                 if (auto* health_comp = ab_set->sibling<CompHealth>())
                 {
+                    ImGui::PushFont(CompWidget::fonts["bahnschrift_small"]);
                     int current_health_width = health_bar_width*health_comp->health_percentage/100.0;
                     int max_disp_health = 100;
                     int cur_disp_health = health_comp->health_percentage;
@@ -244,11 +245,13 @@ public:
                     ImDrawList* draw_list = ImGui::GetWindowDrawList();
                     draw_list->AddRectFilled(p, ImVec2(p.x + health_bar_width, p.y + health_bar_height), ImColor(0,0,0));
                     draw_list->AddRectFilled(ImVec2(p.x+1, p.y+1), ImVec2(p.x + current_health_width - 2, p.y + health_bar_height - 2), ImColor(255,0,0));
-                    draw_list->AddText(ImGui::GetIO().FontDefault, 14, ImVec2(p.x + 5, p.y), ImColor(255,255,255), health_text.c_str(), health_text.c_str() + health_text.size(), 200, nullptr);
+                    draw_list->AddText(ImGui::GetIO().FontDefault, 26, ImVec2(p.x + 5, p.y), ImColor(255,255,255), health_text.c_str(), health_text.c_str() + health_text.size(), 200, nullptr);
+                    ImGui::PopFont();
                 }
                 // END HEALTH BAR
                 if (auto* mana_comp = ab_set->sibling<CompMana>())
                 {
+                    ImGui::PushFont(CompWidget::fonts["bahnschrift_small"]);
                     int current_mana_width = mana_bar_width*mana_comp->mana_percentage/100.0;
                     int max_disp_mana = 100;
                     int cur_disp_mana = mana_comp->mana_percentage;
@@ -262,7 +265,8 @@ public:
                     ImVec2 mp(p.x, p.y + health_bar_height);
                     draw_list->AddRectFilled(ImVec2(mp.x, mp.y), ImVec2(mp.x + mana_bar_width, mp.y + mana_bar_height), ImColor(0,0,0));
                     draw_list->AddRectFilled(ImVec2(mp.x+1, mp.y+1), ImVec2(mp.x + current_mana_width - 2, mp.y + mana_bar_height - 2), ImColor(0,0,255));
-                    draw_list->AddText(ImGui::GetIO().FontDefault, 12, ImVec2(mp.x + 5, mp.y), ImColor(255,255,255), mana_text.c_str(), mana_text.c_str() + mana_text.size(), 200, nullptr);
+                    draw_list->AddText(ImGui::GetIO().FontDefault, 18, ImVec2(mp.x + 5, mp.y), ImColor(255,255,255), mana_text.c_str(), mana_text.c_str() + mana_text.size(), 200, nullptr);
+                    ImGui::PopFont();
                 }
                 ImGui::Dummy(ImVec2(health_bar_width + mana_bar_width + 10, health_bar_height + mana_bar_height + 10));
 
@@ -337,8 +341,8 @@ public:
             if (auto* inventory = entity.cmp<CompInventory>())
             {
                 bool active = true;
-                int widget_height = 180;
-                int widget_width = 250;
+                int widget_height = 200;
+                int widget_width = 280;
                 ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width - (10 + widget_width), CompWidget::window_height - (10 + widget_height)));
                 //ImGui::SetNextWindowPos(ImVec2(CompWidget::window_width - (10 + widget_width), 10));
                 ImGui::SetNextWindowSize(ImVec2(widget_width, widget_height));
@@ -359,7 +363,7 @@ public:
                 for (auto& item : inventory->items)
                 {
                     index++;
-                    ImGui::ImageButton(0, ImVec2(widget_height/2 - 30, widget_height/2 - 50));
+                    ImGui::ImageButton(0, ImVec2((widget_width - 50)/3 - 5, widget_height/2 - 55));
                     {
                         //ImGui::Text((std::string("CD: ") + std::to_string(ab->current_cooldown.value())).c_str());
                     }
@@ -367,7 +371,7 @@ public:
                     {
                         if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
                         {
-                            auto item_tooltip = create_item_tooltip(item);
+                            create_item_tooltip(item);
                         }
                         if (!item.cmp<CompItem>()->has_charges)
                         {
@@ -393,7 +397,7 @@ public:
         }
     }
 
-    std::string create_item_tooltip(EntityRef& in_item_entity)
+    void create_item_tooltip(EntityRef& in_item_entity)
     {
         ImGui::BeginTooltip();
         if (auto* item_comp = in_item_entity.cmp<CompItem>())

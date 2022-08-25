@@ -79,16 +79,16 @@ public:
                     }
 
                     ImGui::Begin("Main Menu", &active,  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-                    if (ImGui::Button("New Game", ImVec2(main_menu_width-10, choice_height)))
+                    if (ImGui::Button("n e w  g a m e", ImVec2(main_menu_width-10, choice_height)))
                     {
                         menu_state = MainMenuState::CharacterSelect;
                         anim_t = -1;
                     }
-                    if (ImGui::Button("Options", ImVec2(main_menu_width-10, choice_height)))
+                    if (ImGui::Button("o p t i o n s", ImVec2(main_menu_width-10, choice_height)))
                     {
                         menu_state = MainMenuState::Options;
                     }
-                    if (ImGui::Button("Quit", ImVec2(main_menu_width-10, choice_height)))
+                    if (ImGui::Button("q u i t", ImVec2(main_menu_width-10, choice_height)))
                     {
                         _interface->quit_game();
                     }
@@ -117,7 +117,14 @@ public:
 
                     for (auto& [character_name, entity] : status_comp.preview_entities)
                     {
-                        if (ImGui::Selectable(character_name.c_str(), &status_comp.button_status[character_name], 0, button_size))
+                        std::string name = character_name;
+                        std::string spaced_name = "";
+                        for (auto& c : name)
+                        {
+                            spaced_name += tolower(c);
+                            spaced_name += " ";
+                        }
+                        if (ImGui::Selectable(spaced_name.c_str(), &status_comp.button_status[character_name], 0, button_size))
                         {
                             for (auto& [other_character_name, select_status] : status_comp.button_status)
                             {
@@ -130,8 +137,8 @@ public:
                     }
                     ImGui::PopStyleVar();
 
-                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2,0.55,0.3,1.0));
-                    if (ImGui::Button("Start Game", button_size))
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.4,0.55,0.45,1.0));
+                    if (ImGui::Button("s t a r t  g a m e", button_size))
                     {
                         if (status_comp.active_character)
                         {
@@ -157,8 +164,9 @@ public:
                     }
                     ImGui::PopStyleColor(1);
 
-                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2,0.1,0.3,1.0));
-                    if (ImGui::Button("Back", button_size))
+                    //ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2,0.1,0.1,1.0));
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5,0.3,0.3,1.0));
+                    if (ImGui::Button("b a c k", button_size))
                     {
                         menu_state = MainMenuState::Main;
                         anim_t = -1.0;
@@ -170,15 +178,15 @@ public:
             case MainMenuState::Options:
                 {
                     ImGui::Begin("Options", &active, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-                    if (ImGui::Button("Video", button_size))
+                    if (ImGui::Button("v i d e o", button_size))
                     {
                         menu_state = MainMenuState::VideoOptions;
                     }
-                    if (ImGui::Button("Audio", button_size))
+                    if (ImGui::Button("a u d i o", button_size))
                     {
                         menu_state = MainMenuState::AudioOptions;
                     }
-                    if (ImGui::Button("Back", button_size))
+                    if (ImGui::Button("b a c k", button_size))
                     {
                         menu_state = MainMenuState::Main;
                     }
@@ -274,15 +282,46 @@ public:
     }
     void draw_title()
     {
+        auto cur_time = _interface->get_current_game_time();
+        int div_two = int(cur_time / 0.25);
+        std::mt19937 gen(div_two);
+        std::uniform_int_distribution dist(-7, 7);
         bool active = true;
         auto title_window_pos = glm::vec2(CompWidget::window_width/2 - main_menu_width/2, CompWidget::window_height/2 - main_menu_height/2 - 150);
-        ImGui::SetNextWindowPos(ImVec2(title_window_pos.x, title_window_pos.y));
-        ImGui::SetNextWindowSize(ImVec2(350, 78));
-        ImGui::PushFont(CompWidget::fonts["swansea"]);
-        ImGui::Begin("Title", &active,  ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-        ImGui::Text("b l u t o");
-        ImGui::PopFont();
-        ImGui::End();
+
+        {
+            ImGui::SetNextWindowPos(ImVec2(title_window_pos.x + dist(gen), title_window_pos.y + dist(gen)));
+            ImGui::SetNextWindowSize(ImVec2(380, 120));
+            ImGui::PushFont(CompWidget::fonts["bahnschrift_big"]);
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0,242.0/255,0.0,1.0));
+            ImGui::Begin("Title1", &active, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+            ImGui::Text("BLUTO");
+            ImGui::PopStyleColor();
+            ImGui::PopFont();
+            ImGui::End();
+        }
+        {
+            ImGui::SetNextWindowPos(ImVec2(title_window_pos.x + dist(gen), title_window_pos.y + dist(gen)));
+            ImGui::SetNextWindowSize(ImVec2(380, 120));
+            ImGui::PushFont(CompWidget::fonts["bahnschrift_big"]);
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0,242.0/255,0.0,1.0));
+            ImGui::Begin("Title2", &active, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+            ImGui::Text("BLUTO");
+            ImGui::PopStyleColor();
+            ImGui::PopFont();
+            ImGui::End();
+        }
+        {
+            ImGui::SetNextWindowPos(ImVec2(title_window_pos.x, title_window_pos.y));
+            ImGui::SetNextWindowSize(ImVec2(380, 120));
+            ImGui::PushFont(CompWidget::fonts["bahnschrift_big"]);
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0,174.0/255,201.0/255,1.0));
+            ImGui::Begin("Title3", &active, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+            ImGui::Text("BLUTO");
+            ImGui::PopStyleColor();
+            ImGui::PopFont();
+            ImGui::End();
+        }
     }
 };
 
