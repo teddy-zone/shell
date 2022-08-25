@@ -11,8 +11,7 @@
 #include "team_component.h"
 #include "caster_component.h"
 #include "shop_inventory.h"
-#include "materials/box_mat/VertexShader.glsl.h"
-#include "materials/box_mat/FragmentShader.glsl.h"
+#include "coin_proto.h"
 
 struct NoodleStandProto : public ActorProto
 {
@@ -31,7 +30,8 @@ struct NoodleStandProto : public ActorProto
                     uint32_t(type_id<CompSpotlight>),
                     uint32_t(type_id<CompAnimation>),
                     uint32_t(type_id<CompPickupee>),
-                    uint32_t(type_id<CompLifetime>)
+                    uint32_t(type_id<CompLifetime>),
+                    uint32_t(type_id<CompDialog>),
             }};
         append_components(unit_components);
     }
@@ -40,7 +40,7 @@ struct NoodleStandProto : public ActorProto
     {
         auto facing_angle = atan2(facing_direction.x, -facing_direction.y);
         auto noodle_stand_mesh = std::make_shared<bgfx::Mesh>();
-        noodle_stand_mesh->load_obj("noodle_shop.obj", false);
+        noodle_stand_mesh->load_obj("noodle_stand.obj", false);
         auto* noodle_mesh = entity.cmp<CompStaticMesh>();
         noodle_mesh->mesh.set_mesh(noodle_stand_mesh);
         noodle_mesh->mesh.set_id(-1);
@@ -64,5 +64,59 @@ struct NoodleStandProto : public ActorProto
 
         entity.cmp<CompBounds>()->bounds = temp_bounds;
         entity.cmp<CompBounds>()->is_static = true;
+
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("hi stranger."));
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("what'll it be?"));
+        //entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("Test3"));
+
+        auto shop_box = std::make_shared<DialogBoxCustom>();
+        shop_box->lambda = [iface](EntityRef speaker, EntityRef speakee, float& t, bool last_dialog, CompKeyState& keystate)
+        {
+            iface->get_array<CompCamera>()[0].mode = CameraMode::TopDown;
+            speakee.cmp<CompSkeletalMeshNew>()->set_animation("idle", iface->get_current_game_time());
+            iface->get_array<CompCamera>()[0].set_look_target(speakee.cmp<CompPosition>()->pos, true);
+            return true;
+        };
+        entity.cmp<CompDialog>()->dialog.push_back(shop_box);
+
+        entity.cmp<CompDialog>()->dialog.push_back(std::make_shared<DialogBoxString>("thanks for stoppin by."));
+
+        auto exit_box = std::make_shared<DialogBoxCustom>();
+        exit_box->lambda = [iface](EntityRef speaker, EntityRef speakee, float& t, bool last_dialog, CompKeyState& keystate)
+        {
+            iface->get_array<CompCamera>()[0].mode = CameraMode::TopDown;
+            speakee.cmp<CompSkeletalMeshNew>()->set_animation("idle", iface->get_current_game_time());
+            iface->get_array<CompCamera>()[0].set_look_target(speakee.cmp<CompPosition>()->pos, true);
+            return true;
+        };
+        entity.cmp<CompDialog>()->dialog.push_back(exit_box);
+
+        auto coin_proto = std::make_shared<CoinProto>();
+        /*
+        auto coin_entity = iface->add_entity_from_proto(coin_proto.get());
+        coin_entity.cmp<CompAttachment>()->type = AttachmentType::Attacher;
+        coin_entity.cmp<CompAttachment>()->attached_entities.push_back(entity);
+        coin_entity.cmp<CompAttachment>()->position_offset = glm::vec3(3.7, -7.4, 2.5);
+        coin_entity.cmp<CompAnimation>()->offset_enabled = false;
+        coin_entity.cmp<CompLifetime>()->lifetime = 100;
+        coin_entity.cmp<CompPosition>()->scale = glm::vec3(5);
+        */
+        
+        entity.cmp<CompInteractable>()->interact_range = 30;
+        entity.cmp<CompInteractable>()->interaction_callback = 
+            [] (SystemInterface* _interface, EntityRef interactor, EntityRef interactee) 
+            {
+                interactor.cmp<CompCommand>()->set_command(StopCommand());
+                interactor.cmp<CompNav>()->stop(_interface->get_current_game_time());
+                auto noodle_shop_pointing_vector = glm::normalize(interactee.cmp<CompPosition>()->relative_to_global(glm::vec3(0, -1, 0)) - interactee.cmp<CompPosition>()->pos);
+                auto perp_vec = glm::normalize(glm::cross(noodle_shop_pointing_vector, glm::vec3(0, 0, 1)));
+                _interface->get_array<CompCamera>()[0].mode = CameraMode::Free;
+                _interface->get_array<CompCamera>()[0].graphics_camera.set_position(interactee.cmp<CompPosition>()->pos + noodle_shop_pointing_vector * 15 + perp_vec*4 + glm::vec3(0,0,0.7));
+                _interface->get_array<CompCamera>()[0].set_look_target(interactee.cmp<CompPosition>()->pos + glm::vec3(0,0,5));
+                interactor.cmp<CompPosition>()->pos = interactee.cmp<CompPosition>()->relative_to_global(glm::vec3(3.7, -7.4, 2.3));
+                interactor.cmp<CompSkeletalMeshNew>()->set_animation("stool_sit", _interface->get_current_game_time());
+                interactee.cmp<CompDialog>()->active = true;
+                interactee.cmp<CompDialog>()->interactor = interactor;
+            };
     }
 };

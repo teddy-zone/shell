@@ -47,8 +47,9 @@ struct WeatherEntityProto : public EntityProto
         wind_sound.loop = true;
         wind_sound.trigger = true;
         wind_sound.range = 100;
-        wind_sound.volume = 0.15;
+        wind_sound.volume = 0.1;
         wind_sound.spatial = false;
+        wind_sound.sound_name = "wind";
         entity.cmp<CompVoice>()->sounds["wind"] = wind_sound;
         //entity.cmp<CompWeather>()->state = WeatherState::Rain;
 
@@ -57,7 +58,7 @@ struct WeatherEntityProto : public EntityProto
         rain_sound.loop = true;
         rain_sound.trigger = true;
         rain_sound.range = 100;
-        rain_sound.volume = 0.65;
+        rain_sound.volume = 0.1;
         rain_sound.spatial = false;
         rain_sound.sound_name = "rain";
         entity.cmp<CompVoice>()->sounds["rain"] = rain_sound;
@@ -67,10 +68,11 @@ struct WeatherEntityProto : public EntityProto
         cicada_sound.loop = true;
         cicada_sound.trigger = true;
         cicada_sound.range = 100;
-        cicada_sound.volume = 0.55;
+        cicada_sound.volume = 0.1;
         cicada_sound.spatial = false;
+        wind_sound.sound_name = "cicada";
         entity.cmp<CompVoice>()->sounds["cicada"] = cicada_sound;
 
-        entity.cmp<CompWeather>()->state = WeatherState::Rain;
+        entity.cmp<CompWeather>()->state = WeatherState::Snow;
     }
 };
