@@ -15,7 +15,7 @@ class SysLevelGeneration : public LoadingSystem
 		std::vector<float>* triangle_floats;
 		glm::vec3 bmin;
 		glm::vec3 bmax;
-		glm::mat3 rot;
+		glm::mat3 rot = glm::mat4(1);
 		glm::vec3 bounds;
 		int num_triangles;
 		int current_node_array_size = 1;
@@ -47,10 +47,10 @@ public:
 		auto& procedural_level_components = get_array<CompProceduralLevel>();
 		for (auto& proc_level : procedural_level_components)
 		{
-			if (!proc_level.generated)
+			if (!proc_level.generated && !do_work)
 			{
+				proc_level.sibling<CompLoading>()->is_loading = true;
 				generate_level(proc_level);
-				proc_level.generated = true;
 			}
 		}
 	}
@@ -215,6 +215,7 @@ public:
 
 		state.bmin = mesh_component->mesh.get_mesh()->_bmin;
 		state.bmax = mesh_component->mesh.get_mesh()->_bmax;
+		state.bounds = state.bmax - state.bmin;
 		state.max_dim = std::max(state.bounds.x, std::max(state.bounds.y, state.bounds.z));
 		//auto tri_oct_comp = octree::vector_to_octree(mesh_component->mesh.get_mesh()->_octree_vertices, mesh_component->mesh.get_mesh()->_bmin, mesh_component->mesh.get_mesh()->_bmax, glm::mat3(1));
 
@@ -296,8 +297,10 @@ public:
 	{
 		auto* mesh_component = state.level_entity.cmp<CompStaticMesh>();
 		auto& proc_level = *state.level_entity.cmp<CompProceduralLevel>();
+		proc_level.sibling<CompLoading>()->is_loading = false;
 		mesh_component->tri_octree = state.tri_octree;
 		state.level_bgfx_mesh->set_solid_color(glm::vec4(0.5, 0.5, 0.7, 1));
+		proc_level.generated = true;
 
 		proc_level.sibling<CompBounds>()->is_loaded = false;
 		proc_level.sibling<CompBounds>()->bounds = state.level_bgfx_mesh->_bmax - state.level_bgfx_mesh->_bmin;

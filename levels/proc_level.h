@@ -29,7 +29,8 @@ public:
                     uint32_t(type_id<CompBounds>),
                     uint32_t(type_id<CompVoice>),
                     uint32_t(type_id<CompProceduralLevel>),
-                    uint32_t(type_id<CompPickupee>)
+                    uint32_t(type_id<CompPickupee>),
+                    uint32_t(type_id<CompLoading>)
             });
 
         proc_level_entity.cmp<CompProceduralLevel>()->generated = false;
@@ -48,7 +49,10 @@ public:
         auto& player_array = get_array<CompPlayer>();
         auto& proc_levels = get_array<CompProceduralLevel>();
 
-
+        if (proc_levels.empty())
+        {
+            return;
+        }
         if (player_array.size() && !proc_levels[0].stuff_placed && proc_levels.size())
         {
             if (proc_levels[0].generated)
@@ -94,6 +98,29 @@ public:
                     }
                 }
 
+                bool vend_placed = false;
+                glm::vec3 vender_location;
+                for (auto& [yi, bottom_loc] : proc_levels[0].y_indexed_path_bottom_edges)
+                {
+                    auto top_loc = proc_levels[0].y_indexed_path_top_edges[yi];
+                    float width = glm::length(top_loc - bottom_loc);
+                    if (width > 20 && yi > 100 && !vend_placed)
+                    {
+                        auto norm = proc_levels[0].y_indexed_path_bottom_normals[yi];
+                        auto spawn_point = proc_levels[0].y_indexed_path_bottom_edges[yi] + 2 * norm;
+                        if (glm::length(spawn_point - noodle_shop_location) < 150)
+                        {
+                            continue;
+                        }
+                        auto vender_proto = std::make_shared<VendingMachineProto>(glm::vec3(norm.y, -norm.x, norm.z));
+                        auto vender_entity = _interface->add_entity_from_proto(vender_proto.get());
+                        vender_entity.cmp<CompPosition>()->pos = spawn_point;
+                        vender_entity.cmp<CompPosition>()->pos.z = proc_levels[0].floor_level + 1.0;
+                        vend_placed = true;
+                        vender_location = vender_entity.cmp<CompPosition>()->pos;
+                    }
+                }
+
                 for (auto& [yi, bottom_loc] : proc_levels[0].y_indexed_path_bottom_edges)
                 {
                     auto top_loc = proc_levels[0].y_indexed_path_top_edges[yi];
@@ -112,7 +139,8 @@ public:
                         {
                             new_pos = top_loc + glm::vec3(location, 0, proc_levels[0].floor_level + 1.0);
                         }
-                        if (glm::length(new_pos - noodle_shop_location) > 20)
+                        if (glm::length(new_pos - noodle_shop_location) > 20
+                            && glm::length(new_pos - vender_location) > 20)
                         {
                             float white_draw = rock_placement_draw(gen);
                             auto rock_proto = std::make_shared<RockProto>(rock_number + 1);
